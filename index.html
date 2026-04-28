@@ -221,7 +221,12 @@ body {
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: background 0.12s;
-  padding: 4px; overflow: hidden;
+  padding: 4px; overflow: hidden; position: relative;
+}
+.record-badge {
+  position: absolute; top: 3px; right: 3px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #2eab6e; pointer-events: none; flex-shrink: 0;
 }
 .period-cell:active { background: var(--bg3); }
 .period-cell.filled { background: rgba(84,72,232,0.07); }
@@ -285,6 +290,22 @@ body {
 .nav-item:active { background: var(--bg3); }
 .nav-icon { font-size: 20px; }
 .nav-label { font-size: 10px; letter-spacing: 0.03em; }
+
+/* ── RECORDS PANEL ── */
+.records-month-nav { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 16px 16px 10px; }
+.records-month-label { font-size: 15px; font-weight: 500; min-width: 120px; text-align: center; }
+.records-filter-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 16px 12px; border-bottom: 1px solid var(--border); }
+.records-filter-btn { padding: 5px 12px; border-radius: 12px; border: 1px solid var(--border2); background: var(--surface); font-size: 12px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; color: var(--text2); transition: background 0.12s; }
+.records-filter-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.records-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.record-entry { background: var(--bg2); border-radius: 10px; border: 1px solid var(--border); padding: 10px 12px; cursor: pointer; }
+.record-entry:active { opacity: 0.75; }
+.record-entry-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+.record-entry-date { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.record-entry-period { font-size: 11px; background: var(--surface); padding: 1px 6px; border-radius: 6px; color: var(--text2); }
+.record-entry-subject { font-size: 12px; font-weight: 500; color: var(--accent2); }
+.record-entry-text { font-size: 13px; color: var(--text); line-height: 1.55; }
+.records-empty { text-align: center; color: var(--text3); font-size: 13px; padding: 48px 16px; }
 
 /* ── MODAL ── */
 .modal-overlay {
@@ -538,7 +559,6 @@ body {
         <button id="nextWeek">›</button>
       </div>
       <div class="top-bar-right">
-        <button class="icon-btn" id="addEventBtn" title="予定追加">＋</button>
         <button class="icon-btn" id="openSettings" title="設定">⚙</button>
       </div>
     </div>
@@ -582,9 +602,9 @@ body {
       <span class="nav-icon">☑</span>
       <span class="nav-label">To Do</span>
     </button>
-    <button class="nav-item" id="navSettings2">
-      <span class="nav-icon">⚙</span>
-      <span class="nav-label">設定</span>
+    <button class="nav-item" id="navRecords">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">記録</span>
     </button>
   </div>
 
@@ -670,6 +690,23 @@ body {
         <button class="btn btn-danger" id="clearNoteBtn">クリア</button>
         <button class="btn btn-ghost" id="cancelNoteBtn">キャンセル</button>
         <button class="btn btn-primary" id="confirmNoteBtn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECORD MODAL -->
+  <div class="modal-overlay" id="recordModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="recordModalTitle">記録を追加</div>
+      <div class="modal-subtitle" id="recordModalSub"></div>
+      <div class="form-field">
+        <textarea class="form-input" id="recordInput" rows="4" placeholder="授業の気づき・メモを入力…" style="resize:none;min-height:100px"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="clearRecordBtn">削除</button>
+        <button class="btn btn-ghost" id="cancelRecordBtn">キャンセル</button>
+        <button class="btn btn-primary" id="confirmRecordBtn">保存</button>
       </div>
     </div>
   </div>
@@ -767,6 +804,22 @@ body {
     <div style="height:40px"></div>
   </div>
 
+  <!-- RECORDS PANEL -->
+  <div class="settings-panel" id="recordsPanel">
+    <div class="settings-header">
+      <button class="icon-btn" id="closeRecordsPanelBtn">‹</button>
+      <h2>記録</h2>
+    </div>
+    <div class="records-month-nav">
+      <button class="icon-btn" id="recordsPrevMonth">‹</button>
+      <span class="records-month-label" id="recordsMonthLabel">--</span>
+      <button class="icon-btn" id="recordsNextMonth">›</button>
+    </div>
+    <div class="records-filter-row" id="recordsFilterRow"></div>
+    <div class="records-list" id="recordsList"></div>
+    <div style="height:40px"></div>
+  </div>
+
   <div class="toast" id="toast"></div>
 </div>
 
@@ -822,6 +875,7 @@ let state = {
   todos: [],
   fixedTimetable: {},
   holidays: {},
+  records: {},
   currentWeekStart: null,
   // Subject modal
   selectedCell: null,
@@ -831,7 +885,13 @@ let state = {
   // Event modal
   selectedEventCat: 'gyoji',
   // Note modal
-  noteTarget: null
+  noteTarget: null,
+  // Record modal
+  recordTarget: null,
+  // Records panel
+  recordsYear: new Date().getFullYear(),
+  recordsMonth: new Date().getMonth(),
+  recordsFilterGenre: null
 };
 
 // ══════════════════════════════════════════
@@ -846,6 +906,7 @@ function save() {
     localStorage.setItem('ts_notes',          JSON.stringify(state.notes));
     localStorage.setItem('ts_todos',          JSON.stringify(state.todos));
     localStorage.setItem('ts_fixedTimetable', JSON.stringify(state.fixedTimetable));
+    localStorage.setItem('ts_records',       JSON.stringify(state.records));
   } catch(e) { showToast('保存に失敗しました'); }
 }
 
@@ -869,6 +930,8 @@ function load() {
     if (n)  state.notes          = JSON.parse(n);
     if (td) state.todos          = JSON.parse(td);
     if (ft) state.fixedTimetable = JSON.parse(ft);
+    const rc = localStorage.getItem('ts_records');
+    if (rc) state.records = JSON.parse(rc);
   } catch(e) {}
 }
 
@@ -1000,6 +1063,28 @@ function renderEventBanners() {
   });
 }
 
+// ══════════════════════════════════════════
+// LONG PRESS HELPER
+// ══════════════════════════════════════════
+
+function addLongPress(el, cb) {
+  let timer = null;
+  let startX = 0, startY = 0;
+  el.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    timer = setTimeout(() => { timer = null; cb(e); }, 600);
+  }, { passive: true });
+  el.addEventListener('touchmove', e => {
+    if (timer && (Math.abs(e.touches[0].clientX - startX) > 10 || Math.abs(e.touches[0].clientY - startY) > 10)) {
+      clearTimeout(timer); timer = null;
+    }
+  }, { passive: true });
+  el.addEventListener('touchend', () => { clearTimeout(timer); timer = null; }, { passive: true });
+  el.addEventListener('touchcancel', () => { clearTimeout(timer); timer = null; }, { passive: true });
+  el.addEventListener('contextmenu', e => { e.preventDefault(); cb(e); });
+}
+
 function renderPeriodLabels() {
   const periods = state.settings.periods;
   const ph = getPeriodHeight();
@@ -1029,7 +1114,7 @@ function renderPeriodLabels() {
   const diary = document.createElement('div');
   diary.className = 'period-label special';
   diary.style.height = ph + 'px';
-  diary.innerHTML = `<span class="period-num" style="font-size:8px">今日<br>一言</span>`;
+  diary.innerHTML = `<span class="period-num" style="font-size:8px">アイデア<br>メモ</span>`;
   labels.appendChild(diary);
 }
 
@@ -1080,7 +1165,15 @@ function renderBody() {
           icon.textContent = '+';
           cell.appendChild(icon);
         }
+        if (state.records[key]) {
+          const badge = document.createElement('div');
+          badge.className = 'record-badge';
+          cell.appendChild(badge);
+        }
         cell.addEventListener('click', () => openSubjectModal(dk, i));
+        const periodLabel = `${i+1}限`;
+        const subjectName = subjectData ? subjectData.name : '';
+        addLongPress(cell, () => openRecordModal(key, periodLabel, subjectName));
         col.appendChild(cell);
 
         if (i === lunchAfterIdx) col.appendChild(makeSpecialCell(dk, 'lunch', ph));
@@ -1128,10 +1221,17 @@ function makeSpecialCell(dateStr, type, ph) {
   } else {
     const lbl = document.createElement('div');
     lbl.className = 'note-empty-label';
-    lbl.textContent = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : '今日の一言';
+    lbl.textContent = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : 'アイデアメモ';
     cell.appendChild(lbl);
   }
+  if (state.records[key]) {
+    const badge = document.createElement('div');
+    badge.className = 'record-badge';
+    cell.appendChild(badge);
+  }
   cell.addEventListener('click', () => openNoteModal(dateStr, type));
+  const typeLabel = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : 'アイデアメモ';
+  addLongPress(cell, () => openRecordModal(key, typeLabel, ''));
   return cell;
 }
 
@@ -1408,7 +1508,7 @@ function openNoteModal(dateStr, type) {
   const key = `${dateStr}_${type}`;
   document.getElementById('noteInput').value = state.notes[key] || '';
   const d = new Date(dateStr + 'T00:00:00');
-  const label = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : type === 'diary' ? '今日の一言' : type === 'holiday' ? (state.holidays[dateStr] || '祝日') : '終日メモ';
+  const label = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : type === 'diary' ? 'アイデアメモ' : type === 'holiday' ? (state.holidays[dateStr] || '祝日') : '終日メモ';
   document.getElementById('noteModalTitle').textContent =
     `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） ${label}`;
   document.getElementById('noteModalSub').textContent = 'メモを自由に入力できます';
@@ -1441,6 +1541,183 @@ document.getElementById('noteModal').addEventListener('click', function(e) {
 });
 
 // ══════════════════════════════════════════
+// RECORD MODAL
+// ══════════════════════════════════════════
+
+function openRecordModal(key, label, subject) {
+  state.recordTarget = { key, label, subject };
+  document.getElementById('recordInput').value = state.records[key] || '';
+  document.getElementById('recordModalTitle').textContent = label;
+  document.getElementById('recordModalSub').textContent = subject || '';
+  document.getElementById('recordModal').classList.add('open');
+  setTimeout(() => document.getElementById('recordInput').focus(), 300);
+}
+
+function closeRecordModal() {
+  document.getElementById('recordModal').classList.remove('open');
+  state.recordTarget = null;
+}
+
+document.getElementById('confirmRecordBtn').addEventListener('click', () => {
+  if (!state.recordTarget) return;
+  const text = document.getElementById('recordInput').value.trim();
+  if (text) { state.records[state.recordTarget.key] = text; } else { delete state.records[state.recordTarget.key]; }
+  save(); render(); closeRecordModal();
+  showToast('記録を保存しました');
+});
+
+document.getElementById('clearRecordBtn').addEventListener('click', () => {
+  if (!state.recordTarget) return;
+  delete state.records[state.recordTarget.key];
+  save(); render(); closeRecordModal();
+  showToast('記録を削除しました');
+});
+
+document.getElementById('cancelRecordBtn').addEventListener('click', closeRecordModal);
+document.getElementById('recordModal').addEventListener('click', function(e) {
+  if (e.target === this) closeRecordModal();
+});
+
+// ══════════════════════════════════════════
+// RECORDS PANEL
+// ══════════════════════════════════════════
+
+function openRecordsPanel() {
+  state.recordsYear = new Date().getFullYear();
+  state.recordsMonth = new Date().getMonth();
+  state.recordsFilterGenre = null;
+  renderRecordsPanel();
+  document.getElementById('recordsPanel').classList.add('open');
+  document.getElementById('navRecords').classList.add('active');
+  document.getElementById('navWeek').classList.remove('active');
+  document.getElementById('navTodo').classList.remove('active');
+}
+
+function closeRecordsPanel() {
+  document.getElementById('recordsPanel').classList.remove('open');
+  document.getElementById('navRecords').classList.remove('active');
+  document.getElementById('navWeek').classList.add('active');
+}
+
+function renderRecordsPanel() {
+  const y = state.recordsYear;
+  const m = state.recordsMonth;
+  document.getElementById('recordsMonthLabel').textContent =
+    `${y}年${m + 1}月`;
+
+  // Genre filter buttons
+  const filterRow = document.getElementById('recordsFilterRow');
+  filterRow.innerHTML = '';
+  const allBtn = document.createElement('button');
+  allBtn.className = 'records-filter-btn' + (state.recordsFilterGenre === null ? ' active' : '');
+  allBtn.textContent = 'すべて';
+  allBtn.addEventListener('click', () => { state.recordsFilterGenre = null; renderRecordsPanel(); });
+  filterRow.appendChild(allBtn);
+  state.settings.genres.forEach((g, gi) => {
+    const btn = document.createElement('button');
+    btn.className = 'records-filter-btn' + (state.recordsFilterGenre === gi ? ' active' : '');
+    btn.textContent = g.name;
+    btn.style.borderColor = g.color;
+    if (state.recordsFilterGenre === gi) btn.style.background = g.color + '30';
+    btn.addEventListener('click', () => { state.recordsFilterGenre = gi; renderRecordsPanel(); });
+    filterRow.appendChild(btn);
+  });
+
+  // Build list of records for this month
+  const list = document.getElementById('recordsList');
+  list.innerHTML = '';
+  const entries = [];
+
+  Object.entries(state.records).forEach(([key, text]) => {
+    // key format: YYYY-MM-DD_p0, YYYY-MM-DD_lunch, YYYY-MM-DD_after, YYYY-MM-DD_diary
+    const match = key.match(/^(\d{4}-\d{2}-\d{2})_(.+)$/);
+    if (!match) return;
+    const dateStr = match[1];
+    const periodPart = match[2];
+    const d = new Date(dateStr + 'T00:00:00');
+    if (d.getFullYear() !== y || d.getMonth() !== m) return;
+
+    let periodLabel = '';
+    let subjectName = '';
+    let genreIdx = -1;
+
+    if (periodPart.startsWith('p')) {
+      const pi = parseInt(periodPart.slice(1));
+      periodLabel = `${pi + 1}限`;
+      const cellData = state.timetable[key.replace('_' + periodPart, '_p' + pi)] || state.timetable[cellKey(dateStr, pi)];
+      if (cellData) {
+        subjectName = cellData.name;
+        // Find genre index
+        state.settings.genres.forEach((g, gi) => {
+          if (g.subjects && g.subjects.some(s => s.name === cellData.name)) genreIdx = gi;
+        });
+      }
+    } else {
+      periodLabel = periodPart === 'lunch' ? '昼休み' : periodPart === 'after' ? '放課後' : 'アイデアメモ';
+    }
+
+    if (state.recordsFilterGenre !== null && genreIdx !== state.recordsFilterGenre) return;
+
+    entries.push({ dateStr, d, periodLabel, subjectName, text, key });
+  });
+
+  entries.sort((a, b) => a.d - b.d || a.periodLabel.localeCompare(b.periodLabel));
+
+  if (entries.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'records-empty';
+    empty.textContent = 'この月の記録はありません';
+    list.appendChild(empty);
+    return;
+  }
+
+  const DAY_JP = ['日','月','火','水','木','金','土'];
+  entries.forEach(entry => {
+    const el = document.createElement('div');
+    el.className = 'record-entry';
+    const meta = document.createElement('div');
+    meta.className = 'record-entry-meta';
+    const dateLbl = document.createElement('span');
+    dateLbl.className = 'record-entry-date';
+    dateLbl.textContent = `${entry.d.getMonth()+1}/${entry.d.getDate()}（${DAY_JP[entry.d.getDay()]}）`;
+    const periodLbl = document.createElement('span');
+    periodLbl.className = 'record-entry-period';
+    periodLbl.textContent = entry.periodLabel;
+    meta.appendChild(dateLbl);
+    meta.appendChild(periodLbl);
+    if (entry.subjectName) {
+      const subjLbl = document.createElement('span');
+      subjLbl.className = 'record-entry-subject';
+      subjLbl.textContent = entry.subjectName;
+      meta.appendChild(subjLbl);
+    }
+    const textEl = document.createElement('div');
+    textEl.className = 'record-entry-text';
+    textEl.textContent = entry.text;
+    el.appendChild(meta);
+    el.appendChild(textEl);
+    el.addEventListener('click', () => {
+      closeRecordsPanel();
+      openRecordModal(entry.key, entry.periodLabel, entry.subjectName);
+    });
+    list.appendChild(el);
+  });
+}
+
+document.getElementById('closeRecordsPanelBtn').addEventListener('click', closeRecordsPanel);
+document.getElementById('recordsPrevMonth').addEventListener('click', () => {
+  state.recordsMonth--;
+  if (state.recordsMonth < 0) { state.recordsMonth = 11; state.recordsYear--; }
+  renderRecordsPanel();
+});
+document.getElementById('recordsNextMonth').addEventListener('click', () => {
+  state.recordsMonth++;
+  if (state.recordsMonth > 11) { state.recordsMonth = 0; state.recordsYear++; }
+  renderRecordsPanel();
+});
+document.getElementById('navRecords').addEventListener('click', openRecordsPanel);
+
+// ══════════════════════════════════════════
 // EVENT MODAL
 // ══════════════════════════════════════════
 
@@ -1452,7 +1729,6 @@ function openEventModal(dateStr) {
   document.getElementById('eventModal').classList.add('open');
 }
 
-document.getElementById('addEventBtn').addEventListener('click', () => openEventModal(dateKey(new Date())));
 document.getElementById('eventGutter').addEventListener('click', () => openEventModal(dateKey(new Date())));
 
 document.querySelectorAll('.category-pill').forEach(btn => {
@@ -1490,7 +1766,6 @@ function openSettings() { renderSettings(); document.getElementById('settingsPan
 function closeSettingsPanel() { document.getElementById('settingsPanel').classList.remove('open'); }
 
 document.getElementById('openSettings').addEventListener('click', openSettings);
-document.getElementById('navSettings2').addEventListener('click', openSettings);
 document.getElementById('closeSettings').addEventListener('click', closeSettingsPanel);
 
 function renderSettings() {
@@ -1742,10 +2017,12 @@ document.getElementById('importFile').addEventListener('change', function() {
 // ══════════════════════════════════════════
 
 function openTodoPanel() {
+  closeRecordsPanel();
   renderTodoList();
   document.getElementById('todoPanel').classList.add('open');
   document.getElementById('navTodo').classList.add('active');
   document.getElementById('navWeek').classList.remove('active');
+  document.getElementById('navRecords').classList.remove('active');
 }
 
 function closeTodoPanel() {
@@ -1947,7 +2224,7 @@ document.getElementById('todayBtn').addEventListener('click', () => {
   animateWeekChange(diff > 0 ? 1 : -1, () => { state.currentWeekStart = target; save(); });
 });
 document.getElementById('navWeek').addEventListener('click', () => {
-  closeTodoPanel(); closeSettingsPanel();
+  closeTodoPanel(); closeSettingsPanel(); closeRecordsPanel();
 });
 
 // ══════════════════════════════════════════
