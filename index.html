@@ -58,43 +58,21 @@ body {
   flex-shrink: 0;
   gap: 12px;
 }
-
-.top-bar-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.week-nav {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
+.top-bar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.week-nav { display: flex; align-items: center; gap: 6px; }
 .week-nav button {
   background: var(--surface);
   border: 1px solid var(--border2);
   color: var(--text2);
-  width: 32px;
-  height: 32px;
+  width: 32px; height: 32px;
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   transition: background 0.15s;
 }
 .week-nav button:active { background: var(--bg3); }
-
-.week-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
-  color: var(--text2);
-  white-space: nowrap;
-}
-
+.week-label { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text2); white-space: nowrap; }
 .today-btn {
   background: var(--accent-dim);
   border: 1px solid rgba(84,72,232,0.25);
@@ -108,62 +86,34 @@ body {
   transition: background 0.15s;
 }
 .today-btn:active { background: rgba(84,72,232,0.18); }
-
 .icon-btn {
   background: var(--surface);
   border: 1px solid var(--border2);
   color: var(--text2);
-  width: 36px;
-  height: 36px;
+  width: 36px; height: 36px;
   border-radius: 10px;
   font-size: 18px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   transition: background 0.15s;
 }
 .icon-btn:active { background: var(--bg3); }
 
-/* ── MAIN GRID AREA ── */
-.grid-wrapper {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
+/* ── MAIN GRID ── */
+.grid-wrapper { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 
-/* Day headers */
 .day-header-row {
-  display: flex;
-  flex-shrink: 0;
+  display: flex; flex-shrink: 0;
   border-bottom: 1px solid var(--border2);
   overflow: hidden;
 }
-
-.time-gutter {
-  width: 44px;
-  flex-shrink: 0;
-  border-right: 1px solid var(--border);
-}
-
-.days-scroll-header {
-  flex: 1;
-  overflow: hidden;
-}
-
-.days-header-inner {
-  display: flex;
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-}
-
+.time-gutter { width: 44px; flex-shrink: 0; border-right: 1px solid var(--border); }
+.days-scroll-header { flex: 1; overflow: hidden; }
+.days-header-inner { display: flex; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
 .day-col-header {
   flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   height: var(--day-h);
   gap: 2px;
   cursor: pointer;
@@ -172,34 +122,14 @@ body {
   padding: 6px 4px;
 }
 .day-col-header:active { background: var(--bg3); }
-
-.day-name {
-  font-size: 10px;
-  color: var(--text3);
-  letter-spacing: 0.05em;
-}
-
-.day-num {
-  font-family: 'DM Mono', monospace;
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--text2);
-  line-height: 1;
-}
-
+.day-name { font-size: 10px; color: var(--text3); letter-spacing: 0.05em; }
+.day-num { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 500; color: var(--text2); line-height: 1; }
 .day-col-header.today .day-num {
-  color: #fff;
-  background: var(--accent);
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: #fff; background: var(--accent);
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
 }
-
 .day-col-header.today .day-name { color: var(--accent); }
-
 .day-col-header.sat .day-name,
 .day-col-header.sat .day-num { color: #1a6fc4; }
 .day-col-header.sat { background: rgba(26,111,196,0.05); }
@@ -208,322 +138,121 @@ body {
 .day-col-header.sun { background: rgba(217,79,53,0.05); }
 
 /* Event banner row */
-.event-banner-row {
-  display: flex;
-  flex-shrink: 0;
-  border-bottom: 1px solid var(--border);
-}
-
+.event-banner-row { display: flex; flex-shrink: 0; border-bottom: 1px solid var(--border); }
 .event-gutter {
-  width: 44px;
-  flex-shrink: 0;
+  width: 44px; flex-shrink: 0;
   border-right: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.12s;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.12s;
 }
 .event-gutter:active { background: var(--bg3); }
-
-.event-gutter-icon {
-  font-size: 11px;
-  color: var(--text3);
-}
-
-.days-scroll-events {
-  flex: 1;
-  overflow: hidden;
-}
-
-.days-events-inner {
-  display: flex;
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-}
-
+.event-gutter-icon { font-size: 11px; color: var(--text3); }
+.days-scroll-events { flex: 1; overflow: hidden; }
+.days-events-inner { display: flex; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
 .day-events-cell {
   flex-shrink: 0;
   padding: 4px 3px;
   border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  cursor: pointer;
-  transition: background 0.12s;
-  overflow: hidden;
+  display: flex; flex-direction: column; gap: 2px;
+  cursor: pointer; transition: background 0.12s; overflow: hidden;
 }
 .day-events-cell:active { background: var(--bg3); }
+.event-chip { font-size: 9px; padding: 2px 5px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; pointer-events: none; }
+.event-chip.gyoji  { background: var(--event-dim); color: var(--event); border-left: 2px solid var(--event); }
+.event-chip.task   { background: var(--task-dim);  color: var(--task);  border-left: 2px solid var(--task); }
+.event-chip.kōmu   { background: var(--accent-dim); color: var(--accent2); border-left: 2px solid var(--accent); }
 
-.event-chip {
-  font-size: 9px;
-  padding: 2px 5px;
-  border-radius: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.4;
-  pointer-events: none;
-}
-
-.event-chip.gyoji {
-  background: var(--event-dim);
-  color: var(--event);
-  border-left: 2px solid var(--event);
-}
-
-.event-chip.task {
-  background: var(--task-dim);
-  color: var(--task);
-  border-left: 2px solid var(--task);
-}
-
-.event-chip.kōmu {
-  background: var(--accent-dim);
-  color: var(--accent2);
-  border-left: 2px solid var(--accent);
-}
-
-/* Main timetable scroll */
-.timetable-scroll {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-}
-
-.timetable-inner {
-  display: flex;
-}
-
-/* Period labels */
-.period-labels {
-  width: 44px;
-  flex-shrink: 0;
-  border-right: 1px solid var(--border);
-}
-
+/* Timetable */
+.timetable-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+.timetable-inner { display: flex; }
+.period-labels { width: 44px; flex-shrink: 0; border-right: 1px solid var(--border); }
 .period-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 1px solid var(--border);
-  gap: 1px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border-bottom: 1px solid var(--border); gap: 1px;
 }
+.period-label.special { background: var(--bg3); border-top: 1px solid var(--border2); }
+.period-num { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--text3); text-align: center; line-height: 1.3; }
+.period-time { font-size: 8px; color: var(--text3); opacity: 0.7; }
 
-.period-label.special {
-  background: var(--bg3);
-  border-top: 1px solid var(--border2);
-}
-
-.period-num {
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text3);
-  text-align: center;
-  line-height: 1.3;
-}
-
-.period-time {
-  font-size: 8px;
-  color: var(--text3);
-  opacity: 0.7;
-}
-
-/* Days columns */
-.days-scroll-body {
-  flex: 1;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
-}
-
-.days-body-inner {
-  display: flex;
-  height: 100%;
-}
-
-.day-col-body {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--border);
-  scroll-snap-align: start;
-}
-
+.days-scroll-body { flex: 1; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+.days-body-inner { display: flex; height: 100%; }
+.day-col-body { flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid var(--border); scroll-snap-align: start; }
 .day-col-body.sat-col { background: rgba(26,111,196,0.04); }
 .day-col-body.sun-col { background: rgba(217,79,53,0.04); }
 
+.period-cell {
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.12s;
+  padding: 4px; overflow: hidden;
+}
+.period-cell:active { background: var(--bg3); }
+.period-cell.filled { background: rgba(84,72,232,0.07); }
+.period-cell.filled:active { background: rgba(84,72,232,0.14); }
+.period-cell.special-cell { background: var(--bg3); border-top: 1px solid var(--border2); flex-direction: column; }
+.period-cell.special-cell:active { background: var(--surface); }
+
+.subject-label { font-size: 11px; font-weight: 500; color: var(--accent2); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+.empty-cell-icon { font-size: 14px; color: var(--text3); opacity: 0; transition: opacity 0.15s; }
+.period-cell:active .empty-cell-icon { opacity: 0.5; }
+.note-text { font-size: 10px; color: var(--text2); text-align: center; line-height: 1.3; word-break: break-all; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; padding: 0 2px; }
+.note-empty-label { font-size: 9px; color: var(--text3); opacity: 0.45; }
+
 .weekend-cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.12s;
-  padding: 8px 4px;
-  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.12s;
+  padding: 8px 4px; overflow: hidden;
   border-bottom: 1px solid var(--border);
 }
 .weekend-cell:active { background: rgba(0,0,0,0.06); }
 
-.period-cell {
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.12s;
-  padding: 4px;
-  overflow: hidden;
-}
-
-.period-cell:active { background: var(--bg3); }
-
-.period-cell.filled {
-  background: rgba(84,72,232,0.07);
-}
-
-.period-cell.filled:active { background: rgba(84,72,232,0.14); }
-
-.period-cell.special-cell {
-  background: var(--bg3);
-  border-top: 1px solid var(--border2);
-  flex-direction: column;
-}
-.period-cell.special-cell:active { background: var(--surface); }
-
-.subject-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--accent2);
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-}
-
-.empty-cell-icon {
-  font-size: 14px;
-  color: var(--text3);
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-
-.period-cell:active .empty-cell-icon { opacity: 0.5; }
-
-.note-text {
-  font-size: 10px;
-  color: var(--text2);
-  text-align: center;
-  line-height: 1.3;
-  word-break: break-all;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  padding: 0 2px;
-}
-
-.note-empty-label {
-  font-size: 9px;
-  color: var(--text3);
-  opacity: 0.45;
-}
-
 /* ── BOTTOM NAV ── */
-.bottom-nav {
-  display: flex;
-  background: var(--bg2);
-  border-top: 1px solid var(--border2);
-  padding-bottom: var(--safe-bottom);
-  flex-shrink: 0;
-}
+.bottom-nav { display: flex; background: var(--bg2); border-top: 1px solid var(--border2); padding-bottom: var(--safe-bottom); flex-shrink: 0; }
 .nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 4px;
-  cursor: pointer;
-  gap: 3px;
-  transition: background 0.15s;
-  border: none;
-  background: none;
-  color: var(--text3);
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 10px 4px; cursor: pointer; gap: 3px;
+  transition: background 0.15s; border: none; background: none; color: var(--text3);
 }
-
 .nav-item.active { color: var(--accent); }
 .nav-item:active { background: var(--bg3); }
-
 .nav-icon { font-size: 20px; }
 .nav-label { font-size: 10px; letter-spacing: 0.03em; }
 
-/* ── MODAL OVERLAY ── */
+/* ── MODAL ── */
 .modal-overlay {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: flex-end;
-  z-index: 100;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
+  display: flex; align-items: flex-end;
+  z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s;
 }
-
-.modal-overlay.open {
-  opacity: 1;
-  pointer-events: all;
-}
-
+.modal-overlay.open { opacity: 1; pointer-events: all; }
 .modal-sheet {
-  width: 100%;
-  background: var(--bg2);
+  width: 100%; background: var(--bg2);
   border-radius: 20px 20px 0 0;
   border-top: 1px solid var(--border2);
   padding: 12px 20px calc(var(--safe-bottom) + 20px);
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  max-height: 80dvh;
-  overflow-y: auto;
+  max-height: 85dvh; overflow-y: auto;
 }
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.modal-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 16px; }
+.modal-title { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.modal-subtitle { font-size: 12px; color: var(--text3); margin-bottom: 16px; }
 
-.modal-overlay.open .modal-sheet {
-  transform: translateY(0);
+/* Genre / subject grids */
+.genre-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
 }
-
-.modal-handle {
-  width: 36px;
-  height: 4px;
-  background: var(--border2);
-  border-radius: 2px;
-  margin: 0 auto 16px;
-}
-
-.modal-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text);
-  margin-bottom: 4px;
-}
-
-.modal-subtitle {
-  font-size: 12px;
-  color: var(--text3);
-  margin-bottom: 16px;
-}
-
 .subject-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin-bottom: 12px;
 }
-
 .subject-chip {
   padding: 10px 6px;
   border-radius: 10px;
@@ -536,60 +265,67 @@ body {
   cursor: pointer;
   transition: all 0.12s;
 }
-
 .subject-chip:active { opacity: 0.7; }
-.subject-chip.selected {
-  border-color: var(--accent);
-  background: var(--accent-dim);
-  color: var(--accent);
-}
+.subject-chip.selected { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
 
-.subject-add-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.btn {
-  flex: 1;
-  padding: 13px;
+/* Genre chip (step 1) */
+.genre-chip {
+  padding: 12px 10px;
   border-radius: 12px;
-  font-size: 14px;
-  font-family: 'Noto Sans JP', sans-serif;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  transition: opacity 0.15s;
-}
-.btn:active { opacity: 0.7; }
-
-.btn-primary {
-  background: var(--accent);
-  color: #fff;
-}
-
-.btn-danger {
-  background: var(--event-dim);
-  color: var(--event);
-  border: 1px solid rgba(247,130,111,0.3);
-}
-
-.btn-ghost {
+  border: 2px solid transparent;
   background: var(--surface);
-  color: var(--text2);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Noto Sans JP', sans-serif;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.12s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+.genre-chip:active { opacity: 0.7; }
+.genre-chip-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* Back button row */
+.back-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.back-btn {
+  background: var(--surface);
   border: 1px solid var(--border2);
+  color: var(--text2);
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.back-btn:active { background: var(--bg3); }
+.step2-genre-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
 }
 
-/* ── SETTINGS PANEL ── */
+.subject-add-row { display: flex; gap: 8px; margin-bottom: 12px; }
+
+.modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+.btn { flex: 1; padding: 13px; border-radius: 12px; font-size: 14px; font-family: 'Noto Sans JP', sans-serif; font-weight: 500; cursor: pointer; border: none; transition: opacity 0.15s; }
+.btn:active { opacity: 0.7; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-danger { background: var(--event-dim); color: var(--event); border: 1px solid rgba(247,130,111,0.3); }
+.btn-ghost { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); }
+
+/* ── SETTINGS / TODO PANEL ── */
 .settings-panel {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: var(--bg);
   z-index: 200;
   transform: translateX(100%);
@@ -597,365 +333,129 @@ body {
   overflow-y: auto;
   padding-bottom: var(--safe-bottom);
 }
-
-.settings-panel.open {
-  transform: translateX(0);
-}
-
+.settings-panel.open { transform: translateX(0); }
 .settings-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: flex; align-items: center; gap: 12px;
   padding: calc(var(--safe-top) + 12px) 16px 14px;
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  background: var(--bg);
-  z-index: 1;
+  position: sticky; top: 0; background: var(--bg); z-index: 1;
 }
-
-.settings-header h2 {
-  font-size: 17px;
-  font-weight: 500;
-}
-
-.settings-section {
-  padding: 20px 16px 8px;
-}
-
-.settings-section-title {
-  font-size: 11px;
-  color: var(--text3);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
-.settings-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 13px 16px;
-  background: var(--bg2);
-  border-radius: 12px;
-  margin-bottom: 6px;
-  gap: 12px;
-}
-
-.settings-row-label {
-  font-size: 14px;
-  color: var(--text);
-}
-
-.settings-row-sub {
-  font-size: 12px;
-  color: var(--text3);
-  margin-top: 2px;
-}
-
-.settings-input {
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  color: var(--text);
-  padding: 7px 10px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-family: 'Noto Sans JP', sans-serif;
-  width: 80px;
-  text-align: center;
-}
-
-.toggle {
-  position: relative;
-  width: 44px;
-  height: 26px;
-  flex-shrink: 0;
-}
-
+.settings-header h2 { font-size: 17px; font-weight: 500; }
+.settings-section { padding: 20px 16px 8px; }
+.settings-section-title { font-size: 11px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; background: var(--bg2); border-radius: 12px; margin-bottom: 6px; gap: 12px; }
+.settings-row-label { font-size: 14px; color: var(--text); }
+.settings-row-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.settings-input { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: 7px 10px; border-radius: 8px; font-size: 14px; font-family: 'Noto Sans JP', sans-serif; width: 80px; text-align: center; }
+.toggle { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
 .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-
-.toggle-track {
-  position: absolute;
-  inset: 0;
-  background: var(--surface);
-  border-radius: 13px;
-  transition: background 0.2s;
-  cursor: pointer;
-  border: 1px solid var(--border2);
-}
-
+.toggle-track { position: absolute; inset: 0; background: var(--surface); border-radius: 13px; transition: background 0.2s; cursor: pointer; border: 1px solid var(--border2); }
 .toggle input:checked + .toggle-track { background: var(--accent); border-color: var(--accent); }
-
-.toggle-track::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  background: #fff;
-  border-radius: 50%;
-  transition: transform 0.2s;
-}
-
+.toggle-track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
 .toggle input:checked + .toggle-track::after { transform: translateX(18px); }
 
-/* Master list editor */
-.master-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+/* Master list */
+.master-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg2); border-radius: 10px; border: 1px solid var(--border); }
+.master-item-name { flex: 1; font-size: 14px; color: var(--text); }
+.master-item-del { color: var(--text3); font-size: 16px; cursor: pointer; padding: 4px; line-height: 1; background: none; border: none; }
 
-.master-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: var(--bg2);
-  border-radius: 10px;
-  border: 1px solid var(--border);
-}
-
-.color-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.master-item-name {
-  flex: 1;
-  font-size: 14px;
-  color: var(--text);
-}
-
-.master-item-del {
-  color: var(--text3);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 4px;
-  line-height: 1;
-  background: none;
-  border: none;
-}
-
-.add-item-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.add-input {
-  flex: 1;
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  color: var(--text);
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-family: 'Noto Sans JP', sans-serif;
-}
-
+.add-item-row { display: flex; gap: 8px; margin-top: 8px; }
+.add-input { flex: 1; background: var(--bg2); border: 1px solid var(--border2); color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 14px; font-family: 'Noto Sans JP', sans-serif; }
 .add-input::placeholder { color: var(--text3); }
+.add-btn { background: var(--accent-dim); border: 1px solid rgba(84,72,232,0.25); color: var(--accent); padding: 10px 16px; border-radius: 10px; font-size: 14px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
 
-.add-btn {
-  background: var(--accent-dim);
-  border: 1px solid rgba(84,72,232,0.25);
-  color: var(--accent);
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  cursor: pointer;
-  font-family: 'Noto Sans JP', sans-serif;
-}
-
-/* Period settings list */
-.period-settings-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.period-setting-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* Genre management in settings */
+.genre-block { margin-bottom: 10px; }
+.genre-block-header {
+  display: flex; align-items: center; gap: 10px;
   padding: 10px 14px;
   background: var(--bg2);
-  border-radius: 10px;
+  border-radius: 10px 10px 0 0;
   border: 1px solid var(--border);
+  border-bottom: none;
 }
-
-.period-setting-num {
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
-  color: var(--text3);
-  width: 24px;
-}
-
-.time-input {
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  color: var(--text);
-  padding: 6px 8px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-family: 'DM Mono', monospace;
-  width: 68px;
-  text-align: center;
-}
-
-.time-sep {
-  color: var(--text3);
-  font-size: 12px;
-}
-
-.period-del-btn {
-  margin-left: auto;
-  color: var(--text3);
-  font-size: 16px;
+.genre-color-input {
+  -webkit-appearance: none;
+  width: 26px; height: 26px;
+  border: 2px solid var(--border2);
+  border-radius: 50%;
   cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  flex-shrink: 0;
   background: none;
-  border: none;
-  padding: 4px;
 }
+.genre-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+.genre-color-input::-webkit-color-swatch { border: none; border-radius: 50%; }
+.genre-block-name { flex: 1; font-size: 14px; font-weight: 500; color: var(--text); }
+.genre-block-count { font-size: 11px; color: var(--text3); white-space: nowrap; }
 
-/* Export/import section */
-.data-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.genre-items-panel {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  padding: 8px 14px 10px;
 }
+.genre-item-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+.genre-item-row:last-of-type { border-bottom: none; }
+.genre-item-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.genre-item-name { flex: 1; font-size: 13px; color: var(--text); }
+.genre-item-del { color: var(--text3); font-size: 13px; cursor: pointer; background: none; border: none; padding: 4px; }
+.genre-add-row { display: flex; gap: 6px; margin-top: 8px; }
+.genre-add-input { flex: 1; background: var(--bg2); border: 1px solid var(--border2); color: var(--text); padding: 8px 10px; border-radius: 8px; font-size: 13px; font-family: 'Noto Sans JP', sans-serif; }
+.genre-add-input::placeholder { color: var(--text3); }
+.genre-add-btn { background: var(--accent-dim); border: 1px solid rgba(84,72,232,0.25); color: var(--accent); padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; white-space: nowrap; }
 
-.data-btn {
-  padding: 13px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-family: 'Noto Sans JP', sans-serif;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid var(--border2);
-  background: var(--bg2);
-  color: var(--text);
-  text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: background 0.15s;
-}
+/* Period settings */
+.period-settings-list { display: flex; flex-direction: column; gap: 6px; }
+.period-setting-row { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--bg2); border-radius: 10px; border: 1px solid var(--border); }
+.period-setting-num { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text3); width: 24px; }
+.time-input { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: 6px 8px; border-radius: 8px; font-size: 13px; font-family: 'DM Mono', monospace; width: 68px; text-align: center; }
+.time-sep { color: var(--text3); font-size: 12px; }
+.period-del-btn { margin-left: auto; color: var(--text3); font-size: 16px; cursor: pointer; background: none; border: none; padding: 4px; }
+
+/* Data */
+.data-actions { display: flex; flex-direction: column; gap: 8px; }
+.data-btn { padding: 13px 16px; border-radius: 12px; font-size: 14px; font-family: 'Noto Sans JP', sans-serif; font-weight: 500; cursor: pointer; border: 1px solid var(--border2); background: var(--bg2); color: var(--text); text-align: left; display: flex; align-items: center; gap: 10px; transition: background 0.15s; }
 .data-btn:active { background: var(--bg3); }
 .data-btn-icon { font-size: 18px; }
 
-/* ── EVENT ADD MODAL ── */
+/* Event modal */
 .event-modal .modal-sheet { padding-bottom: calc(var(--safe-bottom) + 20px); }
-
-.form-field {
-  margin-bottom: 14px;
-}
-
-.form-label {
-  font-size: 11px;
-  color: var(--text3);
-  letter-spacing: 0.06em;
-  margin-bottom: 6px;
-  display: block;
-}
-
-.form-input {
-  width: 100%;
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  color: var(--text);
-  padding: 11px 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-family: 'Noto Sans JP', sans-serif;
-}
-
+.form-field { margin-bottom: 14px; }
+.form-label { font-size: 11px; color: var(--text3); letter-spacing: 0.06em; margin-bottom: 6px; display: block; }
+.form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: 11px 12px; border-radius: 10px; font-size: 14px; font-family: 'Noto Sans JP', sans-serif; }
 .form-input:focus { outline: none; border-color: var(--accent); }
-
-.category-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-.category-pill {
-  padding: 7px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-family: 'Noto Sans JP', sans-serif;
-  cursor: pointer;
-  border: 1px solid var(--border2);
-  background: var(--surface);
-  color: var(--text2);
-  transition: all 0.12s;
-}
-
+.category-pills { display: flex; flex-wrap: wrap; gap: 7px; }
+.category-pill { padding: 7px 14px; border-radius: 20px; font-size: 12px; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; border: 1px solid var(--border2); background: var(--surface); color: var(--text2); transition: all 0.12s; }
 .category-pill.sel-gyoji { background: var(--event-dim); color: var(--event); border-color: rgba(217,79,53,0.35); }
-.category-pill.sel-task { background: var(--task-dim); color: var(--task); border-color: rgba(26,127,196,0.35); }
-.category-pill.sel-kōmu { background: var(--accent-dim); color: var(--accent); border-color: rgba(84,72,232,0.3); }
+.category-pill.sel-task  { background: var(--task-dim);  color: var(--task);  border-color: rgba(26,127,196,0.35); }
+.category-pill.sel-kōmu  { background: var(--accent-dim); color: var(--accent); border-color: rgba(84,72,232,0.3); }
 
 /* Toast */
 .toast {
   position: absolute;
   bottom: calc(var(--safe-bottom) + 80px);
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  color: var(--text);
-  padding: 10px 18px;
-  border-radius: 20px;
-  font-size: 13px;
-  white-space: nowrap;
-  opacity: 0;
-  transition: all 0.25s;
-  pointer-events: none;
-  z-index: 300;
+  left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--surface); border: 1px solid var(--border2); color: var(--text);
+  padding: 10px 18px; border-radius: 20px; font-size: 13px;
+  white-space: nowrap; opacity: 0; transition: all 0.25s;
+  pointer-events: none; z-index: 300;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* Todo items */
-.todo-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  background: var(--bg2);
-  border-radius: 10px;
-  border: 1px solid var(--border);
-}
+/* Todo */
+.todo-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--bg2); border-radius: 10px; border: 1px solid var(--border); }
+.todo-check { width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent); flex-shrink: 0; }
+.todo-text { flex: 1; font-size: 14px; color: var(--text); line-height: 1.4; }
+.todo-text.done { text-decoration: line-through; color: var(--text3); }
 
-.todo-check {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: var(--accent);
-  flex-shrink: 0;
-}
-
-.todo-text {
-  flex: 1;
-  font-size: 14px;
-  color: var(--text);
-  line-height: 1.4;
-}
-
-.todo-text.done {
-  text-decoration: line-through;
-  color: var(--text3);
-}
-
-/* App container */
-#app {
-  position: relative;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
+#app { position: relative; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
 </style>
 </head>
 <body>
@@ -977,8 +477,6 @@ body {
 
   <!-- MAIN GRID -->
   <div class="grid-wrapper">
-
-    <!-- Day headers -->
     <div class="day-header-row">
       <div class="time-gutter"></div>
       <div class="days-scroll-header" id="daysScrollHeader">
@@ -986,7 +484,6 @@ body {
       </div>
     </div>
 
-    <!-- Event banner row -->
     <div class="event-banner-row" id="eventBannerRow">
       <div class="event-gutter" id="eventGutter">
         <span class="event-gutter-icon">★</span>
@@ -996,7 +493,6 @@ body {
       </div>
     </div>
 
-    <!-- Timetable body -->
     <div class="timetable-scroll" id="timetableScroll">
       <div class="timetable-inner">
         <div class="period-labels" id="periodLabels"></div>
@@ -1005,7 +501,6 @@ body {
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- BOTTOM NAV -->
@@ -1024,23 +519,38 @@ body {
     </button>
   </div>
 
-  <!-- SUBJECT SELECT MODAL -->
+  <!-- SUBJECT SELECT MODAL (2-step) -->
   <div class="modal-overlay" id="subjectModal">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
       <div class="modal-title" id="subjectModalTitle">授業を選択</div>
       <div class="modal-subtitle" id="subjectModalSub"></div>
-      <div class="subject-grid" id="subjectGrid"></div>
-      <!-- 新規追加 -->
-      <div class="subject-add-row">
-        <input class="add-input" id="subjectNewInput" placeholder="新しい教科名…" autocomplete="off">
-        <button class="add-btn" id="subjectNewAddBtn">新規追加</button>
+
+      <!-- Step 1: Genre selection -->
+      <div id="genreStep">
+        <div class="genre-grid" id="genreGrid"></div>
       </div>
-      <!-- 自由入力 -->
+
+      <!-- Step 2: Item selection -->
+      <div id="itemStep" style="display:none">
+        <div class="back-row">
+          <button class="back-btn" id="backToGenreBtn">← 戻る</button>
+          <span class="step2-genre-label" id="step2GenreLabel"></span>
+        </div>
+        <div class="subject-grid" id="itemGrid"></div>
+        <!-- 新規追加（step2のみ） -->
+        <div class="subject-add-row">
+          <input class="add-input" id="subjectNewInput" placeholder="新しい項目名…" autocomplete="off">
+          <button class="add-btn" id="subjectNewAddBtn">新規追加</button>
+        </div>
+      </div>
+
+      <!-- 自由入力（常時表示） -->
       <div class="form-field">
         <label class="form-label">このコマのみ自由入力（マスターに追加しない）</label>
         <input class="form-input" id="subjectFreeText" placeholder="例：自習、補講、研修…" autocomplete="off">
       </div>
+
       <div class="modal-actions">
         <button class="btn btn-danger" id="clearCellBtn">削除</button>
         <button class="btn btn-ghost" id="cancelSubjectBtn">キャンセル</button>
@@ -1078,7 +588,7 @@ body {
     </div>
   </div>
 
-  <!-- NOTE MODAL (昼休み / 放課後) -->
+  <!-- NOTE MODAL (昼休み / 放課後 / 終日) -->
   <div class="modal-overlay" id="noteModal">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
@@ -1104,27 +614,20 @@ body {
 
     <div class="settings-section">
       <div class="settings-section-title">表示</div>
-
       <div class="settings-row">
-        <div>
-          <div class="settings-row-label">週の始まり</div>
-        </div>
+        <div><div class="settings-row-label">週の始まり</div></div>
         <select class="settings-input" id="weekStartSetting" style="width:auto;padding:7px 10px">
           <option value="1">月曜日</option>
           <option value="0">日曜日</option>
         </select>
       </div>
-
       <div class="settings-row">
-        <div>
-          <div class="settings-row-label">土・日を表示</div>
-        </div>
+        <div><div class="settings-row-label">土・日を表示</div></div>
         <label class="toggle">
           <input type="checkbox" id="showWeekendSetting">
           <span class="toggle-track"></span>
         </label>
       </div>
-
       <div class="settings-row" id="weekendPeriodsRow">
         <div>
           <div class="settings-row-label">土・日にも時間割を表示</div>
@@ -1145,12 +648,13 @@ body {
       </div>
     </div>
 
+    <!-- ジャンル管理 -->
     <div class="settings-section">
-      <div class="settings-section-title">教科マスターリスト</div>
-      <div class="master-list" id="subjectMasterList"></div>
-      <div class="add-item-row">
-        <input class="add-input" id="newSubjectInput" placeholder="教科名を入力…">
-        <button class="add-btn" id="addSubjectBtn">追加</button>
+      <div class="settings-section-title">ジャンル管理</div>
+      <div id="genreMasterList"></div>
+      <div class="add-item-row" style="margin-top:12px">
+        <input class="add-input" id="newGenreInput" placeholder="ジャンル名を入力…">
+        <button class="add-btn" id="addGenreBtn">追加</button>
       </div>
     </div>
 
@@ -1168,7 +672,6 @@ body {
         <input type="file" id="importFile" accept=".json" style="display:none">
       </div>
     </div>
-
     <div style="height:40px"></div>
   </div>
 
@@ -1188,14 +691,12 @@ body {
     <div style="height:40px"></div>
   </div>
 
-  <!-- TOAST -->
   <div class="toast" id="toast"></div>
-
 </div>
 
 <script>
 // ══════════════════════════════════════════
-// DEFAULT SETTINGS & DATA
+// DEFAULTS
 // ══════════════════════════════════════════
 
 const DEFAULTS = {
@@ -1211,17 +712,19 @@ const DEFAULTS = {
       { start: '13:25', end: '14:15' },
       { start: '14:25', end: '15:15' },
     ],
-    subjects: [
-      { name: '国語', color: '#f7826f' },
-      { name: '算数', color: '#6fccf7' },
-      { name: '理科', color: '#7cf7a0' },
-      { name: '社会', color: '#f7c96f' },
-      { name: '音楽', color: '#c96ff7' },
-      { name: '図工', color: '#f76fa0' },
-      { name: '体育', color: '#f7a06f' },
-      { name: '英語', color: '#6fa8f7' },
-      { name: '道徳', color: '#a0f7c9' },
-      { name: '総合', color: '#f7e56f' },
+    genres: [
+      {
+        name: '授業', color: '#5448e8',
+        items: ['国語', '算数', '理科', '社会', '音楽', '図工', '体育', '英語', '道徳', '総合']
+      },
+      {
+        name: '会議', color: '#1a7fc4',
+        items: ['職員会議', '学年会', '研修会']
+      },
+      {
+        name: 'その他', color: '#d94f35',
+        items: []
+      }
     ]
   },
   timetable: {},
@@ -1241,9 +744,13 @@ let state = {
   notes: {},
   todos: [],
   currentWeekStart: null,
+  // Subject modal
   selectedCell: null,
+  selectedGenreIdx: null,
   selectedSubject: null,
+  // Event modal
   selectedEventCat: 'gyoji',
+  // Note modal
   noteTarget: null
 };
 
@@ -1253,11 +760,11 @@ let state = {
 
 function save() {
   try {
-    localStorage.setItem('ts_settings', JSON.stringify(state.settings));
+    localStorage.setItem('ts_settings',  JSON.stringify(state.settings));
     localStorage.setItem('ts_timetable', JSON.stringify(state.timetable));
-    localStorage.setItem('ts_events', JSON.stringify(state.events));
-    localStorage.setItem('ts_notes', JSON.stringify(state.notes));
-    localStorage.setItem('ts_todos', JSON.stringify(state.todos));
+    localStorage.setItem('ts_events',    JSON.stringify(state.events));
+    localStorage.setItem('ts_notes',     JSON.stringify(state.notes));
+    localStorage.setItem('ts_todos',     JSON.stringify(state.todos));
   } catch(e) { showToast('保存に失敗しました'); }
 }
 
@@ -1268,7 +775,14 @@ function load() {
     const e  = localStorage.getItem('ts_events');
     const n  = localStorage.getItem('ts_notes');
     const td = localStorage.getItem('ts_todos');
-    if (s)  state.settings  = { ...DEFAULTS.settings, ...JSON.parse(s) };
+    if (s) {
+      const parsed = JSON.parse(s);
+      state.settings = { ...DEFAULTS.settings, ...parsed };
+      // Migration: old format had subjects, new format has genres
+      if (!state.settings.genres) {
+        state.settings.genres = JSON.parse(JSON.stringify(DEFAULTS.settings.genres));
+      }
+    }
     if (t)  state.timetable = JSON.parse(t);
     if (e)  state.events    = JSON.parse(e);
     if (n)  state.notes     = JSON.parse(n);
@@ -1300,9 +814,7 @@ function dateKey(date) {
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
 }
 
-function cellKey(dateStr, period) {
-  return `${dateStr}_p${period}`;
-}
+function cellKey(dateStr, period) { return `${dateStr}_p${period}`; }
 
 const DAY_NAMES = ['日','月','火','水','木','金','土'];
 
@@ -1327,16 +839,13 @@ function getPeriodHeight() {
   const scroll = document.getElementById('timetableScroll');
   const periods = state.settings.periods;
   const available = scroll.clientHeight || 400;
-  // +2 accounts for lunch and after-school rows
   return Math.max(40, Math.floor(available / (periods.length + 2)));
 }
 
 function render() {
   const ph = getPeriodHeight();
-  // Sync event banner row height with period height
   document.getElementById('eventBannerRow').style.minHeight = ph + 'px';
-  document.getElementById('daysScrollEvents').style.height = ph + 'px';
-
+  document.getElementById('daysScrollEvents').style.height  = ph + 'px';
   renderWeekLabel();
   renderHeaders();
   renderEventBanners();
@@ -1347,8 +856,8 @@ function render() {
 function renderWeekLabel() {
   const ws = state.currentWeekStart;
   const we = addDays(ws, 6);
-  const label = `${ws.getMonth()+1}/${ws.getDate()} – ${we.getMonth()+1}/${we.getDate()}`;
-  document.getElementById('weekLabel').textContent = label;
+  document.getElementById('weekLabel').textContent =
+    `${ws.getMonth()+1}/${ws.getDate()} – ${we.getMonth()+1}/${we.getDate()}`;
 }
 
 function renderHeaders() {
@@ -1374,17 +883,16 @@ function renderHeaders() {
 function renderEventBanners() {
   const days = getDaysToShow();
   const colW = getColWidth();
-  const ph = getPeriodHeight();
+  const ph   = getPeriodHeight();
   const inner = document.getElementById('daysEventsInner');
   inner.innerHTML = '';
   days.forEach(d => {
     const dk = dateKey(d);
     const cell = document.createElement('div');
     cell.className = 'day-events-cell';
-    cell.style.width = colW + 'px';
+    cell.style.width  = colW + 'px';
     cell.style.height = ph + 'px';
-    const dayEvents = state.events.filter(e => e.date === dk);
-    dayEvents.forEach(ev => {
+    state.events.filter(e => e.date === dk).forEach(ev => {
       const chip = document.createElement('div');
       chip.className = `event-chip ${ev.category}`;
       chip.textContent = ev.title;
@@ -1402,14 +910,12 @@ function renderPeriodLabels() {
   const labels = document.getElementById('periodLabels');
   labels.innerHTML = '';
   const lunchAfterIdx = Math.min(3, periods.length - 1);
-
   periods.forEach((p, i) => {
     const el = document.createElement('div');
     el.className = 'period-label';
     el.style.height = ph + 'px';
     el.innerHTML = `<span class="period-num">${i+1}</span><span class="period-time">${p.start}</span>`;
     labels.appendChild(el);
-
     if (i === lunchAfterIdx) {
       const lunch = document.createElement('div');
       lunch.className = 'period-label special';
@@ -1418,7 +924,6 @@ function renderPeriodLabels() {
       labels.appendChild(lunch);
     }
   });
-
   const after = document.createElement('div');
   after.className = 'period-label special';
   after.style.height = ph + 'px';
@@ -1430,10 +935,9 @@ function renderBody() {
   const days = getDaysToShow();
   const periods = state.settings.periods;
   const colW = getColWidth();
-  const ph = getPeriodHeight();
+  const ph   = getPeriodHeight();
   const inner = document.getElementById('daysBodyInner');
   inner.innerHTML = '';
-
   const lunchAfterIdx = Math.min(3, periods.length - 1);
 
   days.forEach(d => {
@@ -1469,17 +973,14 @@ function renderBody() {
           icon.textContent = '+';
           cell.appendChild(icon);
         }
-
         cell.addEventListener('click', () => openSubjectModal(dk, i));
         col.appendChild(cell);
 
-        if (i === lunchAfterIdx) {
-          col.appendChild(makeSpecialCell(dk, 'lunch', ph));
-        }
+        if (i === lunchAfterIdx) col.appendChild(makeSpecialCell(dk, 'lunch', ph));
       });
-
       col.appendChild(makeSpecialCell(dk, 'after', ph));
     } else {
+      // Weekend: single tappable cell
       const noteKey = `${dk}_weekend`;
       const noteText = state.notes[noteKey] || '';
       const cell = document.createElement('div');
@@ -1494,7 +995,6 @@ function renderBody() {
       cell.addEventListener('click', () => openNoteModal(dk, 'weekend'));
       col.appendChild(cell);
     }
-
     inner.appendChild(col);
   });
 }
@@ -1505,7 +1005,6 @@ function makeSpecialCell(dateStr, type, ph) {
   const cell = document.createElement('div');
   cell.className = 'period-cell special-cell';
   cell.style.height = ph + 'px';
-
   if (noteText) {
     const txt = document.createElement('div');
     txt.className = 'note-text';
@@ -1517,14 +1016,12 @@ function makeSpecialCell(dateStr, type, ph) {
     lbl.textContent = type === 'lunch' ? '昼休み' : '放課後';
     cell.appendChild(lbl);
   }
-
   cell.addEventListener('click', () => openNoteModal(dateStr, type));
   return cell;
 }
 
-// Sync horizontal scroll across header, events, body
 function syncScroll() {
-  const body = document.getElementById('daysScrollBody');
+  const body   = document.getElementById('daysScrollBody');
   const header = document.getElementById('daysScrollHeader');
   const events = document.getElementById('daysScrollEvents');
   body.addEventListener('scroll', () => {
@@ -1534,59 +1031,146 @@ function syncScroll() {
 }
 
 // ══════════════════════════════════════════
-// SUBJECT MODAL
+// SUBJECT MODAL (2-step: genre → item)
 // ══════════════════════════════════════════
 
 function openSubjectModal(dateStr, periodIdx) {
-  state.selectedCell = { dateStr, periodIdx };
+  state.selectedCell    = { dateStr, periodIdx };
+  state.selectedGenreIdx = null;
+  state.selectedSubject  = null;
+
   const key = cellKey(dateStr, periodIdx);
   const existing = state.timetable[key];
-  const existingInList = existing ? state.settings.subjects.find(s => s.name === existing.name) : null;
-
-  state.selectedSubject = (existing && existingInList) ? existing.name : null;
-
   const freeInput = document.getElementById('subjectFreeText');
-  freeInput.value = (existing && !existingInList) ? existing.name : '';
+  freeInput.value = '';
+
+  if (existing) {
+    // Try to match to a genre item
+    let matched = false;
+    state.settings.genres.forEach((g, gi) => {
+      if (!matched && g.items.includes(existing.name)) {
+        state.selectedGenreIdx = gi;
+        state.selectedSubject  = existing.name;
+        matched = true;
+      }
+    });
+    if (!matched) freeInput.value = existing.name;
+  }
 
   document.getElementById('subjectNewInput').value = '';
 
   const p = state.settings.periods[periodIdx];
   const d = new Date(dateStr + 'T00:00:00');
-  document.getElementById('subjectModalTitle').textContent = `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}）`;
-  document.getElementById('subjectModalSub').textContent = `${periodIdx+1}限 ${p.start}〜${p.end}`;
+  document.getElementById('subjectModalTitle').textContent =
+    `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}）`;
+  document.getElementById('subjectModalSub').textContent =
+    `${periodIdx+1}限 ${p.start}〜${p.end}`;
 
-  renderSubjectGrid();
+  renderModalStep();
   document.getElementById('subjectModal').classList.add('open');
 }
 
-function renderSubjectGrid() {
-  const grid = document.getElementById('subjectGrid');
+function renderModalStep() {
+  const showStep2 = state.selectedGenreIdx !== null;
+  document.getElementById('genreStep').style.display = showStep2 ? 'none' : '';
+  document.getElementById('itemStep').style.display  = showStep2 ? '' : 'none';
+  if (showStep2) {
+    renderItemGrid();
+  } else {
+    renderGenreGrid();
+  }
+}
+
+function renderGenreGrid() {
+  const grid = document.getElementById('genreGrid');
   grid.innerHTML = '';
-  state.settings.subjects.forEach(s => {
+  state.settings.genres.forEach((g, gi) => {
     const btn = document.createElement('button');
-    btn.className = 'subject-chip' + (state.selectedSubject === s.name ? ' selected' : '');
-    btn.textContent = s.name;
-    if (state.selectedSubject === s.name) {
-      btn.style.borderColor = s.color;
-      btn.style.background = s.color + '22';
-      btn.style.color = s.color;
-    }
+    btn.className = 'genre-chip';
+    const dot = document.createElement('span');
+    dot.className = 'genre-chip-dot';
+    dot.style.background = g.color;
+    const lbl = document.createElement('span');
+    lbl.textContent = g.name;
+    btn.appendChild(dot);
+    btn.appendChild(lbl);
+    btn.style.borderColor = g.color + '55';
     btn.addEventListener('click', () => {
-      state.selectedSubject = s.name;
-      document.getElementById('subjectFreeText').value = '';
-      renderSubjectGrid();
+      state.selectedGenreIdx = gi;
+      state.selectedSubject  = null;
+      renderModalStep();
     });
     grid.appendChild(btn);
   });
 }
 
-function closeSubjectModal() {
-  document.getElementById('subjectModal').classList.remove('open');
-  document.getElementById('subjectFreeText').value = '';
-  document.getElementById('subjectNewInput').value = '';
-  state.selectedCell = null;
-  state.selectedSubject = null;
+function renderItemGrid() {
+  const genre = state.settings.genres[state.selectedGenreIdx];
+  document.getElementById('step2GenreLabel').textContent = genre.name;
+  document.getElementById('step2GenreLabel').style.color = genre.color;
+
+  const grid = document.getElementById('itemGrid');
+  grid.innerHTML = '';
+
+  if (genre.items.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'grid-column:1/-1;text-align:center;color:var(--text3);font-size:12px;padding:10px 0 14px';
+    empty.textContent = '項目がありません。下の入力欄から追加できます。';
+    grid.appendChild(empty);
+  }
+
+  genre.items.forEach(item => {
+    const btn = document.createElement('button');
+    const isSelected = state.selectedSubject === item;
+    btn.className = 'subject-chip' + (isSelected ? ' selected' : '');
+    btn.textContent = item;
+    if (isSelected) {
+      btn.style.borderColor = genre.color;
+      btn.style.background  = genre.color + '22';
+      btn.style.color       = genre.color;
+    }
+    btn.addEventListener('click', () => {
+      state.selectedSubject = item;
+      document.getElementById('subjectFreeText').value = '';
+      renderItemGrid();
+    });
+    grid.appendChild(btn);
+  });
 }
+
+document.getElementById('backToGenreBtn').addEventListener('click', () => {
+  state.selectedGenreIdx = null;
+  state.selectedSubject  = null;
+  renderModalStep();
+});
+
+// 新規追加（step2: ジャンルに項目を追加）
+document.getElementById('subjectNewAddBtn').addEventListener('click', () => {
+  if (state.selectedGenreIdx === null) return;
+  const name = document.getElementById('subjectNewInput').value.trim();
+  if (!name) return;
+  const genre = state.settings.genres[state.selectedGenreIdx];
+  if (genre.items.includes(name)) { showToast('すでに登録されています'); return; }
+  genre.items.push(name);
+  state.selectedSubject = name;
+  document.getElementById('subjectNewInput').value = '';
+  document.getElementById('subjectFreeText').value = '';
+  save();
+  renderItemGrid();
+  showToast(`「${name}」を追加しました`);
+});
+
+document.getElementById('subjectNewInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('subjectNewAddBtn').click();
+});
+
+// 自由入力時は項目選択を解除
+document.getElementById('subjectFreeText').addEventListener('input', function() {
+  if (this.value) {
+    state.selectedSubject = null;
+    if (state.selectedGenreIdx !== null) renderItemGrid();
+  }
+});
 
 document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
   if (!state.selectedCell) return;
@@ -1595,79 +1179,49 @@ document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
 
   if (freeText) {
     state.timetable[key] = { name: freeText, color: null };
-  } else if (state.selectedSubject) {
-    const subject = state.settings.subjects.find(s => s.name === state.selectedSubject);
-    state.timetable[key] = { name: state.selectedSubject, color: subject?.color || null };
+  } else if (state.selectedSubject !== null && state.selectedGenreIdx !== null) {
+    const genre = state.settings.genres[state.selectedGenreIdx];
+    state.timetable[key] = { name: state.selectedSubject, color: genre.color };
   } else {
-    showToast('教科を選択するか、自由入力してください');
+    showToast('ジャンル→項目を選択するか、自由入力してください');
     return;
   }
-  save();
-  render();
-  closeSubjectModal();
+  save(); render(); closeSubjectModal();
 });
 
 document.getElementById('clearCellBtn').addEventListener('click', () => {
   if (!state.selectedCell) return;
-  const key = cellKey(state.selectedCell.dateStr, state.selectedCell.periodIdx);
-  delete state.timetable[key];
-  save();
-  render();
-  closeSubjectModal();
+  delete state.timetable[cellKey(state.selectedCell.dateStr, state.selectedCell.periodIdx)];
+  save(); render(); closeSubjectModal();
 });
 
 document.getElementById('cancelSubjectBtn').addEventListener('click', closeSubjectModal);
-
 document.getElementById('subjectModal').addEventListener('click', function(e) {
   if (e.target === this) closeSubjectModal();
 });
 
-// 新規追加（モーダル内）
-document.getElementById('subjectNewAddBtn').addEventListener('click', () => {
-  const name = document.getElementById('subjectNewInput').value.trim();
-  if (!name) return;
-  if (state.settings.subjects.some(s => s.name === name)) {
-    showToast('すでに登録されています');
-    return;
-  }
-  const color = SUBJECT_COLORS[colorIdx % SUBJECT_COLORS.length];
-  colorIdx++;
-  state.settings.subjects.push({ name, color });
-  state.selectedSubject = name;
-  document.getElementById('subjectNewInput').value = '';
+function closeSubjectModal() {
+  document.getElementById('subjectModal').classList.remove('open');
   document.getElementById('subjectFreeText').value = '';
-  save();
-  renderSubjectGrid();
-  showToast(`「${name}」を追加しました`);
-});
-
-document.getElementById('subjectNewInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') document.getElementById('subjectNewAddBtn').click();
-});
-
-// 自由入力時は教科選択を解除
-document.getElementById('subjectFreeText').addEventListener('input', function() {
-  if (this.value) {
-    state.selectedSubject = null;
-    renderSubjectGrid();
-  }
-});
+  document.getElementById('subjectNewInput').value = '';
+  state.selectedCell     = null;
+  state.selectedGenreIdx = null;
+  state.selectedSubject  = null;
+}
 
 // ══════════════════════════════════════════
-// NOTE MODAL (昼休み / 放課後)
+// NOTE MODAL
 // ══════════════════════════════════════════
 
 function openNoteModal(dateStr, type) {
   state.noteTarget = { dateStr, type };
   const key = `${dateStr}_${type}`;
   document.getElementById('noteInput').value = state.notes[key] || '';
-
   const d = new Date(dateStr + 'T00:00:00');
   const label = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : '終日メモ';
   document.getElementById('noteModalTitle').textContent =
     `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） ${label}`;
   document.getElementById('noteModalSub').textContent = 'メモを自由に入力できます';
-
   document.getElementById('noteModal').classList.add('open');
   setTimeout(() => document.getElementById('noteInput').focus(), 300);
 }
@@ -1681,27 +1235,17 @@ document.getElementById('confirmNoteBtn').addEventListener('click', () => {
   if (!state.noteTarget) return;
   const key = `${state.noteTarget.dateStr}_${state.noteTarget.type}`;
   const text = document.getElementById('noteInput').value.trim();
-  if (text) {
-    state.notes[key] = text;
-  } else {
-    delete state.notes[key];
-  }
-  save();
-  render();
-  closeNoteModal();
+  if (text) { state.notes[key] = text; } else { delete state.notes[key]; }
+  save(); render(); closeNoteModal();
 });
 
 document.getElementById('clearNoteBtn').addEventListener('click', () => {
   if (!state.noteTarget) return;
-  const key = `${state.noteTarget.dateStr}_${state.noteTarget.type}`;
-  delete state.notes[key];
-  save();
-  render();
-  closeNoteModal();
+  delete state.notes[`${state.noteTarget.dateStr}_${state.noteTarget.type}`];
+  save(); render(); closeNoteModal();
 });
 
 document.getElementById('cancelNoteBtn').addEventListener('click', closeNoteModal);
-
 document.getElementById('noteModal').addEventListener('click', function(e) {
   if (e.target === this) closeNoteModal();
 });
@@ -1711,26 +1255,18 @@ document.getElementById('noteModal').addEventListener('click', function(e) {
 // ══════════════════════════════════════════
 
 function openEventModal(dateStr) {
-  document.getElementById('eventDate').value = dateStr || dateKey(new Date());
+  document.getElementById('eventDate').value  = dateStr || dateKey(new Date());
   document.getElementById('eventTitle').value = '';
   state.selectedEventCat = 'gyoji';
   updateCategoryPills();
   document.getElementById('eventModal').classList.add('open');
 }
 
-document.getElementById('addEventBtn').addEventListener('click', () => {
-  openEventModal(dateKey(new Date()));
-});
-
-document.getElementById('eventGutter').addEventListener('click', () => {
-  openEventModal(dateKey(new Date()));
-});
+document.getElementById('addEventBtn').addEventListener('click', () => openEventModal(dateKey(new Date())));
+document.getElementById('eventGutter').addEventListener('click', () => openEventModal(dateKey(new Date())));
 
 document.querySelectorAll('.category-pill').forEach(btn => {
-  btn.addEventListener('click', () => {
-    state.selectedEventCat = btn.dataset.cat;
-    updateCategoryPills();
-  });
+  btn.addEventListener('click', () => { state.selectedEventCat = btn.dataset.cat; updateCategoryPills(); });
 });
 
 function updateCategoryPills() {
@@ -1741,11 +1277,10 @@ function updateCategoryPills() {
 
 document.getElementById('confirmEventBtn').addEventListener('click', () => {
   const title = document.getElementById('eventTitle').value.trim();
-  const date = document.getElementById('eventDate').value;
+  const date  = document.getElementById('eventDate').value;
   if (!title || !date) { showToast('タイトルと日付を入力してください'); return; }
   state.events.push({ title, date, category: state.selectedEventCat });
-  save();
-  render();
+  save(); render();
   document.getElementById('eventModal').classList.remove('open');
   showToast('予定を追加しました');
 });
@@ -1753,7 +1288,6 @@ document.getElementById('confirmEventBtn').addEventListener('click', () => {
 document.getElementById('cancelEventBtn').addEventListener('click', () => {
   document.getElementById('eventModal').classList.remove('open');
 });
-
 document.getElementById('eventModal').addEventListener('click', function(e) {
   if (e.target === this) this.classList.remove('open');
 });
@@ -1762,14 +1296,8 @@ document.getElementById('eventModal').addEventListener('click', function(e) {
 // SETTINGS PANEL
 // ══════════════════════════════════════════
 
-function openSettings() {
-  renderSettings();
-  document.getElementById('settingsPanel').classList.add('open');
-}
-
-function closeSettingsPanel() {
-  document.getElementById('settingsPanel').classList.remove('open');
-}
+function openSettings() { renderSettings(); document.getElementById('settingsPanel').classList.add('open'); }
+function closeSettingsPanel() { document.getElementById('settingsPanel').classList.remove('open'); }
 
 document.getElementById('openSettings').addEventListener('click', openSettings);
 document.getElementById('navSettings2').addEventListener('click', openSettings);
@@ -1777,15 +1305,12 @@ document.getElementById('closeSettings').addEventListener('click', closeSettings
 
 function renderSettings() {
   document.getElementById('weekStartSetting').value = state.settings.weekStart;
-
   const sw = document.getElementById('showWeekendSetting');
   sw.checked = state.settings.showWeekend;
   document.getElementById('weekendPeriodsRow').style.display = state.settings.showWeekend ? '' : 'none';
-
   document.getElementById('weekendPeriodsSetting').checked = state.settings.weekendPeriods;
-
   renderPeriodSettingsList();
-  renderSubjectMasterList();
+  renderGenreMasterList();
 }
 
 document.getElementById('weekStartSetting').addEventListener('change', function() {
@@ -1793,13 +1318,11 @@ document.getElementById('weekStartSetting').addEventListener('change', function(
   state.currentWeekStart = getWeekStart(new Date());
   save(); render();
 });
-
 document.getElementById('showWeekendSetting').addEventListener('change', function() {
   state.settings.showWeekend = this.checked;
   document.getElementById('weekendPeriodsRow').style.display = this.checked ? '' : 'none';
   save(); render();
 });
-
 document.getElementById('weekendPeriodsSetting').addEventListener('change', function() {
   state.settings.weekendPeriods = this.checked;
   save(); render();
@@ -1820,16 +1343,12 @@ function renderPeriodSettingsList() {
     `;
     list.appendChild(row);
   });
-
   list.querySelectorAll('.time-input').forEach(inp => {
     inp.addEventListener('change', function() {
-      const idx = parseInt(this.dataset.idx);
-      const field = this.dataset.field;
-      state.settings.periods[idx][field] = this.value;
+      state.settings.periods[parseInt(this.dataset.idx)][this.dataset.field] = this.value;
       save(); render();
     });
   });
-
   list.querySelectorAll('.period-del-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       const idx = parseInt(this.dataset.idx);
@@ -1846,43 +1365,129 @@ document.getElementById('addPeriodBtn').addEventListener('click', () => {
   save(); render(); renderPeriodSettingsList();
 });
 
-function renderSubjectMasterList() {
-  const list = document.getElementById('subjectMasterList');
-  list.innerHTML = '';
-  state.settings.subjects.forEach((s, i) => {
-    const item = document.createElement('div');
-    item.className = 'master-item';
-    item.innerHTML = `
-      <div class="color-dot" style="background:${s.color}"></div>
-      <span class="master-item-name">${s.name}</span>
-      <button class="master-item-del" data-idx="${i}">✕</button>
-    `;
-    list.appendChild(item);
-  });
+// ── Genre master list ──
 
-  list.querySelectorAll('.master-item-del').forEach(btn => {
-    btn.addEventListener('click', function() {
-      state.settings.subjects.splice(parseInt(this.dataset.idx), 1);
-      save(); render(); renderSubjectMasterList();
+const GENRE_COLORS = ['#5448e8','#1a7fc4','#d94f35','#2eab6e','#e8a020','#9b59b6','#e84891','#20b2aa'];
+let colorIdx = 0;
+
+function renderGenreMasterList() {
+  const container = document.getElementById('genreMasterList');
+  container.innerHTML = '';
+
+  state.settings.genres.forEach((g, gi) => {
+    const block = document.createElement('div');
+    block.className = 'genre-block';
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'genre-block-header';
+
+    const colorPicker = document.createElement('input');
+    colorPicker.type = 'color';
+    colorPicker.className = 'genre-color-input';
+    colorPicker.value = g.color;
+    colorPicker.title = '色を変更';
+    colorPicker.addEventListener('change', function() {
+      state.settings.genres[gi].color = this.value;
+      save(); renderGenreMasterList();
     });
+
+    const nameLbl = document.createElement('span');
+    nameLbl.className = 'genre-block-name';
+    nameLbl.textContent = g.name;
+
+    const countLbl = document.createElement('span');
+    countLbl.className = 'genre-block-count';
+    countLbl.textContent = `${g.items.length}項目`;
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'master-item-del';
+    delBtn.textContent = '✕';
+    delBtn.title = 'ジャンルを削除';
+    delBtn.addEventListener('click', () => {
+      if (!confirm(`「${g.name}」を削除しますか？`)) return;
+      state.settings.genres.splice(gi, 1);
+      save(); renderGenreMasterList();
+    });
+
+    header.appendChild(colorPicker);
+    header.appendChild(nameLbl);
+    header.appendChild(countLbl);
+    header.appendChild(delBtn);
+    block.appendChild(header);
+
+    // Items panel
+    const panel = document.createElement('div');
+    panel.className = 'genre-items-panel';
+
+    g.items.forEach((item, ii) => {
+      const row = document.createElement('div');
+      row.className = 'genre-item-row';
+
+      const dot = document.createElement('span');
+      dot.className = 'genre-item-dot';
+      dot.style.background = g.color;
+
+      const txt = document.createElement('span');
+      txt.className = 'genre-item-name';
+      txt.textContent = item;
+
+      const del = document.createElement('button');
+      del.className = 'genre-item-del';
+      del.textContent = '✕';
+      del.addEventListener('click', () => {
+        state.settings.genres[gi].items.splice(ii, 1);
+        save(); renderGenreMasterList();
+      });
+
+      row.appendChild(dot);
+      row.appendChild(txt);
+      row.appendChild(del);
+      panel.appendChild(row);
+    });
+
+    // Add item row
+    const addRow = document.createElement('div');
+    addRow.className = 'genre-add-row';
+
+    const addInput = document.createElement('input');
+    addInput.className = 'genre-add-input';
+    addInput.placeholder = '項目を追加…';
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'genre-add-btn';
+    addBtn.textContent = '追加';
+    addBtn.addEventListener('click', () => {
+      const name = addInput.value.trim();
+      if (!name) return;
+      if (state.settings.genres[gi].items.includes(name)) { showToast('すでに登録されています'); return; }
+      state.settings.genres[gi].items.push(name);
+      addInput.value = '';
+      save(); renderGenreMasterList();
+    });
+    addInput.addEventListener('keydown', e => { if (e.key === 'Enter') addBtn.click(); });
+
+    addRow.appendChild(addInput);
+    addRow.appendChild(addBtn);
+    panel.appendChild(addRow);
+
+    block.appendChild(panel);
+    container.appendChild(block);
   });
 }
 
-const SUBJECT_COLORS = ['#f7826f','#6fccf7','#7cf7a0','#f7c96f','#c96ff7','#f76fa0','#f7a06f','#6fa8f7','#a0f7c9','#f7e56f','#ff9f7f','#7fb3ff'];
-let colorIdx = 0;
-
-document.getElementById('addSubjectBtn').addEventListener('click', () => {
-  const name = document.getElementById('newSubjectInput').value.trim();
+document.getElementById('addGenreBtn').addEventListener('click', () => {
+  const name = document.getElementById('newGenreInput').value.trim();
   if (!name) return;
-  const color = SUBJECT_COLORS[colorIdx % SUBJECT_COLORS.length];
+  const color = GENRE_COLORS[colorIdx % GENRE_COLORS.length];
   colorIdx++;
-  state.settings.subjects.push({ name, color });
-  document.getElementById('newSubjectInput').value = '';
-  save(); render(); renderSubjectMasterList();
+  state.settings.genres.push({ name, color, items: [] });
+  document.getElementById('newGenreInput').value = '';
+  save(); renderGenreMasterList();
 });
 
-document.getElementById('newSubjectInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') document.getElementById('addSubjectBtn').click();
+document.getElementById('newGenreInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('addGenreBtn').click();
 });
 
 // ══════════════════════════════════════════
@@ -1891,7 +1496,7 @@ document.getElementById('newSubjectInput').addEventListener('keydown', function(
 
 document.getElementById('exportBtn').addEventListener('click', () => {
   const data = {
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     settings: state.settings,
     timetable: state.timetable,
@@ -1925,6 +1530,10 @@ document.getElementById('importFile').addEventListener('change', function() {
       if (data.events)    state.events     = data.events;
       if (data.notes)     state.notes      = data.notes;
       if (data.todos)     state.todos      = data.todos;
+      // Ensure genres exists after import
+      if (!state.settings.genres) {
+        state.settings.genres = JSON.parse(JSON.stringify(DEFAULTS.settings.genres));
+      }
       save(); render(); renderSettings();
       showToast('データを復元しました');
     } catch(err) {
@@ -1958,7 +1567,6 @@ document.getElementById('closeTodoPanel').addEventListener('click', closeTodoPan
 function renderTodoList() {
   const list = document.getElementById('todoList');
   list.innerHTML = '';
-
   if (state.todos.length === 0) {
     const empty = document.createElement('div');
     empty.style.cssText = 'text-align:center;color:var(--text3);font-size:13px;padding:24px 0';
@@ -1966,7 +1574,6 @@ function renderTodoList() {
     list.appendChild(empty);
     return;
   }
-
   state.todos.forEach((todo, i) => {
     const item = document.createElement('div');
     item.className = 'todo-item';
@@ -1979,8 +1586,7 @@ function renderTodoList() {
     cb.dataset.idx = i;
     cb.addEventListener('change', function() {
       state.todos[parseInt(this.dataset.idx)].done = this.checked;
-      save();
-      renderTodoList();
+      save(); renderTodoList();
     });
 
     const txt = document.createElement('span');
@@ -1993,13 +1599,10 @@ function renderTodoList() {
     del.dataset.idx = i;
     del.addEventListener('click', function() {
       state.todos.splice(parseInt(this.dataset.idx), 1);
-      save();
-      renderTodoList();
+      save(); renderTodoList();
     });
 
-    item.appendChild(cb);
-    item.appendChild(txt);
-    item.appendChild(del);
+    item.appendChild(cb); item.appendChild(txt); item.appendChild(del);
     list.appendChild(item);
   });
 }
@@ -2010,8 +1613,7 @@ document.getElementById('addTodoBtn').addEventListener('click', () => {
   if (!text) return;
   state.todos.push({ text, done: false });
   input.value = '';
-  save();
-  renderTodoList();
+  save(); renderTodoList();
 });
 
 document.getElementById('newTodoInput').addEventListener('keydown', function(e) {
@@ -2023,23 +1625,16 @@ document.getElementById('newTodoInput').addEventListener('keydown', function(e) 
 // ══════════════════════════════════════════
 
 document.getElementById('prevWeek').addEventListener('click', () => {
-  state.currentWeekStart = addDays(state.currentWeekStart, -7);
-  render();
+  state.currentWeekStart = addDays(state.currentWeekStart, -7); render();
 });
-
 document.getElementById('nextWeek').addEventListener('click', () => {
-  state.currentWeekStart = addDays(state.currentWeekStart, 7);
-  render();
+  state.currentWeekStart = addDays(state.currentWeekStart, 7); render();
 });
-
 document.getElementById('todayBtn').addEventListener('click', () => {
-  state.currentWeekStart = getWeekStart(new Date());
-  render();
+  state.currentWeekStart = getWeekStart(new Date()); render();
 });
-
 document.getElementById('navWeek').addEventListener('click', () => {
-  closeTodoPanel();
-  closeSettingsPanel();
+  closeTodoPanel(); closeSettingsPanel();
 });
 
 // ══════════════════════════════════════════
