@@ -50,15 +50,16 @@ body {
 /* ── TOP HEADER ── */
 .top-bar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: calc(var(--safe-top) + 12px) 16px 12px;
+  flex-direction: column;
+  padding: calc(var(--safe-top) + 8px) 16px 8px;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  gap: 12px;
+  gap: 6px;
 }
-.top-bar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.top-bar-row1 { display: flex; align-items: center; justify-content: space-between; }
+.top-bar-row2 { display: flex; align-items: center; gap: 8px; }
+.top-bar-right { display: flex; align-items: center; gap: 8px; }
 .week-nav { display: flex; align-items: center; gap: 6px; }
 .week-nav button {
   background: var(--surface);
@@ -501,17 +502,21 @@ body {
 
   <!-- TOP BAR -->
   <div class="top-bar">
-    <div class="top-bar-left">
+    <div class="top-bar-row1">
       <div class="week-nav">
         <button id="prevWeek">‹</button>
         <span class="week-label" id="weekLabel">--</span>
         <button id="nextWeek">›</button>
       </div>
+      <div class="top-bar-right">
+        <button class="icon-btn" id="addEventBtn" title="予定追加">＋</button>
+        <button class="icon-btn" id="openSettings" title="設定">⚙</button>
+      </div>
+    </div>
+    <div class="top-bar-row2">
       <button class="today-btn" id="todayBtn">今週に戻る</button>
       <button class="apply-btn" id="applyFixedBtn" title="固定時間割を適用">固定適用</button>
     </div>
-    <button class="icon-btn" id="addEventBtn" title="予定追加">＋</button>
-    <button class="icon-btn" id="openSettings" title="設定">⚙</button>
   </div>
 
   <!-- MAIN GRID -->
@@ -1008,7 +1013,8 @@ function renderBody() {
     const dk = dateKey(d);
     const dw = d.getDay();
     const isWeekend = dw === 0 || dw === 6;
-    const showPeriods = !isWeekend || state.settings.weekendPeriods;
+    const isHoliday = !isWeekend && !!state.holidays[dk];
+    const showPeriods = !isWeekend && !isHoliday || (isWeekend && state.settings.weekendPeriods);
 
     const col = document.createElement('div');
     col.className = 'day-col-body' +
@@ -1047,8 +1053,9 @@ function renderBody() {
       });
       col.appendChild(makeSpecialCell(dk, 'after', ph));
     } else {
-      // Weekend: single tappable cell
-      const noteKey = `${dk}_weekend`;
+      // Weekend / holiday: single tappable cell
+      const cellType = isHoliday ? 'holiday' : 'weekend';
+      const noteKey = `${dk}_${cellType}`;
       const noteText = state.notes[noteKey] || '';
       const cell = document.createElement('div');
       cell.className = 'weekend-cell';
@@ -1058,8 +1065,13 @@ function renderBody() {
         txt.className = 'note-text';
         txt.textContent = noteText;
         cell.appendChild(txt);
+      } else if (isHoliday) {
+        const hint = document.createElement('div');
+        hint.className = 'note-empty-label';
+        hint.textContent = state.holidays[dk] || '祝日';
+        cell.appendChild(hint);
       }
-      cell.addEventListener('click', () => openNoteModal(dk, 'weekend'));
+      cell.addEventListener('click', () => openNoteModal(dk, cellType));
       col.appendChild(cell);
     }
     inner.appendChild(col);
@@ -1297,7 +1309,7 @@ function openNoteModal(dateStr, type) {
   const key = `${dateStr}_${type}`;
   document.getElementById('noteInput').value = state.notes[key] || '';
   const d = new Date(dateStr + 'T00:00:00');
-  const label = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : '終日メモ';
+  const label = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : type === 'holiday' ? (state.holidays[dateStr] || '祝日') : '終日メモ';
   document.getElementById('noteModalTitle').textContent =
     `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） ${label}`;
   document.getElementById('noteModalSub').textContent = 'メモを自由に入力できます';
