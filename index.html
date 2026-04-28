@@ -193,7 +193,7 @@ body {
 .event-chip.task    { background: var(--task-dim);  color: var(--task);  border-left: 2px solid var(--task); }
 .event-chip.kōmu    { background: var(--accent-dim); color: var(--accent2); border-left: 2px solid var(--accent); }
 .event-chip.holiday { background: var(--event-dim); color: var(--event); border-left: 2px solid var(--event); font-style: italic; }
-.days-body-outer { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; min-height: 0; }
+.days-body-outer { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; min-height: 0; }
 .days-body-inner { display: flex; }
 .day-col-body { flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid var(--border); scroll-snap-align: start; }
 .day-col-body.sat-col     { background: rgba(26,111,196,0.04); }
@@ -923,7 +923,7 @@ function getPeriodHeight() {
   const scroll = document.getElementById('daysBodyOuter');
   const periods = state.settings.periods;
   const available = scroll.clientHeight || 400;
-  return Math.max(40, Math.floor(available / (periods.length + 2)));
+  return Math.max(40, Math.floor(available / (periods.length + 3)));
 }
 
 function render() {
@@ -1025,6 +1025,12 @@ function renderPeriodLabels() {
   after.style.height = ph + 'px';
   after.innerHTML = `<span class="period-num" style="font-size:8px">放<br>課<br>後</span>`;
   labels.appendChild(after);
+
+  const diary = document.createElement('div');
+  diary.className = 'period-label special';
+  diary.style.height = ph + 'px';
+  diary.innerHTML = `<span class="period-num" style="font-size:8px">今日<br>一言</span>`;
+  labels.appendChild(diary);
 }
 
 function renderBody() {
@@ -1080,6 +1086,7 @@ function renderBody() {
         if (i === lunchAfterIdx) col.appendChild(makeSpecialCell(dk, 'lunch', ph));
       });
       col.appendChild(makeSpecialCell(dk, 'after', ph));
+      col.appendChild(makeSpecialCell(dk, 'diary', ph));
     } else {
       // Weekend / holiday: single tappable cell
       const cellType = isHoliday ? 'holiday' : 'weekend';
@@ -1101,6 +1108,7 @@ function renderBody() {
       }
       cell.addEventListener('click', () => openNoteModal(dk, cellType));
       col.appendChild(cell);
+      col.appendChild(makeSpecialCell(dk, 'diary', ph));
     }
     inner.appendChild(col);
   });
@@ -1120,7 +1128,7 @@ function makeSpecialCell(dateStr, type, ph) {
   } else {
     const lbl = document.createElement('div');
     lbl.className = 'note-empty-label';
-    lbl.textContent = type === 'lunch' ? '昼休み' : '放課後';
+    lbl.textContent = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : '今日の一言';
     cell.appendChild(lbl);
   }
   cell.addEventListener('click', () => openNoteModal(dateStr, type));
@@ -1400,7 +1408,7 @@ function openNoteModal(dateStr, type) {
   const key = `${dateStr}_${type}`;
   document.getElementById('noteInput').value = state.notes[key] || '';
   const d = new Date(dateStr + 'T00:00:00');
-  const label = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : type === 'holiday' ? (state.holidays[dateStr] || '祝日') : '終日メモ';
+  const label = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : type === 'diary' ? '今日の一言' : type === 'holiday' ? (state.holidays[dateStr] || '祝日') : '終日メモ';
   document.getElementById('noteModalTitle').textContent =
     `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） ${label}`;
   document.getElementById('noteModalSub').textContent = 'メモを自由に入力できます';
