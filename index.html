@@ -102,16 +102,49 @@ body {
 .icon-btn:active { background: var(--bg3); }
 
 /* ── MAIN GRID ── */
-.grid-wrapper { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.grid-wrapper { flex: 1; overflow: hidden; display: flex; }
 
-.day-header-row {
-  display: flex; flex-shrink: 0;
-  border-bottom: 1px solid var(--border2);
-  overflow: hidden;
+/* Fixed left gutter column */
+.grid-gutter {
+  width: 44px; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--border);
 }
-.time-gutter { width: 44px; flex-shrink: 0; border-right: 1px solid var(--border); }
-.days-scroll-header { flex: 1; overflow: hidden; }
-.days-header-inner { display: flex; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+.time-gutter { height: var(--day-h); flex-shrink: 0; border-bottom: 1px solid var(--border2); }
+.event-gutter {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.12s;
+}
+.event-gutter:active { background: var(--bg3); }
+.event-gutter-icon { font-size: 11px; color: var(--text3); }
+.period-labels-clip { flex: 1; overflow: hidden; }
+.period-label {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border-bottom: 1px solid var(--border); gap: 1px;
+}
+.period-label.special { background: var(--bg3); border-top: 1px solid var(--border2); }
+.period-num { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--text3); text-align: center; line-height: 1.3; }
+.period-time { font-size: 8px; color: var(--text3); opacity: 0.7; }
+
+/* Single horizontal scroll container — header + events + body all move together */
+.days-h-scroll {
+  flex: 1;
+  overflow-x: auto; overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+.days-content-wrapper {
+  min-width: max-content;
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+.days-header-inner {
+  display: flex; flex-shrink: 0;
+  height: var(--day-h);
+  border-bottom: 1px solid var(--border2);
+}
 .day-col-header {
   flex-shrink: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -137,19 +170,7 @@ body {
 .day-col-header.sun .day-name,
 .day-col-header.sun .day-num { color: var(--event); }
 .day-col-header.sun { background: rgba(217,79,53,0.05); }
-
-/* Event banner row */
-.event-banner-row { display: flex; flex-shrink: 0; border-bottom: 1px solid var(--border); }
-.event-gutter {
-  width: 44px; flex-shrink: 0;
-  border-right: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: background 0.12s;
-}
-.event-gutter:active { background: var(--bg3); }
-.event-gutter-icon { font-size: 11px; color: var(--text3); }
-.days-scroll-events { flex: 1; overflow: hidden; }
-.days-events-inner { display: flex; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+.days-events-inner { display: flex; flex-shrink: 0; border-bottom: 1px solid var(--border); }
 .day-events-cell {
   flex-shrink: 0;
   padding: 4px 3px;
@@ -163,21 +184,8 @@ body {
 .event-chip.task    { background: var(--task-dim);  color: var(--task);  border-left: 2px solid var(--task); }
 .event-chip.kōmu    { background: var(--accent-dim); color: var(--accent2); border-left: 2px solid var(--accent); }
 .event-chip.holiday { background: var(--event-dim); color: var(--event); border-left: 2px solid var(--event); font-style: italic; }
-
-/* Timetable */
-.timetable-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
-.timetable-inner { display: flex; }
-.period-labels { width: 44px; flex-shrink: 0; border-right: 1px solid var(--border); }
-.period-label {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  border-bottom: 1px solid var(--border); gap: 1px;
-}
-.period-label.special { background: var(--bg3); border-top: 1px solid var(--border2); }
-.period-num { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--text3); text-align: center; line-height: 1.3; }
-.period-time { font-size: 8px; color: var(--text3); opacity: 0.7; }
-
-.days-scroll-body { flex: 1; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
-.days-body-inner { display: flex; height: 100%; }
+.days-body-outer { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; min-height: 0; }
+.days-body-inner { display: flex; }
 .day-col-body { flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid var(--border); scroll-snap-align: start; }
 .day-col-body.sat-col     { background: rgba(26,111,196,0.04); }
 .day-col-body.sun-col     { background: rgba(217,79,53,0.04); }
@@ -521,26 +529,22 @@ body {
 
   <!-- MAIN GRID -->
   <div class="grid-wrapper">
-    <div class="day-header-row">
+    <!-- Fixed left gutter -->
+    <div class="grid-gutter">
       <div class="time-gutter"></div>
-      <div class="days-scroll-header" id="daysScrollHeader">
-        <div class="days-header-inner" id="daysHeaderInner"></div>
-      </div>
-    </div>
-
-    <div class="event-banner-row" id="eventBannerRow">
       <div class="event-gutter" id="eventGutter">
         <span class="event-gutter-icon">★</span>
       </div>
-      <div class="days-scroll-events" id="daysScrollEvents">
-        <div class="days-events-inner" id="daysEventsInner"></div>
+      <div class="period-labels-clip" id="periodLabelsClip">
+        <div class="period-labels" id="periodLabels"></div>
       </div>
     </div>
-
-    <div class="timetable-scroll" id="timetableScroll">
-      <div class="timetable-inner">
-        <div class="period-labels" id="periodLabels"></div>
-        <div class="days-scroll-body" id="daysScrollBody">
+    <!-- Single horizontal scroll container -->
+    <div class="days-h-scroll" id="daysScrollBody">
+      <div class="days-content-wrapper">
+        <div class="days-header-inner" id="daysHeaderInner"></div>
+        <div class="days-events-inner" id="daysEventsInner"></div>
+        <div class="days-body-outer" id="daysBodyOuter">
           <div class="days-body-inner" id="daysBodyInner"></div>
         </div>
       </div>
@@ -893,7 +897,7 @@ function getColWidth() {
 }
 
 function getPeriodHeight() {
-  const scroll = document.getElementById('timetableScroll');
+  const scroll = document.getElementById('daysBodyOuter');
   const periods = state.settings.periods;
   const available = scroll.clientHeight || 400;
   return Math.max(40, Math.floor(available / (periods.length + 2)));
@@ -901,8 +905,7 @@ function getPeriodHeight() {
 
 function render() {
   const ph = getPeriodHeight();
-  document.getElementById('eventBannerRow').style.minHeight = ph + 'px';
-  document.getElementById('daysScrollEvents').style.height  = ph + 'px';
+  document.getElementById('eventGutter').style.height = ph + 'px';
   renderWeekLabel();
   renderHeaders();
   renderEventBanners();
@@ -1100,12 +1103,11 @@ function makeSpecialCell(dateStr, type, ph) {
 }
 
 function syncScroll() {
-  const body   = document.getElementById('daysScrollBody');
-  const header = document.getElementById('daysScrollHeader');
-  const events = document.getElementById('daysScrollEvents');
-  body.addEventListener('scroll', () => {
-    header.scrollLeft = body.scrollLeft;
-    events.scrollLeft = body.scrollLeft;
+  // Header, events, and body are all in the same horizontal scroll container,
+  // so horizontal scroll is always in sync natively.
+  // Only period labels (fixed gutter) need to follow vertical scroll.
+  document.getElementById('daysBodyOuter').addEventListener('scroll', function() {
+    document.getElementById('periodLabelsClip').scrollTop = this.scrollTop;
   });
 }
 
