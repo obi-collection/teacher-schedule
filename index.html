@@ -1111,6 +1111,47 @@ function syncScroll() {
   });
 }
 
+function initSwipeWeek() {
+  const el        = document.getElementById('daysScrollBody'); // days-h-scroll outer
+  const bodyOuter = document.getElementById('daysBodyOuter');
+  let startX = 0, startY = 0, startScrollTop = 0;
+  let swipeHandled = false;
+
+  el.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+    startScrollTop = bodyOuter.scrollTop;
+    swipeHandled = false;
+  }, { passive: true });
+
+  el.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    if (Math.abs(dy) <= Math.abs(dx)) return; // horizontal dominates — ignore
+    // Vertical swipe: take control only when body is at the relevant boundary
+    const maxScroll = bodyOuter.scrollHeight - bodyOuter.clientHeight;
+    const atTop    = startScrollTop <= 0;
+    const atBottom = startScrollTop >= maxScroll - 1;
+    if (maxScroll <= 0 || (dy > 0 && atTop) || (dy < 0 && atBottom)) {
+      e.preventDefault();
+      swipeHandled = true;
+    }
+  }, { passive: false });
+
+  el.addEventListener('touchend', e => {
+    if (!swipeHandled) return;
+    swipeHandled = false;
+    const t  = e.changedTouches[0];
+    const dy = t.clientY - startY;
+    const dx = t.clientX - startX;
+    if (Math.abs(dy) < 50 || Math.abs(dy) <= Math.abs(dx)) return;
+    state.currentWeekStart = addDays(state.currentWeekStart, dy < 0 ? 7 : -7);
+    save(); render();
+  }, { passive: true });
+}
+
 // ══════════════════════════════════════════
 // SUBJECT MODAL (2-step: genre → item)
 // ══════════════════════════════════════════
@@ -1920,6 +1961,7 @@ async function loadHolidays() {
 load();
 state.currentWeekStart = getWeekStart(new Date());
 syncScroll();
+initSwipeWeek();
 render();
 loadHolidays();
 
