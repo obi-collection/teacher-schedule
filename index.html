@@ -158,11 +158,7 @@ body {
 .day-col-header:active { background: var(--bg3); }
 .day-name { font-size: 10px; color: var(--text3); letter-spacing: 0.05em; }
 .day-num { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 500; color: var(--text2); line-height: 1; }
-.day-col-header.today .day-num {
-  color: #fff; background: var(--accent);
-  width: 30px; height: 30px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-}
+.day-col-header.today .day-num { color: var(--accent); }
 .day-col-header.today .day-name { color: var(--accent); }
 .day-col-header.sat .day-name,
 .day-col-header.sat .day-num { color: #1a6fc4; }
@@ -179,6 +175,10 @@ body {
   cursor: pointer; transition: background 0.12s; overflow: hidden;
 }
 .day-events-cell:active { background: var(--bg3); }
+.day-events-cell.sat-col     { background: rgba(26,111,196,0.04); }
+.day-events-cell.sun-col     { background: rgba(217,79,53,0.04); }
+.day-events-cell.holiday-col { background: rgba(217,79,53,0.04); }
+.day-events-cell.today-col   { background: rgba(240,180,0,0.07); }
 .event-chip { font-size: 9px; padding: 2px 5px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; pointer-events: none; }
 .event-chip.gyoji   { background: var(--event-dim); color: var(--event); border-left: 2px solid var(--event); }
 .event-chip.task    { background: var(--task-dim);  color: var(--task);  border-left: 2px solid var(--task); }
@@ -949,10 +949,15 @@ function renderEventBanners() {
   const ph   = getPeriodHeight();
   const inner = document.getElementById('daysEventsInner');
   inner.innerHTML = '';
+  const todayKey = dateKey(new Date());
   days.forEach(d => {
     const dk = dateKey(d);
+    const dw = d.getDay();
     const cell = document.createElement('div');
-    cell.className = 'day-events-cell';
+    cell.className = 'day-events-cell' +
+      (dw === 6 ? ' sat-col' : dw === 0 ? ' sun-col' : '') +
+      (state.holidays[dk] && dw !== 0 && dw !== 6 ? ' holiday-col' : '') +
+      (dk === todayKey ? ' today-col' : '');
     cell.style.width  = colW + 'px';
     cell.style.height = ph + 'px';
     // Holiday chip (auto, non-deletable)
