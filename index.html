@@ -407,7 +407,7 @@ body {
 .master-item-del { color: var(--text3); font-size: 16px; cursor: pointer; padding: 4px; line-height: 1; background: none; border: none; }
 
 .add-item-row { display: flex; gap: 8px; margin-top: 8px; }
-.add-input { flex: 1; background: var(--bg2); border: 1px solid var(--border2); color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 14px; font-family: 'Noto Sans JP', sans-serif; }
+.add-input { flex: 1; background: var(--bg2); border: 1px solid var(--border2); color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 16px; font-family: 'Noto Sans JP', sans-serif; }
 .add-input::placeholder { color: var(--text3); }
 .add-btn { background: var(--accent-dim); border: 1px solid rgba(84,72,232,0.25); color: var(--accent); padding: 10px 16px; border-radius: 10px; font-size: 14px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
 
@@ -454,7 +454,7 @@ body {
 .genre-item-name { flex: 1; font-size: 13px; color: var(--text); }
 .genre-item-del { color: var(--text3); font-size: 13px; cursor: pointer; background: none; border: none; padding: 4px; }
 .genre-add-row { display: flex; gap: 6px; margin-top: 8px; }
-.genre-add-input { flex: 1; background: var(--bg2); border: 1px solid var(--border2); color: var(--text); padding: 8px 10px; border-radius: 8px; font-size: 13px; font-family: 'Noto Sans JP', sans-serif; }
+.genre-add-input { flex: 1; background: var(--bg2); border: 1px solid var(--border2); color: var(--text); padding: 8px 10px; border-radius: 8px; font-size: 16px; font-family: 'Noto Sans JP', sans-serif; }
 .genre-add-input::placeholder { color: var(--text3); }
 .genre-add-btn { background: var(--accent-dim); border: 1px solid rgba(84,72,232,0.25); color: var(--accent); padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; white-space: nowrap; }
 
@@ -476,7 +476,7 @@ body {
 .event-modal .modal-sheet { padding-bottom: calc(var(--safe-bottom) + 20px); }
 .form-field { margin-bottom: 14px; }
 .form-label { font-size: 11px; color: var(--text3); letter-spacing: 0.06em; margin-bottom: 6px; display: block; }
-.form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: 11px 12px; border-radius: 10px; font-size: 14px; font-family: 'Noto Sans JP', sans-serif; }
+.form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: 11px 12px; border-radius: 10px; font-size: 16px; font-family: 'Noto Sans JP', sans-serif; }
 .form-input:focus { outline: none; border-color: var(--accent); }
 .category-pills { display: flex; flex-wrap: wrap; gap: 7px; }
 .category-pill { padding: 7px 14px; border-radius: 20px; font-size: 12px; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; border: 1px solid var(--border2); background: var(--surface); color: var(--text2); transition: all 0.12s; }
@@ -891,9 +891,11 @@ function getDaysToShow() {
 
 function getColWidth() {
   const days = getDaysToShow();
-  const bodyW = document.getElementById('daysScrollBody').clientWidth || 320;
-  const visibleDays = state.settings.showWeekend ? 5 : days.length;
-  return Math.floor(bodyW / visibleDays);
+  const bodyW = document.getElementById('daysScrollBody').clientWidth || (window.innerWidth - 44);
+  // Always fit 5 weekday columns in the viewport.
+  // Weekend columns (when shown) are accessible via horizontal scroll.
+  const fitCols = state.settings.showWeekend ? 5 : days.length;
+  return Math.floor(bodyW / fitCols);
 }
 
 function getPeriodHeight() {
