@@ -158,9 +158,10 @@ body {
 }
 .day-events-cell:active { background: var(--bg3); }
 .event-chip { font-size: 9px; padding: 2px 5px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; pointer-events: none; }
-.event-chip.gyoji  { background: var(--event-dim); color: var(--event); border-left: 2px solid var(--event); }
-.event-chip.task   { background: var(--task-dim);  color: var(--task);  border-left: 2px solid var(--task); }
-.event-chip.kōmu   { background: var(--accent-dim); color: var(--accent2); border-left: 2px solid var(--accent); }
+.event-chip.gyoji   { background: var(--event-dim); color: var(--event); border-left: 2px solid var(--event); }
+.event-chip.task    { background: var(--task-dim);  color: var(--task);  border-left: 2px solid var(--task); }
+.event-chip.kōmu    { background: var(--accent-dim); color: var(--accent2); border-left: 2px solid var(--accent); }
+.event-chip.holiday { background: var(--event-dim); color: var(--event); border-left: 2px solid var(--event); font-style: italic; }
 
 /* Timetable */
 .timetable-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
@@ -177,9 +178,13 @@ body {
 .days-scroll-body { flex: 1; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
 .days-body-inner { display: flex; height: 100%; }
 .day-col-body { flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid var(--border); scroll-snap-align: start; }
-.day-col-body.sat-col   { background: rgba(26,111,196,0.04); }
-.day-col-body.sun-col   { background: rgba(217,79,53,0.04); }
-.day-col-body.today-col { background: rgba(240,180,0,0.07); }
+.day-col-body.sat-col     { background: rgba(26,111,196,0.04); }
+.day-col-body.sun-col     { background: rgba(217,79,53,0.04); }
+.day-col-body.holiday-col { background: rgba(217,79,53,0.04); }
+.day-col-body.today-col   { background: rgba(240,180,0,0.07); }
+.day-col-header.holiday .day-name,
+.day-col-header.holiday .day-num { color: var(--event); }
+.day-col-header.holiday { background: rgba(217,79,53,0.05); }
 .day-col-header.today   { background: rgba(240,180,0,0.08); }
 
 .period-cell {
@@ -786,6 +791,7 @@ let state = {
   notes: {},
   todos: [],
   fixedTimetable: {},
+  holidays: {},
   currentWeekStart: null,
   // Subject modal
   selectedCell: null,
@@ -919,7 +925,8 @@ function renderHeaders() {
     el.className = 'day-col-header' +
       (dk === today ? ' today' : '') +
       (dw === 6 ? ' sat' : '') +
-      (dw === 0 ? ' sun' : '');
+      (dw === 0 ? ' sun' : '') +
+      (state.holidays[dk] && dw !== 0 ? ' holiday' : '');
     el.style.width = colW + 'px';
     el.innerHTML = `<span class="day-name">${DAY_NAMES[dw]}</span><span class="day-num">${d.getDate()}</span>`;
     inner.appendChild(el);
@@ -938,6 +945,16 @@ function renderEventBanners() {
     cell.className = 'day-events-cell';
     cell.style.width  = colW + 'px';
     cell.style.height = ph + 'px';
+    // Holiday chip (auto, non-deletable)
+    const holidayName = state.holidays[dk];
+    if (holidayName) {
+      const hChip = document.createElement('div');
+      hChip.className = 'event-chip holiday';
+      hChip.textContent = holidayName;
+      hChip.title = holidayName;
+      cell.appendChild(hChip);
+    }
+    // User events
     state.events.filter(e => e.date === dk).forEach(ev => {
       const chip = document.createElement('div');
       chip.className = `event-chip ${ev.category}`;
@@ -996,6 +1013,7 @@ function renderBody() {
     const col = document.createElement('div');
     col.className = 'day-col-body' +
       (dw === 6 ? ' sat-col' : dw === 0 ? ' sun-col' : '') +
+      (state.holidays[dk] && dw !== 0 && dw !== 6 ? ' holiday-col' : '') +
       (dk === todayKey ? ' today-col' : '');
     col.style.width = colW + 'px';
 
@@ -1779,6 +1797,8 @@ function applyFixedTimetable() {
   days.forEach(d => {
     const dk = dateKey(d);
     const dw = d.getDay();
+    // Skip holidays (no classes on holidays)
+    if (state.holidays[dk]) return;
     state.settings.periods.forEach((p, i) => {
       const fixedKey = `${dw}_p${i}`;
       const cellK    = cellKey(dk, i);
@@ -1838,6 +1858,48 @@ if ('serviceWorker' in navigator) {
 }
 
 // ══════════════════════════════════════════
+// HOLIDAYS
+// ══════════════════════════════════════════
+
+async function loadHolidays() {
+  const CACHE_KEY = 'ts_holidays';
+  const CACHE_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+  function applyHolidays(data) {
+    state.holidays = data;
+    render();
+  }
+
+  // Check cache validity
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (raw) {
+      const { data, cachedAt } = JSON.parse(raw);
+      if (Date.now() - cachedAt < CACHE_TTL) {
+        applyHolidays(data);
+        return;
+      }
+    }
+  } catch(e) {}
+
+  // Fetch fresh data
+  try {
+    const res = await fetch('https://holidays-jp.github.io/api/v1/date.json');
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ data, cachedAt: Date.now() }));
+      applyHolidays(data);
+    }
+  } catch(e) {
+    // Offline fallback: use expired cache if available
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (raw) applyHolidays(JSON.parse(raw).data);
+    } catch(e2) {}
+  }
+}
+
+// ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
 
@@ -1845,6 +1907,7 @@ load();
 state.currentWeekStart = getWeekStart(new Date());
 syncScroll();
 render();
+loadHolidays();
 
 window.addEventListener('resize', () => render());
 </script>
