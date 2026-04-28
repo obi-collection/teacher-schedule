@@ -154,6 +154,15 @@ body {
   transition: background 0.15s;
   border-right: 1px solid var(--border);
   padding: 6px 4px;
+  overflow: hidden;
+}
+.day-col-header.holiday { padding: 2px 4px; gap: 1px; }
+.day-holiday-name {
+  font-size: 8px; line-height: 1.2;
+  color: var(--event);
+  text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  width: 100%; padding: 0 2px;
 }
 .day-col-header:active { background: var(--bg3); }
 .day-name { font-size: 10px; color: var(--text3); letter-spacing: 0.05em; }
@@ -919,7 +928,7 @@ function getPeriodHeight() {
 
 function render() {
   const ph = getPeriodHeight();
-  document.getElementById('eventGutter').style.height = ph + 'px';
+  document.getElementById('eventGutter').style.height = (ph + 1) + 'px';
   renderWeekLabel();
   renderHeaders();
   renderEventBanners();
@@ -951,6 +960,12 @@ function renderHeaders() {
       (state.holidays[dk] && dw !== 0 ? ' holiday' : '');
     el.style.width = colW + 'px';
     el.innerHTML = `<span class="day-name">${DAY_NAMES[dw]}</span><span class="day-num">${d.getDate()}</span>`;
+    if (state.holidays[dk]) {
+      const hn = document.createElement('span');
+      hn.className = 'day-holiday-name';
+      hn.textContent = state.holidays[dk];
+      el.appendChild(hn);
+    }
     inner.appendChild(el);
   });
 }
@@ -972,15 +987,6 @@ function renderEventBanners() {
       (dk === todayKey ? ' today-col' : '');
     cell.style.width  = colW + 'px';
     cell.style.height = ph + 'px';
-    // Holiday chip (auto, non-deletable)
-    const holidayName = state.holidays[dk];
-    if (holidayName) {
-      const hChip = document.createElement('div');
-      hChip.className = 'event-chip holiday';
-      hChip.textContent = holidayName;
-      hChip.title = holidayName;
-      cell.appendChild(hChip);
-    }
     // User events
     state.events.filter(e => e.date === dk).forEach(ev => {
       const chip = document.createElement('div');
