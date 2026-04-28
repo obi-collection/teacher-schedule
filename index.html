@@ -202,8 +202,10 @@ body {
 
 .day-col-header.sat .day-name,
 .day-col-header.sat .day-num { color: #1a6fc4; }
+.day-col-header.sat { background: rgba(26,111,196,0.05); }
 .day-col-header.sun .day-name,
 .day-col-header.sun .day-num { color: var(--event); }
+.day-col-header.sun { background: rgba(217,79,53,0.05); }
 
 /* Event banner row */
 .event-banner-row {
@@ -350,6 +352,21 @@ body {
   border-right: 1px solid var(--border);
   scroll-snap-align: start;
 }
+
+.day-col-body.sat-col { background: rgba(26,111,196,0.04); }
+.day-col-body.sun-col { background: rgba(217,79,53,0.04); }
+
+.weekend-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.12s;
+  padding: 8px 4px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+.weekend-cell:active { background: rgba(0,0,0,0.06); }
 
 .period-cell {
   border-bottom: 1px solid var(--border);
@@ -1426,9 +1443,8 @@ function renderBody() {
     const showPeriods = !isWeekend || state.settings.weekendPeriods;
 
     const col = document.createElement('div');
-    col.className = 'day-col-body';
+    col.className = 'day-col-body' + (dw === 6 ? ' sat-col' : dw === 0 ? ' sun-col' : '');
     col.style.width = colW + 'px';
-    col.style.opacity = isWeekend ? '0.85' : '1';
 
     if (showPeriods) {
       periods.forEach((p, i) => {
@@ -1464,15 +1480,19 @@ function renderBody() {
 
       col.appendChild(makeSpecialCell(dk, 'after', ph));
     } else {
-      const filler = document.createElement('div');
-      filler.style.height = (ph * (periods.length + 2)) + 'px';
-      filler.style.display = 'flex';
-      filler.style.alignItems = 'center';
-      filler.style.justifyContent = 'center';
-      filler.style.color = 'var(--text3)';
-      filler.style.fontSize = '11px';
-      filler.textContent = '休';
-      col.appendChild(filler);
+      const noteKey = `${dk}_weekend`;
+      const noteText = state.notes[noteKey] || '';
+      const cell = document.createElement('div');
+      cell.className = 'weekend-cell';
+      cell.style.height = (ph * (periods.length + 2)) + 'px';
+      if (noteText) {
+        const txt = document.createElement('div');
+        txt.className = 'note-text';
+        txt.textContent = noteText;
+        cell.appendChild(txt);
+      }
+      cell.addEventListener('click', () => openNoteModal(dk, 'weekend'));
+      col.appendChild(cell);
     }
 
     inner.appendChild(col);
@@ -1643,7 +1663,7 @@ function openNoteModal(dateStr, type) {
   document.getElementById('noteInput').value = state.notes[key] || '';
 
   const d = new Date(dateStr + 'T00:00:00');
-  const label = type === 'lunch' ? '昼休み' : '放課後';
+  const label = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : '終日メモ';
   document.getElementById('noteModalTitle').textContent =
     `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） ${label}`;
   document.getElementById('noteModalSub').textContent = 'メモを自由に入力できます';
