@@ -196,6 +196,18 @@ body {
 .day-col-header.holiday { background: rgba(217,79,53,0.05); }
 .day-col-header.today   { background: rgba(240,180,0,0.08); }
 
+/* ── WEEK TRANSITION ANIMATION ── */
+@keyframes weekSlideFromRight {
+  from { transform: translateX(52px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes weekSlideFromLeft {
+  from { transform: translateX(-52px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+.week-anim-forward { animation: weekSlideFromRight 240ms cubic-bezier(0.4,0,0.2,1) both; }
+.week-anim-back    { animation: weekSlideFromLeft  240ms cubic-bezier(0.4,0,0.2,1) both; }
+
 .period-cell {
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; justify-content: center;
@@ -1133,6 +1145,7 @@ function initSwipeWeek() {
   }, { passive: true });
 
   el.addEventListener('touchmove', e => {
+    if (isAnimating) return;
     const t = e.touches[0];
     const dx = t.clientX - startX;
     const dy = t.clientY - startY;
@@ -1150,13 +1163,35 @@ function initSwipeWeek() {
   el.addEventListener('touchend', e => {
     if (!swipeHandled) return;
     swipeHandled = false;
+    if (isAnimating) return;
     const t  = e.changedTouches[0];
     const dy = t.clientY - startY;
     const dx = t.clientX - startX;
     if (Math.abs(dy) < 50 || Math.abs(dy) <= Math.abs(dx)) return;
-    state.currentWeekStart = addDays(state.currentWeekStart, dy < 0 ? 7 : -7);
-    save(); render();
+    const dir = dy < 0 ? 1 : -1;
+    animateWeekChange(dir, () => { state.currentWeekStart = addDays(state.currentWeekStart, dir * 7); save(); });
   }, { passive: true });
+}
+
+// ══════════════════════════════════════════
+// WEEK CHANGE WITH ANIMATION
+// ══════════════════════════════════════════
+
+let isAnimating = false;
+
+function animateWeekChange(direction, applyState) {
+  // direction: 1 = forward (next week), -1 = backward (prev week)
+  if (isAnimating) return;
+  isAnimating = true;
+  applyState();
+  render();
+  const wrapper = document.querySelector('#daysScrollBody .days-content-wrapper');
+  const cls = direction > 0 ? 'week-anim-forward' : 'week-anim-back';
+  wrapper.classList.add(cls);
+  wrapper.addEventListener('animationend', () => {
+    wrapper.classList.remove(cls);
+    isAnimating = false;
+  }, { once: true });
 }
 
 // ══════════════════════════════════════════
@@ -1886,13 +1921,16 @@ document.getElementById('applyFixedBtn').addEventListener('click', applyFixedTim
 // ══════════════════════════════════════════
 
 document.getElementById('prevWeek').addEventListener('click', () => {
-  state.currentWeekStart = addDays(state.currentWeekStart, -7); render();
+  animateWeekChange(-1, () => { state.currentWeekStart = addDays(state.currentWeekStart, -7); save(); });
 });
 document.getElementById('nextWeek').addEventListener('click', () => {
-  state.currentWeekStart = addDays(state.currentWeekStart, 7); render();
+  animateWeekChange(1, () => { state.currentWeekStart = addDays(state.currentWeekStart, 7); save(); });
 });
 document.getElementById('todayBtn').addEventListener('click', () => {
-  state.currentWeekStart = getWeekStart(new Date()); render();
+  const target = getWeekStart(new Date());
+  const diff = target - state.currentWeekStart;
+  if (diff === 0) return;
+  animateWeekChange(diff > 0 ? 1 : -1, () => { state.currentWeekStart = target; save(); });
 });
 document.getElementById('navWeek').addEventListener('click', () => {
   closeTodoPanel(); closeSettingsPanel();
