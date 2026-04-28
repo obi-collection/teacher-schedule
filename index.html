@@ -210,7 +210,6 @@ body {
   display: flex;
   flex-shrink: 0;
   border-bottom: 1px solid var(--border);
-  min-height: 28px;
 }
 
 .event-gutter {
@@ -220,7 +219,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: background 0.12s;
 }
+.event-gutter:active { background: var(--bg3); }
 
 .event-gutter-icon {
   font-size: 11px;
@@ -241,11 +243,14 @@ body {
   flex-shrink: 0;
   padding: 4px 3px;
   border-right: 1px solid var(--border);
-  min-height: 28px;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  cursor: pointer;
+  transition: background 0.12s;
+  overflow: hidden;
 }
+.day-events-cell:active { background: var(--bg3); }
 
 .event-chip {
   font-size: 9px;
@@ -254,8 +259,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  cursor: pointer;
   line-height: 1.4;
+  pointer-events: none;
 }
 
 .event-chip.gyoji {
@@ -304,11 +309,18 @@ body {
   gap: 1px;
 }
 
+.period-label.special {
+  background: var(--bg3);
+  border-top: 1px solid var(--border2);
+}
+
 .period-num {
   font-family: 'DM Mono', monospace;
   font-size: 13px;
   font-weight: 500;
   color: var(--text3);
+  text-align: center;
+  line-height: 1.3;
 }
 
 .period-time {
@@ -358,6 +370,13 @@ body {
 
 .period-cell.filled:active { background: rgba(84,72,232,0.14); }
 
+.period-cell.special-cell {
+  background: var(--bg3);
+  border-top: 1px solid var(--border2);
+  flex-direction: column;
+}
+.period-cell.special-cell:active { background: var(--surface); }
+
 .subject-label {
   font-size: 11px;
   font-weight: 500;
@@ -377,6 +396,25 @@ body {
 }
 
 .period-cell:active .empty-cell-icon { opacity: 0.5; }
+
+.note-text {
+  font-size: 10px;
+  color: var(--text2);
+  text-align: center;
+  line-height: 1.3;
+  word-break: break-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding: 0 2px;
+}
+
+.note-empty-label {
+  font-size: 9px;
+  color: var(--text3);
+  opacity: 0.45;
+}
 
 /* ── BOTTOM NAV ── */
 .bottom-nav {
@@ -466,7 +504,7 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .subject-chip {
@@ -487,6 +525,12 @@ body {
   border-color: var(--accent);
   background: var(--accent-dim);
   color: var(--accent);
+}
+
+.subject-add-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .modal-actions {
@@ -856,6 +900,37 @@ body {
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* Todo items */
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--bg2);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.todo-check {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+.todo-text {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.todo-text.done {
+  text-decoration: line-through;
+  color: var(--text3);
+}
+
 /* App container */
 #app {
   position: relative;
@@ -877,7 +952,7 @@ body {
         <span class="week-label" id="weekLabel">--</span>
         <button id="nextWeek">›</button>
       </div>
-      <button class="today-btn" id="todayBtn">今日</button>
+      <button class="today-btn" id="todayBtn">今週に戻る</button>
     </div>
     <button class="icon-btn" id="addEventBtn" title="予定追加">＋</button>
     <button class="icon-btn" id="openSettings" title="設定">⚙</button>
@@ -895,8 +970,8 @@ body {
     </div>
 
     <!-- Event banner row -->
-    <div class="event-banner-row">
-      <div class="event-gutter">
+    <div class="event-banner-row" id="eventBannerRow">
+      <div class="event-gutter" id="eventGutter">
         <span class="event-gutter-icon">★</span>
       </div>
       <div class="days-scroll-events" id="daysScrollEvents">
@@ -922,9 +997,9 @@ body {
       <span class="nav-icon">▦</span>
       <span class="nav-label">週</span>
     </button>
-    <button class="nav-item" id="navList">
-      <span class="nav-icon">☰</span>
-      <span class="nav-label">リスト</span>
+    <button class="nav-item" id="navTodo">
+      <span class="nav-icon">☑</span>
+      <span class="nav-label">To Do</span>
     </button>
     <button class="nav-item" id="navSettings2">
       <span class="nav-icon">⚙</span>
@@ -939,6 +1014,16 @@ body {
       <div class="modal-title" id="subjectModalTitle">授業を選択</div>
       <div class="modal-subtitle" id="subjectModalSub"></div>
       <div class="subject-grid" id="subjectGrid"></div>
+      <!-- 新規追加 -->
+      <div class="subject-add-row">
+        <input class="add-input" id="subjectNewInput" placeholder="新しい教科名…" autocomplete="off">
+        <button class="add-btn" id="subjectNewAddBtn">新規追加</button>
+      </div>
+      <!-- 自由入力 -->
+      <div class="form-field">
+        <label class="form-label">このコマのみ自由入力（マスターに追加しない）</label>
+        <input class="form-input" id="subjectFreeText" placeholder="例：自習、補講、研修…" autocomplete="off">
+      </div>
       <div class="modal-actions">
         <button class="btn btn-danger" id="clearCellBtn">削除</button>
         <button class="btn btn-ghost" id="cancelSubjectBtn">キャンセル</button>
@@ -976,6 +1061,23 @@ body {
     </div>
   </div>
 
+  <!-- NOTE MODAL (昼休み / 放課後) -->
+  <div class="modal-overlay" id="noteModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="noteModalTitle">昼休み</div>
+      <div class="modal-subtitle" id="noteModalSub"></div>
+      <div class="form-field">
+        <textarea class="form-input" id="noteInput" rows="3" placeholder="メモを入力…" style="resize:none;min-height:80px"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="clearNoteBtn">クリア</button>
+        <button class="btn btn-ghost" id="cancelNoteBtn">キャンセル</button>
+        <button class="btn btn-primary" id="confirmNoteBtn">保存</button>
+      </div>
+    </div>
+  </div>
+
   <!-- SETTINGS PANEL -->
   <div class="settings-panel" id="settingsPanel">
     <div class="settings-header">
@@ -983,7 +1085,6 @@ body {
       <h2>設定</h2>
     </div>
 
-    <!-- Display -->
     <div class="settings-section">
       <div class="settings-section-title">表示</div>
 
@@ -1019,7 +1120,6 @@ body {
       </div>
     </div>
 
-    <!-- Periods -->
     <div class="settings-section">
       <div class="settings-section-title">時限設定</div>
       <div class="period-settings-list" id="periodSettingsList"></div>
@@ -1028,7 +1128,6 @@ body {
       </div>
     </div>
 
-    <!-- Subjects -->
     <div class="settings-section">
       <div class="settings-section-title">教科マスターリスト</div>
       <div class="master-list" id="subjectMasterList"></div>
@@ -1038,7 +1137,6 @@ body {
       </div>
     </div>
 
-    <!-- Data -->
     <div class="settings-section">
       <div class="settings-section-title">データ管理</div>
       <div class="data-actions">
@@ -1054,6 +1152,22 @@ body {
       </div>
     </div>
 
+    <div style="height:40px"></div>
+  </div>
+
+  <!-- TODO PANEL -->
+  <div class="settings-panel" id="todoPanel">
+    <div class="settings-header">
+      <button class="icon-btn" id="closeTodoPanel">‹</button>
+      <h2>To Do リスト</h2>
+    </div>
+    <div class="settings-section">
+      <div class="add-item-row" style="margin-top:0">
+        <input class="add-input" id="newTodoInput" placeholder="タスクを追加…">
+        <button class="add-btn" id="addTodoBtn">追加</button>
+      </div>
+      <div id="todoList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px"></div>
+    </div>
     <div style="height:40px"></div>
   </div>
 
@@ -1094,7 +1208,9 @@ const DEFAULTS = {
     ]
   },
   timetable: {},
-  events: []
+  events: [],
+  notes: {},
+  todos: []
 };
 
 // ══════════════════════════════════════════
@@ -1105,10 +1221,13 @@ let state = {
   settings: JSON.parse(JSON.stringify(DEFAULTS.settings)),
   timetable: {},
   events: [],
+  notes: {},
+  todos: [],
   currentWeekStart: null,
   selectedCell: null,
   selectedSubject: null,
-  selectedEventCat: 'gyoji'
+  selectedEventCat: 'gyoji',
+  noteTarget: null
 };
 
 // ══════════════════════════════════════════
@@ -1120,17 +1239,23 @@ function save() {
     localStorage.setItem('ts_settings', JSON.stringify(state.settings));
     localStorage.setItem('ts_timetable', JSON.stringify(state.timetable));
     localStorage.setItem('ts_events', JSON.stringify(state.events));
+    localStorage.setItem('ts_notes', JSON.stringify(state.notes));
+    localStorage.setItem('ts_todos', JSON.stringify(state.todos));
   } catch(e) { showToast('保存に失敗しました'); }
 }
 
 function load() {
   try {
-    const s = localStorage.getItem('ts_settings');
-    const t = localStorage.getItem('ts_timetable');
-    const e = localStorage.getItem('ts_events');
-    if (s) state.settings = { ...DEFAULTS.settings, ...JSON.parse(s) };
-    if (t) state.timetable = JSON.parse(t);
-    if (e) state.events = JSON.parse(e);
+    const s  = localStorage.getItem('ts_settings');
+    const t  = localStorage.getItem('ts_timetable');
+    const e  = localStorage.getItem('ts_events');
+    const n  = localStorage.getItem('ts_notes');
+    const td = localStorage.getItem('ts_todos');
+    if (s)  state.settings  = { ...DEFAULTS.settings, ...JSON.parse(s) };
+    if (t)  state.timetable = JSON.parse(t);
+    if (e)  state.events    = JSON.parse(e);
+    if (n)  state.notes     = JSON.parse(n);
+    if (td) state.todos     = JSON.parse(td);
   } catch(e) {}
 }
 
@@ -1163,7 +1288,6 @@ function cellKey(dateStr, period) {
 }
 
 const DAY_NAMES = ['日','月','火','水','木','金','土'];
-const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
 // ══════════════════════════════════════════
 // RENDER
@@ -1186,10 +1310,16 @@ function getPeriodHeight() {
   const scroll = document.getElementById('timetableScroll');
   const periods = state.settings.periods;
   const available = scroll.clientHeight || 400;
-  return Math.max(44, Math.floor(available / periods.length));
+  // +2 accounts for lunch and after-school rows
+  return Math.max(40, Math.floor(available / (periods.length + 2)));
 }
 
 function render() {
+  const ph = getPeriodHeight();
+  // Sync event banner row height with period height
+  document.getElementById('eventBannerRow').style.minHeight = ph + 'px';
+  document.getElementById('daysScrollEvents').style.height = ph + 'px';
+
   renderWeekLabel();
   renderHeaders();
   renderEventBanners();
@@ -1227,6 +1357,7 @@ function renderHeaders() {
 function renderEventBanners() {
   const days = getDaysToShow();
   const colW = getColWidth();
+  const ph = getPeriodHeight();
   const inner = document.getElementById('daysEventsInner');
   inner.innerHTML = '';
   days.forEach(d => {
@@ -1234,6 +1365,7 @@ function renderEventBanners() {
     const cell = document.createElement('div');
     cell.className = 'day-events-cell';
     cell.style.width = colW + 'px';
+    cell.style.height = ph + 'px';
     const dayEvents = state.events.filter(e => e.date === dk);
     dayEvents.forEach(ev => {
       const chip = document.createElement('div');
@@ -1242,6 +1374,7 @@ function renderEventBanners() {
       chip.title = ev.title;
       cell.appendChild(chip);
     });
+    cell.addEventListener('click', () => openEventModal(dk));
     inner.appendChild(cell);
   });
 }
@@ -1251,13 +1384,29 @@ function renderPeriodLabels() {
   const ph = getPeriodHeight();
   const labels = document.getElementById('periodLabels');
   labels.innerHTML = '';
+  const lunchAfterIdx = Math.min(3, periods.length - 1);
+
   periods.forEach((p, i) => {
     const el = document.createElement('div');
     el.className = 'period-label';
     el.style.height = ph + 'px';
     el.innerHTML = `<span class="period-num">${i+1}</span><span class="period-time">${p.start}</span>`;
     labels.appendChild(el);
+
+    if (i === lunchAfterIdx) {
+      const lunch = document.createElement('div');
+      lunch.className = 'period-label special';
+      lunch.style.height = ph + 'px';
+      lunch.innerHTML = `<span class="period-num" style="font-size:9px">昼<br>休み</span>`;
+      labels.appendChild(lunch);
+    }
   });
+
+  const after = document.createElement('div');
+  after.className = 'period-label special';
+  after.style.height = ph + 'px';
+  after.innerHTML = `<span class="period-num" style="font-size:8px">放<br>課<br>後</span>`;
+  labels.appendChild(after);
 }
 
 function renderBody() {
@@ -1268,7 +1417,7 @@ function renderBody() {
   const inner = document.getElementById('daysBodyInner');
   inner.innerHTML = '';
 
-  const today = dateKey(new Date());
+  const lunchAfterIdx = Math.min(3, periods.length - 1);
 
   days.forEach(d => {
     const dk = dateKey(d);
@@ -1307,11 +1456,16 @@ function renderBody() {
 
         cell.addEventListener('click', () => openSubjectModal(dk, i));
         col.appendChild(cell);
+
+        if (i === lunchAfterIdx) {
+          col.appendChild(makeSpecialCell(dk, 'lunch', ph));
+        }
       });
+
+      col.appendChild(makeSpecialCell(dk, 'after', ph));
     } else {
-      // Weekend with no periods: show a dimmed full-height cell
       const filler = document.createElement('div');
-      filler.style.height = (ph * periods.length) + 'px';
+      filler.style.height = (ph * (periods.length + 2)) + 'px';
       filler.style.display = 'flex';
       filler.style.alignItems = 'center';
       filler.style.justifyContent = 'center';
@@ -1323,6 +1477,29 @@ function renderBody() {
 
     inner.appendChild(col);
   });
+}
+
+function makeSpecialCell(dateStr, type, ph) {
+  const key = `${dateStr}_${type}`;
+  const noteText = state.notes[key] || '';
+  const cell = document.createElement('div');
+  cell.className = 'period-cell special-cell';
+  cell.style.height = ph + 'px';
+
+  if (noteText) {
+    const txt = document.createElement('div');
+    txt.className = 'note-text';
+    txt.textContent = noteText;
+    cell.appendChild(txt);
+  } else {
+    const lbl = document.createElement('div');
+    lbl.className = 'note-empty-label';
+    lbl.textContent = type === 'lunch' ? '昼休み' : '放課後';
+    cell.appendChild(lbl);
+  }
+
+  cell.addEventListener('click', () => openNoteModal(dateStr, type));
+  return cell;
 }
 
 // Sync horizontal scroll across header, events, body
@@ -1344,7 +1521,14 @@ function openSubjectModal(dateStr, periodIdx) {
   state.selectedCell = { dateStr, periodIdx };
   const key = cellKey(dateStr, periodIdx);
   const existing = state.timetable[key];
-  state.selectedSubject = existing ? existing.name : null;
+  const existingInList = existing ? state.settings.subjects.find(s => s.name === existing.name) : null;
+
+  state.selectedSubject = (existing && existingInList) ? existing.name : null;
+
+  const freeInput = document.getElementById('subjectFreeText');
+  freeInput.value = (existing && !existingInList) ? existing.name : '';
+
+  document.getElementById('subjectNewInput').value = '';
 
   const p = state.settings.periods[periodIdx];
   const d = new Date(dateStr + 'T00:00:00');
@@ -1369,6 +1553,7 @@ function renderSubjectGrid() {
     }
     btn.addEventListener('click', () => {
       state.selectedSubject = s.name;
+      document.getElementById('subjectFreeText').value = '';
       renderSubjectGrid();
     });
     grid.appendChild(btn);
@@ -1377,15 +1562,26 @@ function renderSubjectGrid() {
 
 function closeSubjectModal() {
   document.getElementById('subjectModal').classList.remove('open');
+  document.getElementById('subjectFreeText').value = '';
+  document.getElementById('subjectNewInput').value = '';
   state.selectedCell = null;
   state.selectedSubject = null;
 }
 
 document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
-  if (!state.selectedCell || !state.selectedSubject) return;
+  if (!state.selectedCell) return;
+  const freeText = document.getElementById('subjectFreeText').value.trim();
   const key = cellKey(state.selectedCell.dateStr, state.selectedCell.periodIdx);
-  const subject = state.settings.subjects.find(s => s.name === state.selectedSubject);
-  state.timetable[key] = { name: state.selectedSubject, color: subject?.color || null };
+
+  if (freeText) {
+    state.timetable[key] = { name: freeText, color: null };
+  } else if (state.selectedSubject) {
+    const subject = state.settings.subjects.find(s => s.name === state.selectedSubject);
+    state.timetable[key] = { name: state.selectedSubject, color: subject?.color || null };
+  } else {
+    showToast('教科を選択するか、自由入力してください');
+    return;
+  }
   save();
   render();
   closeSubjectModal();
@@ -1406,17 +1602,108 @@ document.getElementById('subjectModal').addEventListener('click', function(e) {
   if (e.target === this) closeSubjectModal();
 });
 
+// 新規追加（モーダル内）
+document.getElementById('subjectNewAddBtn').addEventListener('click', () => {
+  const name = document.getElementById('subjectNewInput').value.trim();
+  if (!name) return;
+  if (state.settings.subjects.some(s => s.name === name)) {
+    showToast('すでに登録されています');
+    return;
+  }
+  const color = SUBJECT_COLORS[colorIdx % SUBJECT_COLORS.length];
+  colorIdx++;
+  state.settings.subjects.push({ name, color });
+  state.selectedSubject = name;
+  document.getElementById('subjectNewInput').value = '';
+  document.getElementById('subjectFreeText').value = '';
+  save();
+  renderSubjectGrid();
+  showToast(`「${name}」を追加しました`);
+});
+
+document.getElementById('subjectNewInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('subjectNewAddBtn').click();
+});
+
+// 自由入力時は教科選択を解除
+document.getElementById('subjectFreeText').addEventListener('input', function() {
+  if (this.value) {
+    state.selectedSubject = null;
+    renderSubjectGrid();
+  }
+});
+
+// ══════════════════════════════════════════
+// NOTE MODAL (昼休み / 放課後)
+// ══════════════════════════════════════════
+
+function openNoteModal(dateStr, type) {
+  state.noteTarget = { dateStr, type };
+  const key = `${dateStr}_${type}`;
+  document.getElementById('noteInput').value = state.notes[key] || '';
+
+  const d = new Date(dateStr + 'T00:00:00');
+  const label = type === 'lunch' ? '昼休み' : '放課後';
+  document.getElementById('noteModalTitle').textContent =
+    `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） ${label}`;
+  document.getElementById('noteModalSub').textContent = 'メモを自由に入力できます';
+
+  document.getElementById('noteModal').classList.add('open');
+  setTimeout(() => document.getElementById('noteInput').focus(), 300);
+}
+
+function closeNoteModal() {
+  document.getElementById('noteModal').classList.remove('open');
+  state.noteTarget = null;
+}
+
+document.getElementById('confirmNoteBtn').addEventListener('click', () => {
+  if (!state.noteTarget) return;
+  const key = `${state.noteTarget.dateStr}_${state.noteTarget.type}`;
+  const text = document.getElementById('noteInput').value.trim();
+  if (text) {
+    state.notes[key] = text;
+  } else {
+    delete state.notes[key];
+  }
+  save();
+  render();
+  closeNoteModal();
+});
+
+document.getElementById('clearNoteBtn').addEventListener('click', () => {
+  if (!state.noteTarget) return;
+  const key = `${state.noteTarget.dateStr}_${state.noteTarget.type}`;
+  delete state.notes[key];
+  save();
+  render();
+  closeNoteModal();
+});
+
+document.getElementById('cancelNoteBtn').addEventListener('click', closeNoteModal);
+
+document.getElementById('noteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeNoteModal();
+});
+
 // ══════════════════════════════════════════
 // EVENT MODAL
 // ══════════════════════════════════════════
 
-document.getElementById('addEventBtn').addEventListener('click', () => {
-  const today = dateKey(new Date());
-  document.getElementById('eventDate').value = today;
+function openEventModal(dateStr) {
+  document.getElementById('eventDate').value = dateStr || dateKey(new Date());
   document.getElementById('eventTitle').value = '';
   state.selectedEventCat = 'gyoji';
   updateCategoryPills();
   document.getElementById('eventModal').classList.add('open');
+}
+
+document.getElementById('addEventBtn').addEventListener('click', () => {
+  openEventModal(dateKey(new Date()));
+});
+
+document.getElementById('eventGutter').addEventListener('click', () => {
+  openEventModal(dateKey(new Date()));
 });
 
 document.querySelectorAll('.category-pill').forEach(btn => {
@@ -1469,21 +1756,15 @@ document.getElementById('navSettings2').addEventListener('click', openSettings);
 document.getElementById('closeSettings').addEventListener('click', closeSettingsPanel);
 
 function renderSettings() {
-  // Week start
   document.getElementById('weekStartSetting').value = state.settings.weekStart;
 
-  // Show weekend toggle
   const sw = document.getElementById('showWeekendSetting');
   sw.checked = state.settings.showWeekend;
   document.getElementById('weekendPeriodsRow').style.display = state.settings.showWeekend ? '' : 'none';
 
-  // Weekend periods
   document.getElementById('weekendPeriodsSetting').checked = state.settings.weekendPeriods;
 
-  // Period list
   renderPeriodSettingsList();
-
-  // Subject master list
   renderSubjectMasterList();
 }
 
@@ -1594,7 +1875,9 @@ document.getElementById('exportBtn').addEventListener('click', () => {
     exportedAt: new Date().toISOString(),
     settings: state.settings,
     timetable: state.timetable,
-    events: state.events
+    events: state.events,
+    notes: state.notes,
+    todos: state.todos
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -1617,9 +1900,11 @@ document.getElementById('importFile').addEventListener('change', function() {
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      if (data.settings) state.settings = data.settings;
-      if (data.timetable) state.timetable = data.timetable;
-      if (data.events) state.events = data.events;
+      if (data.settings)  state.settings  = data.settings;
+      if (data.timetable) state.timetable  = data.timetable;
+      if (data.events)    state.events     = data.events;
+      if (data.notes)     state.notes      = data.notes;
+      if (data.todos)     state.todos      = data.todos;
       save(); render(); renderSettings();
       showToast('データを復元しました');
     } catch(err) {
@@ -1628,6 +1913,89 @@ document.getElementById('importFile').addEventListener('change', function() {
   };
   reader.readAsText(file);
   this.value = '';
+});
+
+// ══════════════════════════════════════════
+// TODO PANEL
+// ══════════════════════════════════════════
+
+function openTodoPanel() {
+  renderTodoList();
+  document.getElementById('todoPanel').classList.add('open');
+  document.getElementById('navTodo').classList.add('active');
+  document.getElementById('navWeek').classList.remove('active');
+}
+
+function closeTodoPanel() {
+  document.getElementById('todoPanel').classList.remove('open');
+  document.getElementById('navTodo').classList.remove('active');
+  document.getElementById('navWeek').classList.add('active');
+}
+
+document.getElementById('navTodo').addEventListener('click', openTodoPanel);
+document.getElementById('closeTodoPanel').addEventListener('click', closeTodoPanel);
+
+function renderTodoList() {
+  const list = document.getElementById('todoList');
+  list.innerHTML = '';
+
+  if (state.todos.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--text3);font-size:13px;padding:24px 0';
+    empty.textContent = 'タスクはありません';
+    list.appendChild(empty);
+    return;
+  }
+
+  state.todos.forEach((todo, i) => {
+    const item = document.createElement('div');
+    item.className = 'todo-item';
+    item.style.opacity = todo.done ? '0.55' : '1';
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.className = 'todo-check';
+    cb.checked = todo.done;
+    cb.dataset.idx = i;
+    cb.addEventListener('change', function() {
+      state.todos[parseInt(this.dataset.idx)].done = this.checked;
+      save();
+      renderTodoList();
+    });
+
+    const txt = document.createElement('span');
+    txt.className = 'todo-text' + (todo.done ? ' done' : '');
+    txt.textContent = todo.text;
+
+    const del = document.createElement('button');
+    del.className = 'master-item-del';
+    del.textContent = '✕';
+    del.dataset.idx = i;
+    del.addEventListener('click', function() {
+      state.todos.splice(parseInt(this.dataset.idx), 1);
+      save();
+      renderTodoList();
+    });
+
+    item.appendChild(cb);
+    item.appendChild(txt);
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('addTodoBtn').addEventListener('click', () => {
+  const input = document.getElementById('newTodoInput');
+  const text = input.value.trim();
+  if (!text) return;
+  state.todos.push({ text, done: false });
+  input.value = '';
+  save();
+  renderTodoList();
+});
+
+document.getElementById('newTodoInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('addTodoBtn').click();
 });
 
 // ══════════════════════════════════════════
@@ -1647,6 +2015,11 @@ document.getElementById('nextWeek').addEventListener('click', () => {
 document.getElementById('todayBtn').addEventListener('click', () => {
   state.currentWeekStart = getWeekStart(new Date());
   render();
+});
+
+document.getElementById('navWeek').addEventListener('click', () => {
+  closeTodoPanel();
+  closeSettingsPanel();
 });
 
 // ══════════════════════════════════════════
