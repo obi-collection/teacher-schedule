@@ -177,8 +177,10 @@ body {
 .days-scroll-body { flex: 1; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
 .days-body-inner { display: flex; height: 100%; }
 .day-col-body { flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid var(--border); scroll-snap-align: start; }
-.day-col-body.sat-col { background: rgba(26,111,196,0.04); }
-.day-col-body.sun-col { background: rgba(217,79,53,0.04); }
+.day-col-body.sat-col   { background: rgba(26,111,196,0.04); }
+.day-col-body.sun-col   { background: rgba(217,79,53,0.04); }
+.day-col-body.today-col { background: rgba(240,180,0,0.07); }
+.day-col-header.today   { background: rgba(240,180,0,0.08); }
 
 .period-cell {
   border-bottom: 1px solid var(--border);
@@ -205,6 +207,37 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .weekend-cell:active { background: rgba(0,0,0,0.06); }
+
+/* Apply fixed timetable button */
+.apply-btn {
+  background: rgba(46,171,110,0.12);
+  border: 1px solid rgba(46,171,110,0.3);
+  color: #2eab6e;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.apply-btn:active { background: rgba(46,171,110,0.22); }
+
+/* Fixed timetable grid in settings */
+.fixed-grid { display: grid; gap: 3px; margin-top: 6px; }
+.fixed-grid-header { text-align: center; font-size: 11px; color: var(--text3); padding: 3px 1px; font-weight: 500; }
+.fixed-grid-period { display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.fixed-cell {
+  height: 42px;
+  border-radius: 7px;
+  border: 1px solid var(--border2);
+  background: var(--bg2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 2px; transition: background 0.12s; overflow: hidden;
+}
+.fixed-cell:active { background: var(--bg3); }
+.fixed-cell.has-entry { background: rgba(84,72,232,0.07); }
+.fixed-cell-label { font-size: 10px; text-align: center; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; padding: 0 2px; }
 
 /* ── BOTTOM NAV ── */
 .bottom-nav { display: flex; background: var(--bg2); border-top: 1px solid var(--border2); padding-bottom: var(--safe-bottom); flex-shrink: 0; }
@@ -470,6 +503,7 @@ body {
         <button id="nextWeek">›</button>
       </div>
       <button class="today-btn" id="todayBtn">今週に戻る</button>
+      <button class="apply-btn" id="applyFixedBtn" title="固定時間割を適用">固定適用</button>
     </div>
     <button class="icon-btn" id="addEventBtn" title="予定追加">＋</button>
     <button class="icon-btn" id="openSettings" title="設定">⚙</button>
@@ -658,6 +692,13 @@ body {
       </div>
     </div>
 
+    <!-- 固定時間割 -->
+    <div class="settings-section">
+      <div class="settings-section-title">固定時間割</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.5">毎週同じ予定をテンプレートとして登録。週ビューの「固定適用」ボタンで空きコマに一括入力されます。</div>
+      <div id="fixedTimetableGrid"></div>
+    </div>
+
     <div class="settings-section">
       <div class="settings-section-title">データ管理</div>
       <div class="data-actions">
@@ -730,7 +771,8 @@ const DEFAULTS = {
   timetable: {},
   events: [],
   notes: {},
-  todos: []
+  todos: [],
+  fixedTimetable: {}
 };
 
 // ══════════════════════════════════════════
@@ -743,9 +785,11 @@ let state = {
   events: [],
   notes: {},
   todos: [],
+  fixedTimetable: {},
   currentWeekStart: null,
   // Subject modal
   selectedCell: null,
+  fixedCell: null,
   selectedGenreIdx: null,
   selectedSubject: null,
   // Event modal
@@ -760,11 +804,12 @@ let state = {
 
 function save() {
   try {
-    localStorage.setItem('ts_settings',  JSON.stringify(state.settings));
-    localStorage.setItem('ts_timetable', JSON.stringify(state.timetable));
-    localStorage.setItem('ts_events',    JSON.stringify(state.events));
-    localStorage.setItem('ts_notes',     JSON.stringify(state.notes));
-    localStorage.setItem('ts_todos',     JSON.stringify(state.todos));
+    localStorage.setItem('ts_settings',       JSON.stringify(state.settings));
+    localStorage.setItem('ts_timetable',      JSON.stringify(state.timetable));
+    localStorage.setItem('ts_events',         JSON.stringify(state.events));
+    localStorage.setItem('ts_notes',          JSON.stringify(state.notes));
+    localStorage.setItem('ts_todos',          JSON.stringify(state.todos));
+    localStorage.setItem('ts_fixedTimetable', JSON.stringify(state.fixedTimetable));
   } catch(e) { showToast('保存に失敗しました'); }
 }
 
@@ -775,18 +820,19 @@ function load() {
     const e  = localStorage.getItem('ts_events');
     const n  = localStorage.getItem('ts_notes');
     const td = localStorage.getItem('ts_todos');
+    const ft = localStorage.getItem('ts_fixedTimetable');
     if (s) {
       const parsed = JSON.parse(s);
       state.settings = { ...DEFAULTS.settings, ...parsed };
-      // Migration: old format had subjects, new format has genres
       if (!state.settings.genres) {
         state.settings.genres = JSON.parse(JSON.stringify(DEFAULTS.settings.genres));
       }
     }
-    if (t)  state.timetable = JSON.parse(t);
-    if (e)  state.events    = JSON.parse(e);
-    if (n)  state.notes     = JSON.parse(n);
-    if (td) state.todos     = JSON.parse(td);
+    if (t)  state.timetable      = JSON.parse(t);
+    if (e)  state.events         = JSON.parse(e);
+    if (n)  state.notes          = JSON.parse(n);
+    if (td) state.todos          = JSON.parse(td);
+    if (ft) state.fixedTimetable = JSON.parse(ft);
   } catch(e) {}
 }
 
@@ -939,6 +985,7 @@ function renderBody() {
   const inner = document.getElementById('daysBodyInner');
   inner.innerHTML = '';
   const lunchAfterIdx = Math.min(3, periods.length - 1);
+  const todayKey = dateKey(new Date());
 
   days.forEach(d => {
     const dk = dateKey(d);
@@ -947,7 +994,9 @@ function renderBody() {
     const showPeriods = !isWeekend || state.settings.weekendPeriods;
 
     const col = document.createElement('div');
-    col.className = 'day-col-body' + (dw === 6 ? ' sat-col' : dw === 0 ? ' sun-col' : '');
+    col.className = 'day-col-body' +
+      (dw === 6 ? ' sat-col' : dw === 0 ? ' sun-col' : '') +
+      (dk === todayKey ? ' today-col' : '');
     col.style.width = colW + 'px';
 
     if (showPeriods) {
@@ -1173,26 +1222,37 @@ document.getElementById('subjectFreeText').addEventListener('input', function() 
 });
 
 document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
-  if (!state.selectedCell) return;
+  if (!state.selectedCell && !state.fixedCell) return;
   const freeText = document.getElementById('subjectFreeText').value.trim();
-  const key = cellKey(state.selectedCell.dateStr, state.selectedCell.periodIdx);
 
+  let entry = null;
   if (freeText) {
-    state.timetable[key] = { name: freeText, color: null };
+    entry = { name: freeText, color: null };
   } else if (state.selectedSubject !== null && state.selectedGenreIdx !== null) {
     const genre = state.settings.genres[state.selectedGenreIdx];
-    state.timetable[key] = { name: state.selectedSubject, color: genre.color };
+    entry = { name: state.selectedSubject, color: genre.color };
   } else {
     showToast('ジャンル→項目を選択するか、自由入力してください');
     return;
   }
-  save(); render(); closeSubjectModal();
+
+  if (state.fixedCell) {
+    state.fixedTimetable[`${state.fixedCell.dow}_p${state.fixedCell.periodIdx}`] = entry;
+    save(); renderFixedTimetableGrid(); closeSubjectModal();
+  } else {
+    state.timetable[cellKey(state.selectedCell.dateStr, state.selectedCell.periodIdx)] = entry;
+    save(); render(); closeSubjectModal();
+  }
 });
 
 document.getElementById('clearCellBtn').addEventListener('click', () => {
-  if (!state.selectedCell) return;
-  delete state.timetable[cellKey(state.selectedCell.dateStr, state.selectedCell.periodIdx)];
-  save(); render(); closeSubjectModal();
+  if (state.fixedCell) {
+    delete state.fixedTimetable[`${state.fixedCell.dow}_p${state.fixedCell.periodIdx}`];
+    save(); renderFixedTimetableGrid(); closeSubjectModal();
+  } else if (state.selectedCell) {
+    delete state.timetable[cellKey(state.selectedCell.dateStr, state.selectedCell.periodIdx)];
+    save(); render(); closeSubjectModal();
+  }
 });
 
 document.getElementById('cancelSubjectBtn').addEventListener('click', closeSubjectModal);
@@ -1205,6 +1265,7 @@ function closeSubjectModal() {
   document.getElementById('subjectFreeText').value = '';
   document.getElementById('subjectNewInput').value = '';
   state.selectedCell     = null;
+  state.fixedCell        = null;
   state.selectedGenreIdx = null;
   state.selectedSubject  = null;
 }
@@ -1311,6 +1372,7 @@ function renderSettings() {
   document.getElementById('weekendPeriodsSetting').checked = state.settings.weekendPeriods;
   renderPeriodSettingsList();
   renderGenreMasterList();
+  renderFixedTimetableGrid();
 }
 
 document.getElementById('weekStartSetting').addEventListener('change', function() {
@@ -1502,7 +1564,8 @@ document.getElementById('exportBtn').addEventListener('click', () => {
     timetable: state.timetable,
     events: state.events,
     notes: state.notes,
-    todos: state.todos
+    todos: state.todos,
+    fixedTimetable: state.fixedTimetable
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -1528,8 +1591,9 @@ document.getElementById('importFile').addEventListener('change', function() {
       if (data.settings)  state.settings  = data.settings;
       if (data.timetable) state.timetable  = data.timetable;
       if (data.events)    state.events     = data.events;
-      if (data.notes)     state.notes      = data.notes;
-      if (data.todos)     state.todos      = data.todos;
+      if (data.notes)          state.notes          = data.notes;
+      if (data.todos)          state.todos          = data.todos;
+      if (data.fixedTimetable) state.fixedTimetable = data.fixedTimetable;
       // Ensure genres exists after import
       if (!state.settings.genres) {
         state.settings.genres = JSON.parse(JSON.stringify(DEFAULTS.settings.genres));
@@ -1619,6 +1683,121 @@ document.getElementById('addTodoBtn').addEventListener('click', () => {
 document.getElementById('newTodoInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') document.getElementById('addTodoBtn').click();
 });
+
+// ══════════════════════════════════════════
+// FIXED TIMETABLE
+// ══════════════════════════════════════════
+
+function openFixedModal(dow, periodIdx) {
+  state.fixedCell        = { dow, periodIdx };
+  state.selectedCell     = null;
+  state.selectedGenreIdx = null;
+  state.selectedSubject  = null;
+
+  const key = `${dow}_p${periodIdx}`;
+  const existing = state.fixedTimetable[key];
+  const freeInput = document.getElementById('subjectFreeText');
+  freeInput.value = '';
+
+  if (existing) {
+    let matched = false;
+    state.settings.genres.forEach((g, gi) => {
+      if (!matched && g.items.includes(existing.name)) {
+        state.selectedGenreIdx = gi;
+        state.selectedSubject  = existing.name;
+        matched = true;
+      }
+    });
+    if (!matched) freeInput.value = existing.name;
+  }
+
+  document.getElementById('subjectNewInput').value = '';
+  const p = state.settings.periods[periodIdx];
+  document.getElementById('subjectModalTitle').textContent = `固定時間割 ${DAY_NAMES[dow]}曜日`;
+  document.getElementById('subjectModalSub').textContent   = `${periodIdx+1}限 ${p.start}〜${p.end}`;
+
+  renderModalStep();
+  document.getElementById('subjectModal').classList.add('open');
+}
+
+function renderFixedTimetableGrid() {
+  const container = document.getElementById('fixedTimetableGrid');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const dows      = [1, 2, 3, 4, 5];
+  const dayLabels = ['月', '火', '水', '木', '金'];
+  const periods   = state.settings.periods;
+
+  const grid = document.createElement('div');
+  grid.className = 'fixed-grid';
+  grid.style.gridTemplateColumns = `24px repeat(5, 1fr)`;
+
+  // Header row
+  grid.appendChild(document.createElement('div'));
+  dayLabels.forEach(d => {
+    const h = document.createElement('div');
+    h.className = 'fixed-grid-header';
+    h.textContent = d;
+    grid.appendChild(h);
+  });
+
+  // Period rows
+  periods.forEach((p, pi) => {
+    const lbl = document.createElement('div');
+    lbl.className = 'fixed-grid-period';
+    lbl.textContent = pi + 1;
+    grid.appendChild(lbl);
+
+    dows.forEach(dow => {
+      const key   = `${dow}_p${pi}`;
+      const entry = state.fixedTimetable[key];
+      const cell  = document.createElement('div');
+      cell.className = 'fixed-cell' + (entry ? ' has-entry' : '');
+      if (entry && entry.color) cell.style.background = entry.color + '20';
+
+      if (entry) {
+        const lbl2 = document.createElement('div');
+        lbl2.className = 'fixed-cell-label';
+        lbl2.style.color = entry.color || 'var(--text2)';
+        lbl2.textContent = entry.name;
+        cell.appendChild(lbl2);
+      }
+
+      cell.addEventListener('click', () => openFixedModal(dow, pi));
+      grid.appendChild(cell);
+    });
+  });
+
+  container.appendChild(grid);
+}
+
+function applyFixedTimetable() {
+  const days = getDaysToShow();
+  let applied = 0;
+
+  days.forEach(d => {
+    const dk = dateKey(d);
+    const dw = d.getDay();
+    state.settings.periods.forEach((p, i) => {
+      const fixedKey = `${dw}_p${i}`;
+      const cellK    = cellKey(dk, i);
+      if (state.fixedTimetable[fixedKey] && !state.timetable[cellK]) {
+        state.timetable[cellK] = { ...state.fixedTimetable[fixedKey] };
+        applied++;
+      }
+    });
+  });
+
+  if (applied > 0) {
+    save(); render();
+    showToast(`${applied}コマに固定時間割を適用しました`);
+  } else {
+    showToast('適用できる空きコマがありません');
+  }
+}
+
+document.getElementById('applyFixedBtn').addEventListener('click', applyFixedTimetable);
 
 // ══════════════════════════════════════════
 // NAVIGATION
