@@ -763,6 +763,16 @@ body {
           <span class="toggle-track"></span>
         </label>
       </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">MT・ST を表示</div>
+          <div class="settings-row-sub">朝の会・帰りの会</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="showMTSTSetting">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
     </div>
 
     <div class="settings-section">
@@ -908,6 +918,7 @@ const DEFAULTS = {
     weekStart: 1,
     showWeekend: true,
     weekendPeriods: false,
+    showMTST: true,
     periods: [
       { start: '08:45', end: '09:35' },
       { start: '09:45', end: '10:35' },
@@ -956,7 +967,7 @@ let state = {
   // Subject modal
   selectedCell: null,
   fixedCell: null,
-  afterDateStr: null,
+  specialTarget: null,
   selectedGenreIdx: null,
   selectedSubject: null,
   // Event modal
@@ -1110,7 +1121,8 @@ function getPeriodHeight() {
   const scroll = document.getElementById('daysBodyOuter');
   const periods = state.settings.periods;
   const available = scroll.clientHeight || 400;
-  return Math.max(40, Math.floor(available / (periods.length + 3)));
+  const extra = state.settings.showMTST ? 5 : 3; // lunch + after + diary [+ mt + st]
+  return Math.max(36, Math.floor(available / (periods.length + extra)));
 }
 
 function render() {
@@ -1211,9 +1223,19 @@ function addLongPress(el, cb) {
 function renderPeriodLabels() {
   const periods = state.settings.periods;
   const ph = getPeriodHeight();
+  const showMTST = state.settings.showMTST !== false;
   const labels = document.getElementById('periodLabels');
   labels.innerHTML = '';
   const lunchAfterIdx = Math.min(3, periods.length - 1);
+
+  if (showMTST) {
+    const mt = document.createElement('div');
+    mt.className = 'period-label special';
+    mt.style.height = ph + 'px';
+    mt.innerHTML = `<span class="period-num" style="font-size:11px;font-weight:700">MT</span>`;
+    labels.appendChild(mt);
+  }
+
   periods.forEach((p, i) => {
     const el = document.createElement('div');
     el.className = 'period-label';
@@ -1228,6 +1250,15 @@ function renderPeriodLabels() {
       labels.appendChild(lunch);
     }
   });
+
+  if (showMTST) {
+    const st = document.createElement('div');
+    st.className = 'period-label special';
+    st.style.height = ph + 'px';
+    st.innerHTML = `<span class="period-num" style="font-size:11px;font-weight:700">ST</span>`;
+    labels.appendChild(st);
+  }
+
   const after = document.createElement('div');
   after.className = 'period-label special';
   after.style.height = ph + 'px';
@@ -1265,7 +1296,9 @@ function renderBody() {
       (dk === todayKey ? ' today-col' : '');
     col.style.width = colW + 'px';
 
+    const showMTST = state.settings.showMTST !== false;
     if (showPeriods) {
+      if (showMTST) col.appendChild(makeSpecialCell(dk, 'mt', ph));
       periods.forEach((p, i) => {
         const key = cellKey(dk, i);
         const subjectData = state.timetable[key];
@@ -1300,13 +1333,14 @@ function renderBody() {
 
         if (i === lunchAfterIdx) col.appendChild(makeSpecialCell(dk, 'lunch', ph));
       });
+      if (showMTST) col.appendChild(makeSpecialCell(dk, 'st', ph));
       col.appendChild(makeSpecialCell(dk, 'after', ph));
       col.appendChild(makeSpecialCell(dk, 'diary', ph));
     } else {
       // Weekend / holiday: day schedule cell
       const cell = document.createElement('div');
       cell.className = 'weekend-cell';
-      cell.style.height = (ph * (periods.length + 2)) + 'px';
+      cell.style.height = (ph * (periods.length + (showMTST ? 4 : 2))) + 'px';
       const dayEntries = (state.daySchedules[dk] || []).slice().sort((a, b) => a.startTime.localeCompare(b.startTime));
       if (dayEntries.length > 0) {
         cell.style.alignItems = 'flex-start';
@@ -1350,24 +1384,23 @@ function makeSpecialCell(dateStr, type, ph) {
   cell.className = 'period-cell special-cell';
   cell.style.height = ph + 'px';
 
-  if (type === 'after') {
-    // 放課後 uses subject modal (same 2-step genre select as period cells)
-    const afterData = state.timetable[`${dateStr}_after`];
-    if (afterData) {
+  if (type === 'mt' || type === 'st' || type === 'after') {
+    // Subject modal (2-step genre select)
+    const data = state.timetable[`${dateStr}_${type}`];
+    const emptyLabel = type === 'mt' ? 'MT' : type === 'st' ? 'ST' : '放課後';
+    if (data) {
       const lbl = document.createElement('div');
       lbl.className = 'subject-label';
-      lbl.textContent = afterData.name;
-      if (afterData.color) {
-        cell.style.background = afterData.color + '20';
-      }
+      lbl.textContent = data.name;
+      if (data.color) cell.style.background = data.color + '20';
       cell.appendChild(lbl);
     } else {
       const lbl = document.createElement('div');
       lbl.className = 'note-empty-label';
-      lbl.textContent = '放課後';
+      lbl.textContent = emptyLabel;
       cell.appendChild(lbl);
     }
-    cell.addEventListener('click', () => openAfterModal(dateStr));
+    cell.addEventListener('click', () => openSpecialSubjectModal(dateStr, type));
   } else {
     // lunch / diary use note modal
     const noteText = state.notes[key] || '';
@@ -1390,8 +1423,8 @@ function makeSpecialCell(dateStr, type, ph) {
     badge.className = 'record-badge';
     cell.appendChild(badge);
   }
-  const typeLabel = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : 'アイデアメモ';
-  const subjectHint = type === 'after' ? (state.timetable[`${dateStr}_after`]?.name || '') : '';
+  const typeLabel = type === 'mt' ? 'MT' : type === 'st' ? 'ST' : type === 'after' ? '放課後' : type === 'lunch' ? '昼休み' : 'アイデアメモ';
+  const subjectHint = (type === 'mt' || type === 'st' || type === 'after') ? (state.timetable[`${dateStr}_${type}`]?.name || '') : '';
   addLongPress(cell, () => openRecordModal(key, typeLabel, subjectHint));
   return cell;
 }
@@ -1612,7 +1645,7 @@ document.getElementById('subjectFreeText').addEventListener('input', function() 
 });
 
 document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
-  if (!state.selectedCell && !state.fixedCell && !state.afterDateStr) return;
+  if (!state.selectedCell && !state.fixedCell && !state.specialTarget) return;
   const freeText = document.getElementById('subjectFreeText').value.trim();
 
   let entry = null;
@@ -1626,9 +1659,9 @@ document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
     return;
   }
 
-  if (state.afterDateStr) {
+  if (state.specialTarget) {
     saveSnapshot();
-    state.timetable[`${state.afterDateStr}_after`] = entry;
+    state.timetable[`${state.specialTarget.dateStr}_${state.specialTarget.type}`] = entry;
     save(); render(); closeSubjectModal();
   } else if (state.fixedCell) {
     state.fixedTimetable[`${state.fixedCell.dow}_p${state.fixedCell.periodIdx}`] = entry;
@@ -1641,9 +1674,9 @@ document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
 });
 
 document.getElementById('clearCellBtn').addEventListener('click', () => {
-  if (state.afterDateStr) {
+  if (state.specialTarget) {
     saveSnapshot();
-    delete state.timetable[`${state.afterDateStr}_after`];
+    delete state.timetable[`${state.specialTarget.dateStr}_${state.specialTarget.type}`];
     save(); render(); closeSubjectModal();
   } else if (state.fixedCell) {
     delete state.fixedTimetable[`${state.fixedCell.dow}_p${state.fixedCell.periodIdx}`];
@@ -1666,19 +1699,19 @@ function closeSubjectModal() {
   document.getElementById('subjectNewInput').value = '';
   state.selectedCell     = null;
   state.fixedCell        = null;
-  state.afterDateStr     = null;
+  state.specialTarget    = null;
   state.selectedGenreIdx = null;
   state.selectedSubject  = null;
 }
 
-function openAfterModal(dateStr) {
-  state.afterDateStr     = dateStr;
+function openSpecialSubjectModal(dateStr, type) {
+  state.specialTarget    = { dateStr, type };
   state.selectedCell     = null;
   state.fixedCell        = null;
   state.selectedGenreIdx = null;
   state.selectedSubject  = null;
 
-  const existing = state.timetable[`${dateStr}_after`];
+  const existing = state.timetable[`${dateStr}_${type}`];
   const freeInput = document.getElementById('subjectFreeText');
   freeInput.value = '';
 
@@ -1698,7 +1731,8 @@ function openAfterModal(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   document.getElementById('subjectModalTitle').textContent =
     `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}）`;
-  document.getElementById('subjectModalSub').textContent = '放課後';
+  const subLabel = type === 'mt' ? 'MT（朝の会）' : type === 'st' ? 'ST（帰りの会）' : '放課後';
+  document.getElementById('subjectModalSub').textContent = subLabel;
   renderModalStep();
   document.getElementById('subjectModal').classList.add('open');
 }
@@ -1858,10 +1892,10 @@ function renderRecordsPanel() {
           if (g.subjects && g.subjects.some(s => s.name === cellData.name)) genreIdx = gi;
         });
       }
-    } else if (periodPart === 'after') {
-      periodLabel = '放課後';
-      const afterData = state.timetable[`${dateStr}_after`];
-      if (afterData) subjectName = afterData.name;
+    } else if (periodPart === 'mt' || periodPart === 'st' || periodPart === 'after') {
+      periodLabel = periodPart === 'mt' ? 'MT' : periodPart === 'st' ? 'ST' : '放課後';
+      const cellData = state.timetable[`${dateStr}_${periodPart}`];
+      if (cellData) subjectName = cellData.name;
     } else {
       periodLabel = periodPart === 'lunch' ? '昼休み' : 'アイデアメモ';
     }
@@ -2164,6 +2198,7 @@ function renderSettings() {
   sw.checked = state.settings.showWeekend;
   document.getElementById('weekendPeriodsRow').style.display = state.settings.showWeekend ? '' : 'none';
   document.getElementById('weekendPeriodsSetting').checked = state.settings.weekendPeriods;
+  document.getElementById('showMTSTSetting').checked = state.settings.showMTST !== false;
   renderPeriodSettingsList();
   renderGenreMasterList();
   renderFixedTimetableGrid();
@@ -2181,6 +2216,10 @@ document.getElementById('showWeekendSetting').addEventListener('change', functio
 });
 document.getElementById('weekendPeriodsSetting').addEventListener('change', function() {
   state.settings.weekendPeriods = this.checked;
+  save(); render();
+});
+document.getElementById('showMTSTSetting').addEventListener('change', function() {
+  state.settings.showMTST = this.checked;
   save(); render();
 });
 
