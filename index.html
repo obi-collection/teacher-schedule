@@ -1179,7 +1179,6 @@ function renderEventBanners() {
       const chip = document.createElement('div');
       chip.className = `event-chip ${ev.category}`;
       chip.textContent = ev.title;
-      chip.addEventListener('click', e => { e.stopPropagation(); openEventDetail(ev, idx); });
       cell.appendChild(chip);
     });
     cell.addEventListener('click', () => openDayEventsSheet(dk));
