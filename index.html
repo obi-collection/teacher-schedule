@@ -544,6 +544,13 @@ body {
 .day-event-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
 .day-event-item-text { flex: 1; font-size: 13px; color: var(--text); line-height: 1.4; }
 
+/* Cell detail sheet */
+.cell-detail-subject { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--bg3); border-radius: 12px; margin-bottom: 14px; }
+.cell-detail-genre-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.cell-detail-name { font-size: 16px; font-weight: 500; color: var(--text); }
+.cell-detail-save-btn { width: 100%; margin-bottom: 12px; padding: 11px; border-radius: 12px; font-size: 14px; font-family: 'Noto Sans JP', sans-serif; font-weight: 500; cursor: pointer; border: 1px solid rgba(84,72,232,0.3); background: var(--accent-dim); color: var(--accent); transition: opacity 0.15s; }
+.cell-detail-save-btn:active { opacity: 0.7; }
+
 /* Toast */
 .toast {
   position: absolute;
@@ -849,6 +856,29 @@ body {
     <div style="height:40px"></div>
   </div>
 
+  <!-- CELL DETAIL SHEET (入力済みコマのタップ) -->
+  <div class="modal-overlay" id="cellDetailSheet">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="cellDetailTitle"></div>
+      <div class="modal-subtitle" id="cellDetailSub" style="margin-bottom:14px"></div>
+      <div id="cellDetailSubjectRow" class="cell-detail-subject">
+        <span id="cellDetailGenreDot" class="cell-detail-genre-dot"></span>
+        <span id="cellDetailSubjectName" class="cell-detail-name"></span>
+      </div>
+      <div class="form-field">
+        <label class="form-label">メモ（やろうとしていること）</label>
+        <textarea class="form-input" id="cellDetailMemo" rows="3" placeholder="授業の準備・進め方など…" style="resize:none;min-height:72px"></textarea>
+      </div>
+      <button class="cell-detail-save-btn" id="cellDetailSaveMemoBtn">メモを保存</button>
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="cellDetailDeleteBtn">削除</button>
+        <button class="btn btn-ghost" id="cellDetailRecordBtn">記録</button>
+        <button class="btn btn-primary" id="cellDetailEditBtn">編集</button>
+      </div>
+    </div>
+  </div>
+
   <!-- DAY SCHEDULE MODAL (休日・土日の複数予定入力) -->
   <div class="modal-overlay" id="dayScheduleModal">
     <div class="modal-sheet">
@@ -974,6 +1004,8 @@ let state = {
   selectedEventCat: 'gyoji',
   // Note modal
   noteTarget: null,
+  // Cell detail sheet
+  cellDetailTarget: null,
   // Record modal
   recordTarget: null,
   // Records panel
@@ -1325,7 +1357,11 @@ function renderBody() {
           badge.className = 'record-badge';
           cell.appendChild(badge);
         }
-        cell.addEventListener('click', () => openSubjectModal(dk, i));
+        if (subjectData) {
+          cell.addEventListener('click', () => openCellDetail(dk, i, 'period'));
+        } else {
+          cell.addEventListener('click', () => openSubjectModal(dk, i));
+        }
         const periodLabel = `${i+1}限`;
         const subjectName = subjectData ? subjectData.name : '';
         addLongPress(cell, () => openRecordModal(key, periodLabel, subjectName));
@@ -1394,28 +1430,37 @@ function makeSpecialCell(dateStr, type, ph) {
       lbl.textContent = data.name;
       if (data.color) cell.style.background = data.color + '20';
       cell.appendChild(lbl);
+      cell.addEventListener('click', () => openCellDetail(dateStr, null, type));
     } else {
       const lbl = document.createElement('div');
       lbl.className = 'note-empty-label';
       lbl.textContent = emptyLabel;
       cell.appendChild(lbl);
+      cell.addEventListener('click', () => openSpecialSubjectModal(dateStr, type));
     }
-    cell.addEventListener('click', () => openSpecialSubjectModal(dateStr, type));
   } else {
     // lunch / diary use note modal
     const noteText = state.notes[key] || '';
-    if (noteText) {
+    if (type === 'lunch' && noteText) {
       const txt = document.createElement('div');
       txt.className = 'note-text';
       txt.textContent = noteText;
       cell.appendChild(txt);
+      cell.addEventListener('click', () => openCellDetail(dateStr, null, 'lunch'));
     } else {
-      const lbl = document.createElement('div');
-      lbl.className = 'note-empty-label';
-      lbl.textContent = type === 'lunch' ? '昼休み' : 'アイデアメモ';
-      cell.appendChild(lbl);
+      if (noteText) {
+        const txt = document.createElement('div');
+        txt.className = 'note-text';
+        txt.textContent = noteText;
+        cell.appendChild(txt);
+      } else {
+        const lbl = document.createElement('div');
+        lbl.className = 'note-empty-label';
+        lbl.textContent = type === 'lunch' ? '昼休み' : 'アイデアメモ';
+        cell.appendChild(lbl);
+      }
+      cell.addEventListener('click', () => openNoteModal(dateStr, type));
     }
-    cell.addEventListener('click', () => openNoteModal(dateStr, type));
   }
 
   if (state.records[key]) {
@@ -1736,6 +1781,100 @@ function openSpecialSubjectModal(dateStr, type) {
   renderModalStep();
   document.getElementById('subjectModal').classList.add('open');
 }
+
+// ══════════════════════════════════════════
+// CELL DETAIL SHEET
+// ══════════════════════════════════════════
+
+function openCellDetail(dateStr, periodIdx, type) {
+  const key = type === 'period' ? cellKey(dateStr, periodIdx) : `${dateStr}_${type}`;
+  state.cellDetailTarget = { key, dateStr, periodIdx, type };
+
+  const d = new Date(dateStr + 'T00:00:00');
+  const dateLabel = `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}）`;
+  const typeLabel = type === 'period'
+    ? `${periodIdx+1}限`
+    : type === 'mt' ? 'MT（朝の会）'
+    : type === 'st' ? 'ST（帰りの会）'
+    : type === 'after' ? '放課後'
+    : '昼休み';
+  document.getElementById('cellDetailTitle').textContent = dateLabel;
+  document.getElementById('cellDetailSub').textContent = typeLabel;
+
+  // Subject row (timetable-based types only)
+  const timetableData = type !== 'lunch' ? state.timetable[key] : null;
+  const subjectRow = document.getElementById('cellDetailSubjectRow');
+  if (timetableData) {
+    let genreColor = timetableData.color || 'var(--text3)';
+    state.settings.genres.forEach(g => {
+      if (g.items.includes(timetableData.name)) genreColor = g.color;
+    });
+    document.getElementById('cellDetailGenreDot').style.background = genreColor;
+    document.getElementById('cellDetailSubjectName').textContent = timetableData.name;
+    subjectRow.style.display = 'flex';
+  } else {
+    subjectRow.style.display = 'none';
+  }
+
+  document.getElementById('cellDetailMemo').value = state.notes[key] || '';
+  document.getElementById('cellDetailSheet').classList.add('open');
+}
+
+function closeCellDetail() {
+  document.getElementById('cellDetailSheet').classList.remove('open');
+  state.cellDetailTarget = null;
+}
+
+document.getElementById('cellDetailSaveMemoBtn').addEventListener('click', () => {
+  const t = state.cellDetailTarget;
+  if (!t) return;
+  const text = document.getElementById('cellDetailMemo').value.trim();
+  if (text) { state.notes[t.key] = text; } else { delete state.notes[t.key]; }
+  save(); render();
+  showToast('メモを保存しました');
+});
+
+document.getElementById('cellDetailEditBtn').addEventListener('click', () => {
+  const t = state.cellDetailTarget;
+  if (!t) return;
+  // Auto-save memo before switching to edit
+  const memoText = document.getElementById('cellDetailMemo').value.trim();
+  if (memoText) { state.notes[t.key] = memoText; } else { delete state.notes[t.key]; }
+  save();
+  closeCellDetail();
+  if (t.type === 'period') {
+    openSubjectModal(t.dateStr, t.periodIdx);
+  } else if (t.type === 'lunch') {
+    openNoteModal(t.dateStr, 'lunch');
+  } else {
+    openSpecialSubjectModal(t.dateStr, t.type);
+  }
+});
+
+document.getElementById('cellDetailRecordBtn').addEventListener('click', () => {
+  const t = state.cellDetailTarget;
+  if (!t) return;
+  const typeLabel = t.type === 'period'
+    ? `${t.periodIdx+1}限`
+    : t.type === 'mt' ? 'MT' : t.type === 'st' ? 'ST' : t.type === 'after' ? '放課後' : '昼休み';
+  const subjectName = (state.timetable[t.key] || {}).name || '';
+  closeCellDetail();
+  openRecordModal(t.key, typeLabel, subjectName);
+});
+
+document.getElementById('cellDetailDeleteBtn').addEventListener('click', () => {
+  const t = state.cellDetailTarget;
+  if (!t) return;
+  saveSnapshot();
+  delete state.timetable[t.key];
+  delete state.notes[t.key];
+  save(); render(); closeCellDetail();
+  showToast('削除しました');
+});
+
+document.getElementById('cellDetailSheet').addEventListener('click', function(e) {
+  if (e.target === this) closeCellDetail();
+});
 
 // ══════════════════════════════════════════
 // NOTE MODAL
