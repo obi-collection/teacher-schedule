@@ -527,8 +527,10 @@ body {
 .category-pill.sel-kōmu  { background: var(--accent-dim); color: var(--accent); border-color: rgba(84,72,232,0.3); }
 
 /* Day schedule entries inside weekend/holiday cells */
-.ds-entry { font-size: 9px; color: var(--text2); line-height: 1.5; text-align: left; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
-.ds-entry-time { color: var(--text3); font-family: 'DM Mono', monospace; font-size: 8px; }
+.ds-entry-block { width: 100%; text-align: left; padding: 2px 3px; }
+.ds-entry-block + .ds-entry-block { border-top: 1px solid var(--border); margin-top: 2px; padding-top: 3px; }
+.ds-entry-time-line { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text3); line-height: 1.3; white-space: nowrap; }
+.ds-entry-content { font-size: 10px; color: var(--text2); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all; }
 
 /* Day schedule modal list items */
 .ds-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg2); border-radius: 10px; border: 1px solid var(--border); margin-bottom: 6px; }
@@ -1270,14 +1272,24 @@ function renderBody() {
       if (dayEntries.length > 0) {
         cell.style.alignItems = 'flex-start';
         cell.style.flexDirection = 'column';
-        cell.style.padding = '5px 4px';
-        cell.style.gap = '2px';
+        cell.style.padding = '4px 3px';
+        cell.style.justifyContent = 'flex-start';
+        cell.style.overflowY = 'hidden';
         dayEntries.forEach(entry => {
-          const row = document.createElement('div');
-          row.className = 'ds-entry';
-          const timeStr = entry.startTime ? `<span class="ds-entry-time">${entry.startTime}${entry.endTime ? '–'+entry.endTime : ''}</span> ` : '';
-          row.innerHTML = timeStr + entry.content;
-          cell.appendChild(row);
+          const block = document.createElement('div');
+          block.className = 'ds-entry-block';
+          if (entry.startTime || entry.endTime) {
+            const timeLine = document.createElement('div');
+            timeLine.className = 'ds-entry-time-line';
+            timeLine.textContent = (entry.startTime || '')
+              + (entry.endTime ? '\u301c' + entry.endTime : '');
+            block.appendChild(timeLine);
+          }
+          const contentEl = document.createElement('div');
+          contentEl.className = 'ds-entry-content';
+          contentEl.textContent = entry.content;
+          block.appendChild(contentEl);
+          cell.appendChild(block);
         });
       } else if (isHoliday) {
         const hint = document.createElement('div');
