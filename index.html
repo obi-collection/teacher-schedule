@@ -188,7 +188,7 @@ body {
 .day-events-cell.sun-col     { background: rgba(217,79,53,0.04); }
 .day-events-cell.holiday-col { background: rgba(217,79,53,0.04); }
 .day-events-cell.today-col   { background: rgba(240,180,0,0.07); }
-.event-chip { font-size: 9px; padding: 2px 5px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; pointer-events: none; }
+.event-chip { font-size: 9px; padding: 2px 5px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; cursor: pointer; }
 .event-chip.gyoji   { background: var(--event-dim); color: var(--event); border-left: 2px solid var(--event); }
 .event-chip.task    { background: var(--task-dim);  color: var(--task);  border-left: 2px solid var(--task); }
 .event-chip.kōmu    { background: var(--accent-dim); color: var(--accent2); border-left: 2px solid var(--accent); }
@@ -526,6 +526,22 @@ body {
 .category-pill.sel-task  { background: var(--task-dim);  color: var(--task);  border-color: rgba(26,127,196,0.35); }
 .category-pill.sel-kōmu  { background: var(--accent-dim); color: var(--accent); border-color: rgba(84,72,232,0.3); }
 
+/* Day schedule entries inside weekend/holiday cells */
+.ds-entry { font-size: 9px; color: var(--text2); line-height: 1.5; text-align: left; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+.ds-entry-time { color: var(--text3); font-family: 'DM Mono', monospace; font-size: 8px; }
+
+/* Day schedule modal list items */
+.ds-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg2); border-radius: 10px; border: 1px solid var(--border); margin-bottom: 6px; }
+.ds-item-time { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; white-space: nowrap; flex-shrink: 0; }
+.ds-item-content { flex: 1; font-size: 13px; color: var(--text); }
+.ds-item-del { color: var(--text3); font-size: 16px; cursor: pointer; background: none; border: none; padding: 4px; flex-shrink: 0; }
+
+/* Day events sheet list items */
+.day-event-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: var(--bg2); border-radius: 10px; border: 1px solid var(--border); margin-bottom: 6px; cursor: pointer; transition: opacity 0.12s; }
+.day-event-item:active { opacity: 0.7; }
+.day-event-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.day-event-item-text { flex: 1; font-size: 13px; color: var(--text); line-height: 1.4; }
+
 /* Toast */
 .toast {
   position: absolute;
@@ -820,6 +836,62 @@ body {
     <div style="height:40px"></div>
   </div>
 
+  <!-- DAY SCHEDULE MODAL (休日・土日の複数予定入力) -->
+  <div class="modal-overlay" id="dayScheduleModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="dayScheduleTitle"></div>
+      <div id="dayScheduleList"></div>
+      <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:12px">
+        <div style="font-size:11px;color:var(--text3);letter-spacing:0.06em;margin-bottom:8px">予定を追加</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <div style="flex:1">
+            <label class="form-label">開始</label>
+            <input class="form-input" type="time" id="dsStartTime" style="font-size:14px">
+          </div>
+          <div style="flex:1">
+            <label class="form-label">終了</label>
+            <input class="form-input" type="time" id="dsEndTime" style="font-size:14px">
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">内容</label>
+          <input class="form-input" id="dsContent" placeholder="例：部活、外出、用事…" autocomplete="off">
+        </div>
+        <button class="btn btn-primary" id="dsAddBtn" style="width:100%">追加</button>
+      </div>
+      <div class="modal-actions" style="margin-top:10px">
+        <button class="btn btn-ghost" id="closeDayScheduleBtn">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENT DETAIL POPUP (⭐チップのフルテキスト) -->
+  <div class="modal-overlay" id="eventDetailModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="eventDetailTitle" style="white-space:pre-wrap;word-break:break-all;line-height:1.5;margin-bottom:8px"></div>
+      <div class="modal-subtitle" id="eventDetailMeta"></div>
+      <div class="modal-actions" style="margin-top:16px">
+        <button class="btn btn-danger" id="deleteEventDetailBtn">削除</button>
+        <button class="btn btn-ghost" id="closeEventDetailBtn">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY EVENTS SHEET (⭐行空きエリアタップ) -->
+  <div class="modal-overlay" id="dayEventsSheet">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="dayEventsTitle"></div>
+      <div id="dayEventsList" style="margin:12px 0 4px"></div>
+      <button class="btn btn-primary" id="dayEventsAddBtn" style="width:100%;margin-top:4px">＋ 予定を追加</button>
+      <div class="modal-actions" style="margin-top:8px">
+        <button class="btn btn-ghost" id="closeDayEventsBtn">閉じる</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 </div>
 
@@ -876,10 +948,12 @@ let state = {
   fixedTimetable: {},
   holidays: {},
   records: {},
+  daySchedules: {},
   currentWeekStart: null,
   // Subject modal
   selectedCell: null,
   fixedCell: null,
+  afterDateStr: null,
   selectedGenreIdx: null,
   selectedSubject: null,
   // Event modal
@@ -891,7 +965,12 @@ let state = {
   // Records panel
   recordsYear: new Date().getFullYear(),
   recordsMonth: new Date().getMonth(),
-  recordsFilterGenre: null
+  recordsFilterGenre: null,
+  // Day schedule modal
+  dayScheduleDate: null,
+  // Day events sheet
+  dayEventsDate: null,
+  selectedEventDetailIdx: null
 };
 
 // ══════════════════════════════════════════
@@ -907,6 +986,7 @@ function save() {
     localStorage.setItem('ts_todos',          JSON.stringify(state.todos));
     localStorage.setItem('ts_fixedTimetable', JSON.stringify(state.fixedTimetable));
     localStorage.setItem('ts_records',       JSON.stringify(state.records));
+    localStorage.setItem('ts_daySchedules',  JSON.stringify(state.daySchedules));
   } catch(e) { showToast('保存に失敗しました'); }
 }
 
@@ -932,6 +1012,8 @@ function load() {
     if (ft) state.fixedTimetable = JSON.parse(ft);
     const rc = localStorage.getItem('ts_records');
     if (rc) state.records = JSON.parse(rc);
+    const ds = localStorage.getItem('ts_daySchedules');
+    if (ds) state.daySchedules = JSON.parse(ds);
   } catch(e) {}
 }
 
@@ -1050,15 +1132,15 @@ function renderEventBanners() {
       (dk === todayKey ? ' today-col' : '');
     cell.style.width  = colW + 'px';
     cell.style.height = ph + 'px';
-    // User events
-    state.events.filter(e => e.date === dk).forEach(ev => {
+    // User events — each chip is tappable for full text; empty area opens day events sheet
+    state.events.map((ev, idx) => ({ev, idx})).filter(({ev}) => ev.date === dk).forEach(({ev, idx}) => {
       const chip = document.createElement('div');
       chip.className = `event-chip ${ev.category}`;
       chip.textContent = ev.title;
-      chip.title = ev.title;
+      chip.addEventListener('click', e => { e.stopPropagation(); openEventDetail(ev, idx); });
       cell.appendChild(chip);
     });
-    cell.addEventListener('click', () => openEventModal(dk));
+    cell.addEventListener('click', () => openDayEventsSheet(dk));
     inner.appendChild(cell);
   });
 }
@@ -1181,25 +1263,30 @@ function renderBody() {
       col.appendChild(makeSpecialCell(dk, 'after', ph));
       col.appendChild(makeSpecialCell(dk, 'diary', ph));
     } else {
-      // Weekend / holiday: single tappable cell
-      const cellType = isHoliday ? 'holiday' : 'weekend';
-      const noteKey = `${dk}_${cellType}`;
-      const noteText = state.notes[noteKey] || '';
+      // Weekend / holiday: day schedule cell
       const cell = document.createElement('div');
       cell.className = 'weekend-cell';
       cell.style.height = (ph * (periods.length + 2)) + 'px';
-      if (noteText) {
-        const txt = document.createElement('div');
-        txt.className = 'note-text';
-        txt.textContent = noteText;
-        cell.appendChild(txt);
+      const dayEntries = (state.daySchedules[dk] || []).slice().sort((a, b) => a.startTime.localeCompare(b.startTime));
+      if (dayEntries.length > 0) {
+        cell.style.alignItems = 'flex-start';
+        cell.style.flexDirection = 'column';
+        cell.style.padding = '5px 4px';
+        cell.style.gap = '2px';
+        dayEntries.forEach(entry => {
+          const row = document.createElement('div');
+          row.className = 'ds-entry';
+          const timeStr = entry.startTime ? `<span class="ds-entry-time">${entry.startTime}${entry.endTime ? '–'+entry.endTime : ''}</span> ` : '';
+          row.innerHTML = timeStr + entry.content;
+          cell.appendChild(row);
+        });
       } else if (isHoliday) {
         const hint = document.createElement('div');
         hint.className = 'note-empty-label';
         hint.textContent = state.holidays[dk] || '祝日';
         cell.appendChild(hint);
       }
-      cell.addEventListener('click', () => openNoteModal(dk, cellType));
+      cell.addEventListener('click', () => openDayScheduleModal(dk));
       col.appendChild(cell);
       col.appendChild(makeSpecialCell(dk, 'diary', ph));
     }
@@ -1209,29 +1296,54 @@ function renderBody() {
 
 function makeSpecialCell(dateStr, type, ph) {
   const key = `${dateStr}_${type}`;
-  const noteText = state.notes[key] || '';
   const cell = document.createElement('div');
   cell.className = 'period-cell special-cell';
   cell.style.height = ph + 'px';
-  if (noteText) {
-    const txt = document.createElement('div');
-    txt.className = 'note-text';
-    txt.textContent = noteText;
-    cell.appendChild(txt);
+
+  if (type === 'after') {
+    // 放課後 uses subject modal (same 2-step genre select as period cells)
+    const afterData = state.timetable[`${dateStr}_after`];
+    if (afterData) {
+      const lbl = document.createElement('div');
+      lbl.className = 'subject-label';
+      lbl.textContent = afterData.name;
+      if (afterData.color) {
+        lbl.style.color = afterData.color;
+        cell.style.background = afterData.color + '20';
+      }
+      cell.appendChild(lbl);
+    } else {
+      const lbl = document.createElement('div');
+      lbl.className = 'note-empty-label';
+      lbl.textContent = '放課後';
+      cell.appendChild(lbl);
+    }
+    cell.addEventListener('click', () => openAfterModal(dateStr));
   } else {
-    const lbl = document.createElement('div');
-    lbl.className = 'note-empty-label';
-    lbl.textContent = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : 'アイデアメモ';
-    cell.appendChild(lbl);
+    // lunch / diary use note modal
+    const noteText = state.notes[key] || '';
+    if (noteText) {
+      const txt = document.createElement('div');
+      txt.className = 'note-text';
+      txt.textContent = noteText;
+      cell.appendChild(txt);
+    } else {
+      const lbl = document.createElement('div');
+      lbl.className = 'note-empty-label';
+      lbl.textContent = type === 'lunch' ? '昼休み' : 'アイデアメモ';
+      cell.appendChild(lbl);
+    }
+    cell.addEventListener('click', () => openNoteModal(dateStr, type));
   }
+
   if (state.records[key]) {
     const badge = document.createElement('div');
     badge.className = 'record-badge';
     cell.appendChild(badge);
   }
-  cell.addEventListener('click', () => openNoteModal(dateStr, type));
   const typeLabel = type === 'lunch' ? '昼休み' : type === 'after' ? '放課後' : 'アイデアメモ';
-  addLongPress(cell, () => openRecordModal(key, typeLabel, ''));
+  const subjectHint = type === 'after' ? (state.timetable[`${dateStr}_after`]?.name || '') : '';
+  addLongPress(cell, () => openRecordModal(key, typeLabel, subjectHint));
   return cell;
 }
 
@@ -1451,7 +1563,7 @@ document.getElementById('subjectFreeText').addEventListener('input', function() 
 });
 
 document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
-  if (!state.selectedCell && !state.fixedCell) return;
+  if (!state.selectedCell && !state.fixedCell && !state.afterDateStr) return;
   const freeText = document.getElementById('subjectFreeText').value.trim();
 
   let entry = null;
@@ -1465,7 +1577,10 @@ document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
     return;
   }
 
-  if (state.fixedCell) {
+  if (state.afterDateStr) {
+    state.timetable[`${state.afterDateStr}_after`] = entry;
+    save(); render(); closeSubjectModal();
+  } else if (state.fixedCell) {
     state.fixedTimetable[`${state.fixedCell.dow}_p${state.fixedCell.periodIdx}`] = entry;
     save(); renderFixedTimetableGrid(); closeSubjectModal();
   } else {
@@ -1475,7 +1590,10 @@ document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
 });
 
 document.getElementById('clearCellBtn').addEventListener('click', () => {
-  if (state.fixedCell) {
+  if (state.afterDateStr) {
+    delete state.timetable[`${state.afterDateStr}_after`];
+    save(); render(); closeSubjectModal();
+  } else if (state.fixedCell) {
     delete state.fixedTimetable[`${state.fixedCell.dow}_p${state.fixedCell.periodIdx}`];
     save(); renderFixedTimetableGrid(); closeSubjectModal();
   } else if (state.selectedCell) {
@@ -1495,8 +1613,41 @@ function closeSubjectModal() {
   document.getElementById('subjectNewInput').value = '';
   state.selectedCell     = null;
   state.fixedCell        = null;
+  state.afterDateStr     = null;
   state.selectedGenreIdx = null;
   state.selectedSubject  = null;
+}
+
+function openAfterModal(dateStr) {
+  state.afterDateStr     = dateStr;
+  state.selectedCell     = null;
+  state.fixedCell        = null;
+  state.selectedGenreIdx = null;
+  state.selectedSubject  = null;
+
+  const existing = state.timetable[`${dateStr}_after`];
+  const freeInput = document.getElementById('subjectFreeText');
+  freeInput.value = '';
+
+  if (existing) {
+    let matched = false;
+    state.settings.genres.forEach((g, gi) => {
+      if (!matched && g.items.includes(existing.name)) {
+        state.selectedGenreIdx = gi;
+        state.selectedSubject  = existing.name;
+        matched = true;
+      }
+    });
+    if (!matched) freeInput.value = existing.name;
+  }
+
+  document.getElementById('subjectNewInput').value = '';
+  const d = new Date(dateStr + 'T00:00:00');
+  document.getElementById('subjectModalTitle').textContent =
+    `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}）`;
+  document.getElementById('subjectModalSub').textContent = '放課後';
+  renderModalStep();
+  document.getElementById('subjectModal').classList.add('open');
 }
 
 // ══════════════════════════════════════════
@@ -1652,8 +1803,12 @@ function renderRecordsPanel() {
           if (g.subjects && g.subjects.some(s => s.name === cellData.name)) genreIdx = gi;
         });
       }
+    } else if (periodPart === 'after') {
+      periodLabel = '放課後';
+      const afterData = state.timetable[`${dateStr}_after`];
+      if (afterData) subjectName = afterData.name;
     } else {
-      periodLabel = periodPart === 'lunch' ? '昼休み' : periodPart === 'after' ? '放課後' : 'アイデアメモ';
+      periodLabel = periodPart === 'lunch' ? '昼休み' : 'アイデアメモ';
     }
 
     if (state.recordsFilterGenre !== null && genreIdx !== state.recordsFilterGenre) return;
@@ -1716,6 +1871,182 @@ document.getElementById('recordsNextMonth').addEventListener('click', () => {
   renderRecordsPanel();
 });
 document.getElementById('navRecords').addEventListener('click', openRecordsPanel);
+
+// ══════════════════════════════════════════
+// DAY SCHEDULE MODAL (休日・土日の複数予定)
+// ══════════════════════════════════════════
+
+function openDayScheduleModal(dateStr) {
+  state.dayScheduleDate = dateStr;
+  const d = new Date(dateStr + 'T00:00:00');
+  document.getElementById('dayScheduleTitle').textContent =
+    `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}）`;
+  document.getElementById('dsStartTime').value = '';
+  document.getElementById('dsEndTime').value   = '';
+  document.getElementById('dsContent').value   = '';
+  renderDayScheduleList(dateStr);
+  document.getElementById('dayScheduleModal').classList.add('open');
+}
+
+function closeDayScheduleModal() {
+  document.getElementById('dayScheduleModal').classList.remove('open');
+  state.dayScheduleDate = null;
+}
+
+function renderDayScheduleList(dateStr) {
+  const list = document.getElementById('dayScheduleList');
+  list.innerHTML = '';
+  const entries = (state.daySchedules[dateStr] || []).slice()
+    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  if (entries.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--text3);font-size:12px;padding:12px 0 8px';
+    empty.textContent = '予定はありません';
+    list.appendChild(empty);
+    return;
+  }
+  entries.forEach(entry => {
+    const origArr = state.daySchedules[dateStr];
+    const origIdx = origArr.findIndex(e => e.id === entry.id);
+    const item = document.createElement('div');
+    item.className = 'ds-item';
+    const timeEl = document.createElement('span');
+    timeEl.className = 'ds-item-time';
+    timeEl.textContent = entry.startTime
+      ? entry.startTime + (entry.endTime ? '–' + entry.endTime : '')
+      : '–';
+    const contentEl = document.createElement('span');
+    contentEl.className = 'ds-item-content';
+    contentEl.textContent = entry.content;
+    const delBtn = document.createElement('button');
+    delBtn.className = 'ds-item-del';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', () => {
+      origArr.splice(origIdx, 1);
+      if (origArr.length === 0) delete state.daySchedules[dateStr];
+      save(); render(); renderDayScheduleList(dateStr);
+    });
+    item.appendChild(timeEl);
+    item.appendChild(contentEl);
+    item.appendChild(delBtn);
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('dsAddBtn').addEventListener('click', () => {
+  const dateStr = state.dayScheduleDate;
+  if (!dateStr) return;
+  const content = document.getElementById('dsContent').value.trim();
+  if (!content) { showToast('内容を入力してください'); return; }
+  if (!state.daySchedules[dateStr]) state.daySchedules[dateStr] = [];
+  state.daySchedules[dateStr].push({
+    id: Date.now(),
+    startTime: document.getElementById('dsStartTime').value,
+    endTime:   document.getElementById('dsEndTime').value,
+    content
+  });
+  document.getElementById('dsStartTime').value = '';
+  document.getElementById('dsEndTime').value   = '';
+  document.getElementById('dsContent').value   = '';
+  save(); render(); renderDayScheduleList(dateStr);
+  showToast('追加しました');
+});
+
+document.getElementById('closeDayScheduleBtn').addEventListener('click', closeDayScheduleModal);
+document.getElementById('dayScheduleModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDayScheduleModal();
+});
+
+// ══════════════════════════════════════════
+// EVENT DETAIL POPUP (⭐チップのフルテキスト)
+// ══════════════════════════════════════════
+
+function openEventDetail(ev, evIdx) {
+  state.selectedEventDetailIdx = evIdx;
+  const catLabel = ev.category === 'gyoji' ? '行事' : ev.category === 'task' ? 'タスク・締切' : '業務・校務';
+  const d = new Date(ev.date + 'T00:00:00');
+  document.getElementById('eventDetailTitle').textContent = ev.title;
+  document.getElementById('eventDetailMeta').textContent =
+    `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） ${catLabel}`;
+  document.getElementById('eventDetailModal').classList.add('open');
+}
+
+function closeEventDetail() {
+  document.getElementById('eventDetailModal').classList.remove('open');
+  state.selectedEventDetailIdx = null;
+}
+
+document.getElementById('deleteEventDetailBtn').addEventListener('click', () => {
+  if (state.selectedEventDetailIdx === null) return;
+  state.events.splice(state.selectedEventDetailIdx, 1);
+  save(); render(); closeEventDetail();
+  showToast('削除しました');
+});
+
+document.getElementById('closeEventDetailBtn').addEventListener('click', closeEventDetail);
+document.getElementById('eventDetailModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEventDetail();
+});
+
+// ══════════════════════════════════════════
+// DAY EVENTS SHEET (⭐行の空きエリアタップ)
+// ══════════════════════════════════════════
+
+function openDayEventsSheet(dateStr) {
+  state.dayEventsDate = dateStr;
+  const d = new Date(dateStr + 'T00:00:00');
+  document.getElementById('dayEventsTitle').textContent =
+    `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） の予定`;
+  renderDayEventsSheet(dateStr);
+  document.getElementById('dayEventsSheet').classList.add('open');
+}
+
+function closeDayEventsSheet() {
+  document.getElementById('dayEventsSheet').classList.remove('open');
+  state.dayEventsDate = null;
+}
+
+function renderDayEventsSheet(dateStr) {
+  const list = document.getElementById('dayEventsList');
+  list.innerHTML = '';
+  const dayEvents = state.events.map((ev, idx) => ({ev, idx})).filter(({ev}) => ev.date === dateStr);
+  if (dayEvents.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--text3);font-size:13px;padding:16px 0 8px';
+    empty.textContent = 'この日の予定はありません';
+    list.appendChild(empty);
+    return;
+  }
+  const catColors = { gyoji: 'var(--event)', task: 'var(--task)', 'kōmu': 'var(--accent)' };
+  dayEvents.forEach(({ev, idx}) => {
+    const item = document.createElement('div');
+    item.className = 'day-event-item';
+    const dot = document.createElement('span');
+    dot.className = 'day-event-cat-dot';
+    dot.style.background = catColors[ev.category] || 'var(--text3)';
+    const text = document.createElement('span');
+    text.className = 'day-event-item-text';
+    text.textContent = ev.title;
+    item.appendChild(dot);
+    item.appendChild(text);
+    item.addEventListener('click', () => {
+      closeDayEventsSheet();
+      openEventDetail(ev, idx);
+    });
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('dayEventsAddBtn').addEventListener('click', () => {
+  const dateStr = state.dayEventsDate;
+  closeDayEventsSheet();
+  openEventModal(dateStr);
+});
+
+document.getElementById('closeDayEventsBtn').addEventListener('click', closeDayEventsSheet);
+document.getElementById('dayEventsSheet').addEventListener('click', function(e) {
+  if (e.target === this) closeDayEventsSheet();
+});
 
 // ══════════════════════════════════════════
 // EVENT MODAL
