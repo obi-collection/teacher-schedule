@@ -234,7 +234,7 @@ body {
 .period-cell.special-cell { background: var(--bg3); border-top: 1px solid var(--border2); flex-direction: column; }
 .period-cell.special-cell:active { background: var(--surface); }
 
-.subject-label { font-size: 11px; font-weight: 500; color: var(--accent2); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+.subject-label { font-size: 11px; font-weight: 500; color: var(--text); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 .empty-cell-icon { font-size: 14px; color: var(--text3); opacity: 0; transition: opacity 0.15s; }
 .period-cell:active .empty-cell-icon { opacity: 0.5; }
 .note-text { font-size: 10px; color: var(--text2); text-align: center; line-height: 1.3; word-break: break-all; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; padding: 0 2px; }
@@ -1167,6 +1167,21 @@ function addLongPress(el, cb) {
   el.addEventListener('contextmenu', e => { e.preventDefault(); cb(e); });
 }
 
+function addTripleTap(el, cb) {
+  let taps = 0, tapTimer = null;
+  el.addEventListener('click', e => {
+    taps++;
+    if (taps === 1) {
+      tapTimer = setTimeout(() => { taps = 0; }, 600);
+    }
+    if (taps >= 3) {
+      clearTimeout(tapTimer);
+      taps = 0;
+      cb(e);
+    }
+  });
+}
+
 function renderPeriodLabels() {
   const periods = state.settings.periods;
   const ph = getPeriodHeight();
@@ -1237,7 +1252,6 @@ function renderBody() {
           lbl.className = 'subject-label';
           lbl.textContent = subjectData.name;
           if (subjectData.color) {
-            lbl.style.color = subjectData.color;
             cell.style.background = subjectData.color + '20';
           }
           cell.appendChild(lbl);
@@ -1256,6 +1270,18 @@ function renderBody() {
         const periodLabel = `${i+1}限`;
         const subjectName = subjectData ? subjectData.name : '';
         addLongPress(cell, () => openRecordModal(key, periodLabel, subjectName));
+        addTripleTap(cell, () => {
+          if (!state.timetable[key] && !state.records[key]) return;
+          const name = state.timetable[key]?.name || '';
+          const msg = name
+            ? `${periodLabel}「${name}」の予定・記録をすべて削除しますか？`
+            : `${periodLabel}の記録を削除しますか？`;
+          if (!confirm(msg)) return;
+          delete state.timetable[key];
+          delete state.records[key];
+          save(); render();
+          showToast('削除しました');
+        });
         col.appendChild(cell);
 
         if (i === lunchAfterIdx) col.appendChild(makeSpecialCell(dk, 'lunch', ph));
@@ -1308,7 +1334,6 @@ function makeSpecialCell(dateStr, type, ph) {
       lbl.className = 'subject-label';
       lbl.textContent = afterData.name;
       if (afterData.color) {
-        lbl.style.color = afterData.color;
         cell.style.background = afterData.color + '20';
       }
       cell.appendChild(lbl);
@@ -2496,7 +2521,7 @@ function renderFixedTimetableGrid() {
       if (entry) {
         const lbl2 = document.createElement('div');
         lbl2.className = 'fixed-cell-label';
-        lbl2.style.color = entry.color || 'var(--text2)';
+        lbl2.style.color = 'var(--text)';
         lbl2.textContent = entry.name;
         cell.appendChild(lbl2);
       }
