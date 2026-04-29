@@ -1218,7 +1218,7 @@ function renderPeriodLabels() {
     const el = document.createElement('div');
     el.className = 'period-label';
     el.style.height = ph + 'px';
-    el.innerHTML = `<span class="period-num">${i+1}</span><span class="period-time">${p.start}</span>`;
+    el.innerHTML = `<span class="period-num">${i+1}</span>`;
     labels.appendChild(el);
     if (i === lunchAfterIdx) {
       const lunch = document.createElement('div');
