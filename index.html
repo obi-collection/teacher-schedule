@@ -867,13 +867,16 @@ body {
         <span id="cellDetailSubjectName" class="cell-detail-name"></span>
       </div>
       <div class="form-field">
-        <label class="form-label">メモ（やろうとしていること）</label>
+        <label class="form-label">メモ</label>
         <textarea class="form-input" id="cellDetailMemo" rows="3" placeholder="授業の準備・進め方など…" style="resize:none;min-height:72px"></textarea>
       </div>
-      <button class="cell-detail-save-btn" id="cellDetailSaveMemoBtn">メモを保存</button>
+      <div class="form-field">
+        <label class="form-label">記録</label>
+        <textarea class="form-input" id="cellDetailRecord" rows="3" placeholder="授業の振り返りなど…" style="resize:none;min-height:72px"></textarea>
+      </div>
+      <button class="btn btn-primary" id="cellDetailSaveBtn" style="width:100%;margin-bottom:10px">保存</button>
       <div class="modal-actions">
         <button class="btn btn-danger" id="cellDetailDeleteBtn">削除</button>
-        <button class="btn btn-ghost" id="cellDetailRecordBtn">記録</button>
         <button class="btn btn-primary" id="cellDetailEditBtn">編集</button>
       </div>
     </div>
@@ -1817,6 +1820,7 @@ function openCellDetail(dateStr, periodIdx, type) {
   }
 
   document.getElementById('cellDetailMemo').value = state.notes[key] || '';
+  document.getElementById('cellDetailRecord').value = state.records[key] || '';
   document.getElementById('cellDetailSheet').classList.add('open');
 }
 
@@ -1825,21 +1829,24 @@ function closeCellDetail() {
   state.cellDetailTarget = null;
 }
 
-document.getElementById('cellDetailSaveMemoBtn').addEventListener('click', () => {
+document.getElementById('cellDetailSaveBtn').addEventListener('click', () => {
   const t = state.cellDetailTarget;
   if (!t) return;
-  const text = document.getElementById('cellDetailMemo').value.trim();
-  if (text) { state.notes[t.key] = text; } else { delete state.notes[t.key]; }
+  const memo = document.getElementById('cellDetailMemo').value.trim();
+  const record = document.getElementById('cellDetailRecord').value.trim();
+  if (memo) { state.notes[t.key] = memo; } else { delete state.notes[t.key]; }
+  if (record) { state.records[t.key] = record; } else { delete state.records[t.key]; }
   save(); render();
-  showToast('メモを保存しました');
+  showToast('保存しました');
 });
 
 document.getElementById('cellDetailEditBtn').addEventListener('click', () => {
   const t = state.cellDetailTarget;
   if (!t) return;
-  // Auto-save memo before switching to edit
-  const memoText = document.getElementById('cellDetailMemo').value.trim();
-  if (memoText) { state.notes[t.key] = memoText; } else { delete state.notes[t.key]; }
+  const memo = document.getElementById('cellDetailMemo').value.trim();
+  const record = document.getElementById('cellDetailRecord').value.trim();
+  if (memo) { state.notes[t.key] = memo; } else { delete state.notes[t.key]; }
+  if (record) { state.records[t.key] = record; } else { delete state.records[t.key]; }
   save();
   closeCellDetail();
   if (t.type === 'period') {
@@ -1851,23 +1858,13 @@ document.getElementById('cellDetailEditBtn').addEventListener('click', () => {
   }
 });
 
-document.getElementById('cellDetailRecordBtn').addEventListener('click', () => {
-  const t = state.cellDetailTarget;
-  if (!t) return;
-  const typeLabel = t.type === 'period'
-    ? `${t.periodIdx+1}限`
-    : t.type === 'mt' ? 'MT' : t.type === 'st' ? 'ST' : t.type === 'after' ? '放課後' : '昼休み';
-  const subjectName = (state.timetable[t.key] || {}).name || '';
-  closeCellDetail();
-  openRecordModal(t.key, typeLabel, subjectName);
-});
-
 document.getElementById('cellDetailDeleteBtn').addEventListener('click', () => {
   const t = state.cellDetailTarget;
   if (!t) return;
   saveSnapshot();
   delete state.timetable[t.key];
   delete state.notes[t.key];
+  delete state.records[t.key];
   save(); render(); closeCellDetail();
   showToast('削除しました');
 });
