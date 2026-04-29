@@ -577,6 +577,7 @@ body {
         <button id="nextWeek">›</button>
       </div>
       <div class="top-bar-right">
+        <button class="icon-btn" id="undoBtn" title="元に戻す" style="opacity:0.3;cursor:default" disabled>↩</button>
         <button class="icon-btn" id="openSettings" title="設定">⚙</button>
       </div>
     </div>
@@ -979,6 +980,33 @@ let state = {
 // STORAGE
 // ══════════════════════════════════════════
 
+// ══════════════════════════════════════════
+// UNDO
+// ══════════════════════════════════════════
+
+let undoSnapshot = null;
+
+function saveSnapshot() {
+  undoSnapshot = {
+    timetable:    JSON.parse(JSON.stringify(state.timetable)),
+    events:       JSON.parse(JSON.stringify(state.events)),
+    records:      JSON.parse(JSON.stringify(state.records)),
+    daySchedules: JSON.parse(JSON.stringify(state.daySchedules)),
+  };
+  const btn = document.getElementById('undoBtn');
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  btn.style.cursor  = 'pointer';
+}
+
+function clearSnapshot() {
+  undoSnapshot = null;
+  const btn = document.getElementById('undoBtn');
+  btn.disabled = true;
+  btn.style.opacity = '0.3';
+  btn.style.cursor  = 'default';
+}
+
 function save() {
   try {
     localStorage.setItem('ts_settings',       JSON.stringify(state.settings));
@@ -1018,6 +1046,18 @@ function load() {
     if (ds) state.daySchedules = JSON.parse(ds);
   } catch(e) {}
 }
+
+document.getElementById('undoBtn').addEventListener('click', () => {
+  if (!undoSnapshot) return;
+  state.timetable    = undoSnapshot.timetable;
+  state.events       = undoSnapshot.events;
+  state.records      = undoSnapshot.records;
+  state.daySchedules = undoSnapshot.daySchedules;
+  clearSnapshot();
+  save();
+  render();
+  showToast('元に戻しました');
+});
 
 // ══════════════════════════════════════════
 // DATE UTILS
@@ -1588,12 +1628,14 @@ document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
   }
 
   if (state.afterDateStr) {
+    saveSnapshot();
     state.timetable[`${state.afterDateStr}_after`] = entry;
     save(); render(); closeSubjectModal();
   } else if (state.fixedCell) {
     state.fixedTimetable[`${state.fixedCell.dow}_p${state.fixedCell.periodIdx}`] = entry;
     save(); renderFixedTimetableGrid(); closeSubjectModal();
   } else {
+    saveSnapshot();
     state.timetable[cellKey(state.selectedCell.dateStr, state.selectedCell.periodIdx)] = entry;
     save(); render(); closeSubjectModal();
   }
@@ -1601,12 +1643,14 @@ document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
 
 document.getElementById('clearCellBtn').addEventListener('click', () => {
   if (state.afterDateStr) {
+    saveSnapshot();
     delete state.timetable[`${state.afterDateStr}_after`];
     save(); render(); closeSubjectModal();
   } else if (state.fixedCell) {
     delete state.fixedTimetable[`${state.fixedCell.dow}_p${state.fixedCell.periodIdx}`];
     save(); renderFixedTimetableGrid(); closeSubjectModal();
   } else if (state.selectedCell) {
+    saveSnapshot();
     delete state.timetable[cellKey(state.selectedCell.dateStr, state.selectedCell.periodIdx)];
     save(); render(); closeSubjectModal();
   }
@@ -1722,6 +1766,7 @@ function closeRecordModal() {
 document.getElementById('confirmRecordBtn').addEventListener('click', () => {
   if (!state.recordTarget) return;
   const text = document.getElementById('recordInput').value.trim();
+  saveSnapshot();
   if (text) { state.records[state.recordTarget.key] = text; } else { delete state.records[state.recordTarget.key]; }
   save(); render(); closeRecordModal();
   showToast('記録を保存しました');
@@ -1729,6 +1774,7 @@ document.getElementById('confirmRecordBtn').addEventListener('click', () => {
 
 document.getElementById('clearRecordBtn').addEventListener('click', () => {
   if (!state.recordTarget) return;
+  saveSnapshot();
   delete state.records[state.recordTarget.key];
   save(); render(); closeRecordModal();
   showToast('記録を削除しました');
@@ -1932,6 +1978,7 @@ function renderDayScheduleList(dateStr) {
     delBtn.className = 'ds-item-del';
     delBtn.textContent = '✕';
     delBtn.addEventListener('click', () => {
+      saveSnapshot();
       origArr.splice(origIdx, 1);
       if (origArr.length === 0) delete state.daySchedules[dateStr];
       save(); render(); renderDayScheduleList(dateStr);
@@ -1948,6 +1995,7 @@ document.getElementById('dsAddBtn').addEventListener('click', () => {
   if (!dateStr) return;
   const content = document.getElementById('dsContent').value.trim();
   if (!content) { showToast('内容を入力してください'); return; }
+  saveSnapshot();
   if (!state.daySchedules[dateStr]) state.daySchedules[dateStr] = [];
   state.daySchedules[dateStr].push({
     id: Date.now(),
@@ -1988,6 +2036,7 @@ function closeEventDetail() {
 
 document.getElementById('deleteEventDetailBtn').addEventListener('click', () => {
   if (state.selectedEventDetailIdx === null) return;
+  saveSnapshot();
   state.events.splice(state.selectedEventDetailIdx, 1);
   save(); render(); closeEventDetail();
   showToast('削除しました');
@@ -2086,6 +2135,7 @@ document.getElementById('confirmEventBtn').addEventListener('click', () => {
   const title = document.getElementById('eventTitle').value.trim();
   const date  = document.getElementById('eventDate').value;
   if (!title || !date) { showToast('タイトルと日付を入力してください'); return; }
+  saveSnapshot();
   state.events.push({ title, date, category: state.selectedEventCat });
   save(); render();
   document.getElementById('eventModal').classList.remove('open');
