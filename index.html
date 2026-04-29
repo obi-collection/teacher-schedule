@@ -1167,21 +1167,6 @@ function addLongPress(el, cb) {
   el.addEventListener('contextmenu', e => { e.preventDefault(); cb(e); });
 }
 
-function addTripleTap(el, cb) {
-  let taps = 0, tapTimer = null;
-  el.addEventListener('click', e => {
-    taps++;
-    if (taps === 1) {
-      tapTimer = setTimeout(() => { taps = 0; }, 600);
-    }
-    if (taps >= 3) {
-      clearTimeout(tapTimer);
-      taps = 0;
-      cb(e);
-    }
-  });
-}
-
 function renderPeriodLabels() {
   const periods = state.settings.periods;
   const ph = getPeriodHeight();
@@ -1270,18 +1255,6 @@ function renderBody() {
         const periodLabel = `${i+1}限`;
         const subjectName = subjectData ? subjectData.name : '';
         addLongPress(cell, () => openRecordModal(key, periodLabel, subjectName));
-        addTripleTap(cell, () => {
-          if (!state.timetable[key] && !state.records[key]) return;
-          const name = state.timetable[key]?.name || '';
-          const msg = name
-            ? `${periodLabel}「${name}」の予定・記録をすべて削除しますか？`
-            : `${periodLabel}の記録を削除しますか？`;
-          if (!confirm(msg)) return;
-          delete state.timetable[key];
-          delete state.records[key];
-          save(); render();
-          showToast('削除しました');
-        });
         col.appendChild(cell);
 
         if (i === lunchAfterIdx) col.appendChild(makeSpecialCell(dk, 'lunch', ph));
