@@ -1,7 +1,17 @@
-const CACHE_NAME = 'teacher-schedule-v2';
+const CACHE_NAME = 'teacher-schedule-v19';
 const ASSETS = [
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './css/app.css?v=19',
+  './js/00-core.js?v=19',
+  './js/10-week-render.js?v=19',
+  './js/20-cell-modals.js?v=19',
+  './js/30-records-events.js?v=19',
+  './js/40-settings-data.js?v=19',
+  './js/50-todo-fixed-nav.js?v=19',
+  './js/60-platform.js?v=19',
+  './js/70-students.js?v=19',
+  './js/app.js?v=19'
 ];
 
 self.addEventListener('install', e => {
@@ -17,7 +27,26 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
+          return response;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+    fetch(e.request)
+      .then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(e.request, copy));
+        return response;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
