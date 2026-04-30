@@ -570,6 +570,28 @@ body {
 .todo-text.done { text-decoration: line-through; color: var(--text3); }
 
 #app { position: relative; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── CELL TASK LIST ── */
+.cell-task-item { display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);margin-bottom:4px; }
+.cell-task-check { width:18px;height:18px;cursor:pointer;accent-color:var(--accent);flex-shrink:0; }
+.cell-task-text { flex:1;font-size:13px;color:var(--text); }
+.cell-task-text.done { text-decoration:line-through;color:var(--text3); }
+.cell-task-del { color:var(--text3);font-size:13px;cursor:pointer;background:none;border:none;padding:4px; }
+
+/* ── IDEA MEMO LIST ── */
+.idea-item { display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border-radius:10px;border:1px solid var(--border);margin-bottom:6px; }
+.idea-item-text { flex:1;font-size:13px;color:var(--text);line-height:1.4; }
+.idea-item-del { color:var(--text3);font-size:16px;cursor:pointer;background:none;border:none;padding:4px;flex-shrink:0; }
+
+/* ── STUDENT LIST ── */
+.student-item { display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg2);border-radius:10px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:opacity 0.12s; }
+.student-item:active { opacity:0.7; }
+.student-item-info { flex:1; }
+.student-item-name { font-size:14px;font-weight:500;color:var(--text); }
+.student-item-meta { font-size:11px;color:var(--text3);margin-top:2px; }
+
+/* ── TODO EDIT ── */
+.todo-edit-input { flex:1;background:var(--bg3);border:1px solid var(--accent);color:var(--text);padding:4px 8px;border-radius:6px;font-size:14px;font-family:'Noto Sans JP',sans-serif; }
 </style>
 </head>
 <body>
@@ -808,6 +830,20 @@ body {
     </div>
 
     <div class="settings-section">
+      <div class="settings-section-title">通知</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">授業開始前の通知</div>
+          <div class="settings-row-sub">各時限・MT・STの5分前に通知</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="notificationSetting">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="settings-section">
       <div class="settings-section-title">データ管理</div>
       <div class="data-actions">
         <button class="data-btn" id="exportBtn">
@@ -844,16 +880,92 @@ body {
   <div class="settings-panel" id="recordsPanel">
     <div class="settings-header">
       <button class="icon-btn" id="closeRecordsPanelBtn">‹</button>
-      <h2>記録</h2>
+      <h2>記録 / 生徒</h2>
     </div>
-    <div class="records-month-nav">
-      <button class="icon-btn" id="recordsPrevMonth">‹</button>
-      <span class="records-month-label" id="recordsMonthLabel">--</span>
-      <button class="icon-btn" id="recordsNextMonth">›</button>
+    <div style="display:flex;border-bottom:1px solid var(--border);padding:0 16px">
+      <div class="panel-tab active" id="recordsTabBtn" style="flex:1;padding:12px 0;text-align:center;font-size:14px;cursor:pointer;color:var(--accent);border-bottom:2px solid var(--accent);transition:all 0.15s">記録</div>
+      <div class="panel-tab" id="studentsTabBtn" style="flex:1;padding:12px 0;text-align:center;font-size:14px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:all 0.15s">生徒</div>
     </div>
-    <div class="records-filter-row" id="recordsFilterRow"></div>
-    <div class="records-list" id="recordsList"></div>
+    <div id="recordsTabContent">
+      <div class="records-month-nav">
+        <button class="icon-btn" id="recordsPrevMonth">‹</button>
+        <span class="records-month-label" id="recordsMonthLabel">--</span>
+        <button class="icon-btn" id="recordsNextMonth">›</button>
+      </div>
+      <div class="records-filter-row" id="recordsFilterRow"></div>
+      <div class="records-list" id="recordsList"></div>
+    </div>
+    <div id="studentsTabContent" style="display:none">
+      <div class="settings-section">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="add-btn" id="addStudentBtn">＋ 生徒を追加</button>
+        </div>
+        <div id="studentList"></div>
+      </div>
+    </div>
     <div style="height:40px"></div>
+  </div>
+
+  <!-- STUDENT DETAIL PANEL -->
+  <div class="settings-panel" id="studentDetailPanel">
+    <div class="settings-header">
+      <button class="icon-btn" id="closeStudentDetailBtn">‹</button>
+      <h2 id="studentDetailName">生徒詳細</h2>
+    </div>
+    <div class="settings-section">
+      <div class="settings-row">
+        <div class="settings-row-label">学年・クラス</div>
+        <span id="studentDetailMeta" style="font-size:13px;color:var(--text3)">--</span>
+      </div>
+      <div class="settings-section-title" style="margin-top:16px">メモ</div>
+      <div id="studentDetailMemo" style="font-size:13px;color:var(--text2);padding:10px 14px;background:var(--bg2);border-radius:10px;border:1px solid var(--border);min-height:40px;line-height:1.6;margin-top:6px"></div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title">授業記録</div>
+      <div id="studentRecordsList"></div>
+    </div>
+    <div style="height:40px"></div>
+  </div>
+
+  <!-- STUDENT MODAL (add/edit) -->
+  <div class="modal-overlay" id="studentModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="studentModalTitle">生徒を追加</div>
+      <div class="form-field">
+        <label class="form-label">名前</label>
+        <input class="form-input" id="studentNameInput" placeholder="山田 太郎" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label class="form-label">学年</label>
+        <input class="form-input" id="studentGradeInput" placeholder="3年" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label class="form-label">クラス</label>
+        <input class="form-input" id="studentClassInput" placeholder="A組" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label class="form-label">メモ</label>
+        <textarea class="form-input" id="studentMemoInput" rows="3" placeholder="特記事項など…" style="resize:none"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="cancelStudentBtn">キャンセル</button>
+        <button class="btn btn-primary" id="confirmStudentBtn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDENT PICKER MODAL -->
+  <div class="modal-overlay" id="studentPickerModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">生徒を選択</div>
+      <div id="studentPickerList" style="margin:12px 0 8px"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="clearStudentPickerBtn">選択解除</button>
+        <button class="btn btn-ghost" id="closeStudentPickerBtn">キャンセル</button>
+      </div>
+    </div>
   </div>
 
   <!-- CELL DETAIL SHEET (入力済みコマのタップ) -->
@@ -866,6 +978,12 @@ body {
         <span id="cellDetailGenreDot" class="cell-detail-genre-dot"></span>
         <span id="cellDetailSubjectName" class="cell-detail-name"></span>
       </div>
+      <!-- Student selector -->
+      <div class="cell-student-row" id="cellStudentRow" style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);margin-bottom:12px;cursor:pointer;">
+        <span style="font-size:12px;color:var(--text3)">生徒：</span>
+        <span id="cellStudentName" style="font-size:13px;color:var(--text3)">選択なし（タップして選択）</span>
+        <span id="cellStudentGoto" style="font-size:12px;color:var(--text3);margin-left:auto"></span>
+      </div>
       <div class="form-field">
         <label class="form-label">メモ</label>
         <textarea class="form-input" id="cellDetailMemo" rows="3" placeholder="授業の準備・進め方など…" style="resize:none;min-height:72px"></textarea>
@@ -874,9 +992,19 @@ body {
         <label class="form-label">記録</label>
         <textarea class="form-input" id="cellDetailRecord" rows="3" placeholder="授業の振り返りなど…" style="resize:none;min-height:72px"></textarea>
       </div>
-      <button class="btn btn-primary" id="cellDetailSaveBtn" style="width:100%;margin-bottom:10px">保存</button>
+      <!-- Task list section -->
+      <div class="form-field">
+        <label class="form-label">タスクリスト</label>
+        <div id="cellTaskList" style="margin-bottom:6px"></div>
+        <div style="display:flex;gap:8px">
+          <input class="add-input" id="cellTaskInput" placeholder="タスクを追加…" autocomplete="off" style="font-size:14px;padding:8px 10px">
+          <button class="add-btn" id="cellTaskAddBtn">追加</button>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="cellDetailSaveBtn" style="width:100%;margin-bottom:10px">閉じる</button>
       <div class="modal-actions">
         <button class="btn btn-danger" id="cellDetailDeleteBtn">削除</button>
+        <button class="btn btn-ghost" id="cellDetailRecordBtn">記録</button>
         <button class="btn btn-primary" id="cellDetailEditBtn">編集</button>
       </div>
     </div>
@@ -925,6 +1053,22 @@ body {
     </div>
   </div>
 
+  <!-- IDEA MEMO MODAL -->
+  <div class="modal-overlay" id="ideaMemoModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="ideaMemoTitle">アイデアメモ</div>
+      <div id="ideaMemoList" style="margin:12px 0 8px"></div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <input class="add-input" id="ideaMemoInput" placeholder="アイデアを入力…" autocomplete="off">
+        <button class="add-btn" id="ideaMemoAddBtn">追加</button>
+      </div>
+      <div class="modal-actions" style="margin-top:10px">
+        <button class="btn btn-ghost" id="closeIdeaMemoBtn">閉じる</button>
+      </div>
+    </div>
+  </div>
+
   <!-- DAY EVENTS SHEET (⭐行空きエリアタップ) -->
   <div class="modal-overlay" id="dayEventsSheet">
     <div class="modal-sheet">
@@ -939,6 +1083,17 @@ body {
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <!-- BACKUP REMINDER MODAL -->
+  <div class="modal-overlay" id="backupReminderModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">バックアップを推奨します</div>
+      <div style="font-size:14px;color:var(--text2);margin:8px 0 20px;line-height:1.6">最後のバックアップから7日以上経過しています。データを失わないためにエクスポートすることをおすすめします。</div>
+      <button class="btn btn-primary" id="backupNowBtn" style="width:100%;margin-bottom:10px">今すぐバックアップ</button>
+      <button class="btn btn-ghost" id="backupLaterBtn" style="width:100%">後で</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -952,6 +1107,7 @@ const DEFAULTS = {
     showWeekend: true,
     weekendPeriods: false,
     showMTST: true,
+    notifications: true,
     periods: [
       { start: '08:45', end: '09:35' },
       { start: '09:45', end: '10:35' },
@@ -979,7 +1135,11 @@ const DEFAULTS = {
   events: [],
   notes: {},
   todos: [],
-  fixedTimetable: {}
+  fixedTimetable: {},
+  ideaMemos: {},
+  cellTasks: {},
+  students: [],
+  cellStudents: {}
 };
 
 // ══════════════════════════════════════════
@@ -996,6 +1156,10 @@ let state = {
   holidays: {},
   records: {},
   daySchedules: {},
+  ideaMemos: {},
+  cellTasks: {},
+  students: [],
+  cellStudents: {},
   currentWeekStart: null,
   // Subject modal
   selectedCell: null,
@@ -1019,7 +1183,9 @@ let state = {
   dayScheduleDate: null,
   // Day events sheet
   dayEventsDate: null,
-  selectedEventDetailIdx: null
+  selectedEventDetailIdx: null,
+  ideaMemoDate: null,
+  cellTasks_target: null
 };
 
 // ══════════════════════════════════════════
@@ -1063,6 +1229,10 @@ function save() {
     localStorage.setItem('ts_fixedTimetable', JSON.stringify(state.fixedTimetable));
     localStorage.setItem('ts_records',       JSON.stringify(state.records));
     localStorage.setItem('ts_daySchedules',  JSON.stringify(state.daySchedules));
+    localStorage.setItem('ts_ideaMemos',    JSON.stringify(state.ideaMemos));
+    localStorage.setItem('ts_cellTasks',    JSON.stringify(state.cellTasks));
+    localStorage.setItem('ts_students',     JSON.stringify(state.students));
+    localStorage.setItem('ts_cellStudents', JSON.stringify(state.cellStudents));
   } catch(e) { showToast('保存に失敗しました'); }
 }
 
@@ -1090,6 +1260,14 @@ function load() {
     if (rc) state.records = JSON.parse(rc);
     const ds = localStorage.getItem('ts_daySchedules');
     if (ds) state.daySchedules = JSON.parse(ds);
+    const im = localStorage.getItem('ts_ideaMemos');
+    if (im) state.ideaMemos = JSON.parse(im);
+    const ct = localStorage.getItem('ts_cellTasks');
+    if (ct) state.cellTasks = JSON.parse(ct);
+    const stu = localStorage.getItem('ts_students');
+    if (stu) state.students = JSON.parse(stu);
+    const cs = localStorage.getItem('ts_cellStudents');
+    if (cs) state.cellStudents = JSON.parse(cs);
   } catch(e) {}
 }
 
@@ -1442,9 +1620,29 @@ function makeSpecialCell(dateStr, type, ph) {
       cell.addEventListener('click', () => openSpecialSubjectModal(dateStr, type));
     }
   } else {
-    // lunch / diary use note modal
     const noteText = state.notes[key] || '';
-    if (type === 'lunch' && noteText) {
+    if (type === 'diary') {
+      // Migrate old note text to idea memo list
+      if (noteText && !(state.ideaMemos[key] && state.ideaMemos[key].length > 0)) {
+        if (!state.ideaMemos[key]) state.ideaMemos[key] = [];
+        state.ideaMemos[key].push({ id: Date.now(), text: noteText });
+        delete state.notes[key];
+        save();
+      }
+      const ideas = state.ideaMemos[key] || [];
+      if (ideas.length > 0) {
+        const txt = document.createElement('div');
+        txt.className = 'note-text';
+        txt.textContent = ideas.length === 1 ? ideas[0].text : `${ideas[0].text}…他${ideas.length - 1}件`;
+        cell.appendChild(txt);
+      } else {
+        const lbl = document.createElement('div');
+        lbl.className = 'note-empty-label';
+        lbl.textContent = 'アイデアメモ';
+        cell.appendChild(lbl);
+      }
+      cell.addEventListener('click', () => openIdeaMemoModal(key, dateStr));
+    } else if (type === 'lunch' && noteText) {
       const txt = document.createElement('div');
       txt.className = 'note-text';
       txt.textContent = noteText;
@@ -1791,7 +1989,6 @@ function openSpecialSubjectModal(dateStr, type) {
 
 function openCellDetail(dateStr, periodIdx, type) {
   const key = type === 'period' ? cellKey(dateStr, periodIdx) : `${dateStr}_${type}`;
-  state.cellDetailTarget = { key, dateStr, periodIdx, type };
 
   const d = new Date(dateStr + 'T00:00:00');
   const dateLabel = `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}）`;
@@ -1801,11 +1998,15 @@ function openCellDetail(dateStr, periodIdx, type) {
     : type === 'st' ? 'ST（帰りの会）'
     : type === 'after' ? '放課後'
     : '昼休み';
+  const timetableData = type !== 'lunch' ? state.timetable[key] : null;
+  const subjectName = timetableData?.name || '';
+
+  state.cellDetailTarget = { key, dateStr, periodIdx, type, typeLabel, subjectName };
+
   document.getElementById('cellDetailTitle').textContent = dateLabel;
   document.getElementById('cellDetailSub').textContent = typeLabel;
 
-  // Subject row (timetable-based types only)
-  const timetableData = type !== 'lunch' ? state.timetable[key] : null;
+  // Subject row
   const subjectRow = document.getElementById('cellDetailSubjectRow');
   if (timetableData) {
     let genreColor = timetableData.color || 'var(--text3)';
@@ -1821,11 +2022,14 @@ function openCellDetail(dateStr, periodIdx, type) {
 
   document.getElementById('cellDetailMemo').value = state.notes[key] || '';
   document.getElementById('cellDetailRecord').value = state.records[key] || '';
+  renderCellTaskList(key);
+  renderCellStudentSelector(key);
   document.getElementById('cellDetailSheet').classList.add('open');
 }
 
 function closeCellDetail() {
   document.getElementById('cellDetailSheet').classList.remove('open');
+  document.getElementById('studentPickerModal').classList.remove('open');
   state.cellDetailTarget = null;
 }
 
@@ -1837,7 +2041,19 @@ document.getElementById('cellDetailSaveBtn').addEventListener('click', () => {
   if (memo) { state.notes[t.key] = memo; } else { delete state.notes[t.key]; }
   if (record) { state.records[t.key] = record; } else { delete state.records[t.key]; }
   save(); render();
-  showToast('保存しました');
+  closeCellDetail();
+});
+
+document.getElementById('cellDetailRecordBtn').addEventListener('click', () => {
+  const t = state.cellDetailTarget;
+  if (!t) return;
+  const memo = document.getElementById('cellDetailMemo').value.trim();
+  const record = document.getElementById('cellDetailRecord').value.trim();
+  if (memo) { state.notes[t.key] = memo; } else { delete state.notes[t.key]; }
+  if (record) { state.records[t.key] = record; } else { delete state.notes[t.key]; }
+  save();
+  closeCellDetail();
+  openRecordModal(t.key, t.typeLabel || '', t.subjectName || '');
 });
 
 document.getElementById('cellDetailEditBtn').addEventListener('click', () => {
@@ -1871,6 +2087,87 @@ document.getElementById('cellDetailDeleteBtn').addEventListener('click', () => {
 
 document.getElementById('cellDetailSheet').addEventListener('click', function(e) {
   if (e.target === this) closeCellDetail();
+});
+
+function renderCellTaskList(key) {
+  const list = document.getElementById('cellTaskList');
+  if (!list) return;
+  list.innerHTML = '';
+  const tasks = state.cellTasks[key] || [];
+  if (tasks.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--text3);font-size:12px;padding:8px 0';
+    empty.textContent = 'タスクはありません';
+    list.appendChild(empty);
+    return;
+  }
+  tasks.forEach((task, i) => {
+    const item = document.createElement('div');
+    item.className = 'cell-task-item';
+    item.style.opacity = task.done ? '0.55' : '1';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.className = 'cell-task-check';
+    cb.checked = task.done;
+    cb.addEventListener('change', function() {
+      state.cellTasks[key][i].done = this.checked;
+      save(); renderCellTaskList(key);
+    });
+    const txt = document.createElement('span');
+    txt.className = 'cell-task-text' + (task.done ? ' done' : '');
+    txt.textContent = task.text;
+    const del = document.createElement('button');
+    del.className = 'cell-task-del';
+    del.textContent = '✕';
+    del.addEventListener('click', () => {
+      state.cellTasks[key].splice(i, 1);
+      if (state.cellTasks[key].length === 0) delete state.cellTasks[key];
+      save(); renderCellTaskList(key);
+    });
+    item.appendChild(cb); item.appendChild(txt); item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('cellTaskAddBtn').addEventListener('click', () => {
+  const t = state.cellDetailTarget;
+  if (!t) return;
+  const text = document.getElementById('cellTaskInput').value.trim();
+  if (!text) return;
+  if (!state.cellTasks[t.key]) state.cellTasks[t.key] = [];
+  state.cellTasks[t.key].push({ id: Date.now(), text, done: false });
+  document.getElementById('cellTaskInput').value = '';
+  save(); renderCellTaskList(t.key);
+});
+
+document.getElementById('cellTaskInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('cellTaskAddBtn').click();
+});
+
+function renderCellStudentSelector(key) {
+  const studentId = state.cellStudents[key];
+  const student = studentId ? state.students.find(s => s.id === studentId) : null;
+  const nameEl = document.getElementById('cellStudentName');
+  const gotoEl = document.getElementById('cellStudentGoto');
+  if (!nameEl) return;
+  if (student) {
+    nameEl.textContent = student.name;
+    nameEl.style.color = 'var(--accent)';
+    nameEl.style.fontWeight = '500';
+    gotoEl.textContent = '記録を見る ›';
+    gotoEl.style.cursor = 'pointer';
+    gotoEl.onclick = () => { closeCellDetail(); openStudentDetail(student); };
+  } else {
+    nameEl.textContent = '選択なし（タップして選択）';
+    nameEl.style.color = 'var(--text3)';
+    nameEl.style.fontWeight = 'normal';
+    gotoEl.textContent = '';
+    gotoEl.onclick = null;
+  }
+}
+
+document.getElementById('cellStudentRow').addEventListener('click', () => {
+  openStudentPickerModal();
 });
 
 // ══════════════════════════════════════════
@@ -1912,6 +2209,75 @@ document.getElementById('clearNoteBtn').addEventListener('click', () => {
 document.getElementById('cancelNoteBtn').addEventListener('click', closeNoteModal);
 document.getElementById('noteModal').addEventListener('click', function(e) {
   if (e.target === this) closeNoteModal();
+});
+
+// ══════════════════════════════════════════
+// IDEA MEMO MODAL
+// ══════════════════════════════════════════
+
+function openIdeaMemoModal(key, dateStr) {
+  state.ideaMemoDate = { key, dateStr };
+  const d = new Date(dateStr + 'T00:00:00');
+  document.getElementById('ideaMemoTitle').textContent =
+    `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） アイデアメモ`;
+  renderIdeaMemoList(key);
+  document.getElementById('ideaMemoModal').classList.add('open');
+}
+
+function closeIdeaMemoModal() {
+  document.getElementById('ideaMemoModal').classList.remove('open');
+  state.ideaMemoDate = null;
+}
+
+function renderIdeaMemoList(key) {
+  const list = document.getElementById('ideaMemoList');
+  list.innerHTML = '';
+  const ideas = state.ideaMemos[key] || [];
+  if (ideas.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--text3);font-size:13px;padding:16px 0 8px';
+    empty.textContent = 'アイデアはありません';
+    list.appendChild(empty);
+    return;
+  }
+  ideas.forEach((idea, i) => {
+    const item = document.createElement('div');
+    item.className = 'idea-item';
+    const txt = document.createElement('span');
+    txt.className = 'idea-item-text';
+    txt.textContent = idea.text;
+    const del = document.createElement('button');
+    del.className = 'idea-item-del';
+    del.textContent = '✕';
+    del.addEventListener('click', () => {
+      state.ideaMemos[key].splice(i, 1);
+      if (state.ideaMemos[key].length === 0) delete state.ideaMemos[key];
+      save(); render(); renderIdeaMemoList(key);
+    });
+    item.appendChild(txt); item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('ideaMemoAddBtn').addEventListener('click', () => {
+  const target = state.ideaMemoDate;
+  if (!target) return;
+  const text = document.getElementById('ideaMemoInput').value.trim();
+  if (!text) { showToast('内容を入力してください'); return; }
+  if (!state.ideaMemos[target.key]) state.ideaMemos[target.key] = [];
+  state.ideaMemos[target.key].push({ id: Date.now(), text });
+  document.getElementById('ideaMemoInput').value = '';
+  save(); render(); renderIdeaMemoList(target.key);
+  showToast('追加しました');
+});
+
+document.getElementById('ideaMemoInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('ideaMemoAddBtn').click();
+});
+
+document.getElementById('closeIdeaMemoBtn').addEventListener('click', closeIdeaMemoModal);
+document.getElementById('ideaMemoModal').addEventListener('click', function(e) {
+  if (e.target === this) closeIdeaMemoModal();
 });
 
 // ══════════════════════════════════════════
@@ -1967,6 +2333,13 @@ function openRecordsPanel() {
   document.getElementById('navRecords').classList.add('active');
   document.getElementById('navWeek').classList.remove('active');
   document.getElementById('navTodo').classList.remove('active');
+  // Reset tabs
+  document.getElementById('recordsTabBtn').style.color = 'var(--accent)';
+  document.getElementById('recordsTabBtn').style.borderBottomColor = 'var(--accent)';
+  document.getElementById('studentsTabBtn').style.color = 'var(--text3)';
+  document.getElementById('studentsTabBtn').style.borderBottomColor = 'transparent';
+  document.getElementById('recordsTabContent').style.display = '';
+  document.getElementById('studentsTabContent').style.display = 'none';
 }
 
 function closeRecordsPanel() {
@@ -2335,6 +2708,7 @@ function renderSettings() {
   document.getElementById('weekendPeriodsRow').style.display = state.settings.showWeekend ? '' : 'none';
   document.getElementById('weekendPeriodsSetting').checked = state.settings.weekendPeriods;
   document.getElementById('showMTSTSetting').checked = state.settings.showMTST !== false;
+  document.getElementById('notificationSetting').checked = state.settings.notifications !== false;
   renderPeriodSettingsList();
   renderGenreMasterList();
   renderFixedTimetableGrid();
@@ -2543,6 +2917,7 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   a.download = `schedule-backup-${dateKey(new Date())}.json`;
   a.click();
   URL.revokeObjectURL(url);
+  localStorage.setItem('ts_lastExport', new Date().toISOString());
   showToast('バックアップを保存しました');
 });
 
@@ -2627,6 +3002,29 @@ function renderTodoList() {
     const txt = document.createElement('span');
     txt.className = 'todo-text' + (todo.done ? ' done' : '');
     txt.textContent = todo.text;
+    txt.style.cursor = 'text';
+    txt.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const input = document.createElement('input');
+      input.className = 'todo-edit-input';
+      input.value = todo.text;
+      item.replaceChild(input, txt);
+      input.focus();
+      input.select();
+      function finishEdit() {
+        const newText = input.value.trim();
+        if (newText && newText !== todo.text) {
+          state.todos[i].text = newText;
+          save();
+        }
+        renderTodoList();
+      }
+      input.addEventListener('blur', finishEdit);
+      input.addEventListener('keydown', e2 => {
+        if (e2.key === 'Enter') input.blur();
+        if (e2.key === 'Escape') { input.value = todo.text; input.blur(); }
+      });
+    });
 
     const del = document.createElement('button');
     del.className = 'master-item-del';
@@ -2856,6 +3254,356 @@ async function loadHolidays() {
 }
 
 // ══════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════
+
+let notificationTimers = [];
+
+function clearNotificationTimers() {
+  notificationTimers.forEach(id => clearTimeout(id));
+  notificationTimers = [];
+}
+
+function scheduleNotificationsForToday() {
+  clearNotificationTimers();
+  if (state.settings.notifications === false) return;
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+  const today = new Date();
+  const todayStr = dateKey(today);
+  const now = Date.now();
+  const periods = state.settings.periods;
+  const showMTST = state.settings.showMTST !== false;
+
+  function todayAt(timeStr) {
+    const [h, m] = timeStr.split(':').map(Number);
+    const d = new Date(today);
+    d.setHours(h, m, 0, 0);
+    return d;
+  }
+
+  const slots = [];
+
+  if (showMTST && periods.length > 0) {
+    const mtStart = todayAt(periods[0].start);
+    mtStart.setMinutes(mtStart.getMinutes() - 15);
+    const mtKey = `${todayStr}_mt`;
+    if (state.timetable[mtKey]) {
+      slots.push({ time: mtStart, label: 'MT', name: state.timetable[mtKey].name || '' });
+    }
+  }
+
+  periods.forEach((p, i) => {
+    const key = cellKey(todayStr, i);
+    if (state.timetable[key]) {
+      slots.push({ time: todayAt(p.start), label: `${i + 1}限`, name: state.timetable[key].name || '' });
+    }
+  });
+
+  if (showMTST && periods.length > 0) {
+    const stStart = todayAt(periods[periods.length - 1].end);
+    stStart.setMinutes(stStart.getMinutes() + 5);
+    const stKey = `${todayStr}_st`;
+    if (state.timetable[stKey]) {
+      slots.push({ time: stStart, label: 'ST', name: state.timetable[stKey].name || '' });
+    }
+  }
+
+  slots.forEach(slot => {
+    const notifyAt = new Date(slot.time.getTime() - 5 * 60 * 1000);
+    const delay = notifyAt.getTime() - now;
+    if (delay <= 0) return;
+    const body = slot.name
+      ? `次の予定：${slot.name}（${slot.label}）`
+      : `次の予定：${slot.label}`;
+    const id = setTimeout(() => {
+      new Notification('時間割', { body, icon: '/icon-192.png' });
+    }, delay);
+    notificationTimers.push(id);
+  });
+}
+
+async function requestNotificationPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    await Notification.requestPermission();
+  }
+  scheduleNotificationsForToday();
+}
+
+document.getElementById('notificationSetting').addEventListener('change', async function() {
+  state.settings.notifications = this.checked;
+  save();
+  if (this.checked) {
+    if (Notification.permission === 'default') {
+      await Notification.requestPermission();
+    }
+    scheduleNotificationsForToday();
+  } else {
+    clearNotificationTimers();
+  }
+});
+
+// ══════════════════════════════════════════
+// BACKUP REMINDER
+// ══════════════════════════════════════════
+
+function checkBackupReminder() {
+  const lastExport = localStorage.getItem('ts_lastExport');
+  if (!lastExport) return;
+  const daysSince = (Date.now() - new Date(lastExport).getTime()) / (1000 * 60 * 60 * 24);
+  if (daysSince >= 7) {
+    document.getElementById('backupReminderModal').classList.add('open');
+  }
+}
+
+document.getElementById('backupNowBtn').addEventListener('click', () => {
+  document.getElementById('backupReminderModal').classList.remove('open');
+  document.getElementById('exportBtn').click();
+});
+
+document.getElementById('backupLaterBtn').addEventListener('click', () => {
+  document.getElementById('backupReminderModal').classList.remove('open');
+});
+
+// ══════════════════════════════════════════
+// STUDENT MANAGEMENT
+// ══════════════════════════════════════════
+
+let editingStudentId = null;
+
+document.getElementById('recordsTabBtn').addEventListener('click', () => {
+  document.getElementById('recordsTabBtn').style.color = 'var(--accent)';
+  document.getElementById('recordsTabBtn').style.borderBottomColor = 'var(--accent)';
+  document.getElementById('studentsTabBtn').style.color = 'var(--text3)';
+  document.getElementById('studentsTabBtn').style.borderBottomColor = 'transparent';
+  document.getElementById('recordsTabContent').style.display = '';
+  document.getElementById('studentsTabContent').style.display = 'none';
+});
+
+document.getElementById('studentsTabBtn').addEventListener('click', () => {
+  document.getElementById('studentsTabBtn').style.color = 'var(--accent)';
+  document.getElementById('studentsTabBtn').style.borderBottomColor = 'var(--accent)';
+  document.getElementById('recordsTabBtn').style.color = 'var(--text3)';
+  document.getElementById('recordsTabBtn').style.borderBottomColor = 'transparent';
+  document.getElementById('studentsTabContent').style.display = '';
+  document.getElementById('recordsTabContent').style.display = 'none';
+  renderStudentList();
+});
+
+function renderStudentList() {
+  const list = document.getElementById('studentList');
+  list.innerHTML = '';
+  if (state.students.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--text3);font-size:13px;padding:24px 0';
+    empty.textContent = '生徒が登録されていません';
+    list.appendChild(empty);
+    return;
+  }
+  state.students.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.className = 'student-item';
+    const info = document.createElement('div');
+    info.className = 'student-item-info';
+    const name = document.createElement('div');
+    name.className = 'student-item-name';
+    name.textContent = s.name;
+    const meta = document.createElement('div');
+    meta.className = 'student-item-meta';
+    meta.textContent = [s.grade, s.klass].filter(Boolean).join(' ') || '学年・クラス未設定';
+    info.appendChild(name); info.appendChild(meta);
+    const del = document.createElement('button');
+    del.className = 'master-item-del';
+    del.textContent = '✕';
+    del.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!confirm(`「${s.name}」を削除しますか？`)) return;
+      state.students.splice(i, 1);
+      save(); renderStudentList();
+    });
+    item.appendChild(info); item.appendChild(del);
+    item.addEventListener('click', () => openStudentModal(s));
+    list.appendChild(item);
+  });
+}
+
+function openStudentModal(student) {
+  editingStudentId = student ? student.id : null;
+  document.getElementById('studentModalTitle').textContent = student ? '生徒を編集' : '生徒を追加';
+  document.getElementById('studentNameInput').value = student?.name || '';
+  document.getElementById('studentGradeInput').value = student?.grade || '';
+  document.getElementById('studentClassInput').value = student?.klass || '';
+  document.getElementById('studentMemoInput').value = student?.memo || '';
+  document.getElementById('studentModal').classList.add('open');
+}
+
+function closeStudentModal() {
+  document.getElementById('studentModal').classList.remove('open');
+  editingStudentId = null;
+}
+
+document.getElementById('addStudentBtn').addEventListener('click', () => openStudentModal(null));
+
+document.getElementById('confirmStudentBtn').addEventListener('click', () => {
+  const name = document.getElementById('studentNameInput').value.trim();
+  if (!name) { showToast('名前を入力してください'); return; }
+  const grade = document.getElementById('studentGradeInput').value.trim();
+  const klass = document.getElementById('studentClassInput').value.trim();
+  const memo = document.getElementById('studentMemoInput').value.trim();
+  if (editingStudentId !== null) {
+    const idx = state.students.findIndex(s => s.id === editingStudentId);
+    if (idx !== -1) state.students[idx] = { ...state.students[idx], name, grade, klass, memo };
+    showToast('更新しました');
+  } else {
+    state.students.push({ id: Date.now(), name, grade, klass, memo });
+    showToast('生徒を追加しました');
+  }
+  save(); closeStudentModal(); renderStudentList();
+});
+
+document.getElementById('cancelStudentBtn').addEventListener('click', closeStudentModal);
+document.getElementById('studentModal').addEventListener('click', function(e) {
+  if (e.target === this) closeStudentModal();
+});
+
+function openStudentPickerModal() {
+  renderStudentPickerList();
+  document.getElementById('studentPickerModal').classList.add('open');
+}
+
+function closeStudentPickerModal() {
+  document.getElementById('studentPickerModal').classList.remove('open');
+}
+
+function renderStudentPickerList() {
+  const list = document.getElementById('studentPickerList');
+  list.innerHTML = '';
+  if (state.students.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--text3);font-size:13px;padding:16px 0';
+    empty.textContent = '生徒が登録されていません。先に「記録/生徒」→「生徒」タブで追加してください。';
+    list.appendChild(empty);
+    return;
+  }
+  const t = state.cellDetailTarget;
+  const currentId = t ? state.cellStudents[t.key] : null;
+  state.students.forEach(s => {
+    const item = document.createElement('div');
+    item.className = 'student-item';
+    if (s.id === currentId) item.style.background = 'var(--accent-dim)';
+    const info = document.createElement('div');
+    info.className = 'student-item-info';
+    const name = document.createElement('div');
+    name.className = 'student-item-name';
+    name.textContent = s.name;
+    const meta = document.createElement('div');
+    meta.className = 'student-item-meta';
+    meta.textContent = [s.grade, s.klass].filter(Boolean).join(' ');
+    info.appendChild(name); info.appendChild(meta);
+    item.appendChild(info);
+    item.addEventListener('click', () => {
+      if (!t) return;
+      state.cellStudents[t.key] = s.id;
+      save(); renderCellStudentSelector(t.key); closeStudentPickerModal();
+    });
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('clearStudentPickerBtn').addEventListener('click', () => {
+  const t = state.cellDetailTarget;
+  if (t) { delete state.cellStudents[t.key]; save(); renderCellStudentSelector(t.key); }
+  closeStudentPickerModal();
+});
+
+document.getElementById('closeStudentPickerBtn').addEventListener('click', closeStudentPickerModal);
+document.getElementById('studentPickerModal').addEventListener('click', function(e) {
+  if (e.target === this) closeStudentPickerModal();
+});
+
+function openStudentDetail(student) {
+  document.getElementById('studentDetailName').textContent = student.name;
+  document.getElementById('studentDetailMeta').textContent = [student.grade, student.klass].filter(Boolean).join(' ') || '学年・クラス未設定';
+  document.getElementById('studentDetailMemo').textContent = student.memo || '（なし）';
+  renderStudentRecords(student.id);
+  document.getElementById('studentDetailPanel').classList.add('open');
+}
+
+function closeStudentDetail() {
+  document.getElementById('studentDetailPanel').classList.remove('open');
+}
+
+document.getElementById('closeStudentDetailBtn').addEventListener('click', closeStudentDetail);
+
+function renderStudentRecords(studentId) {
+  const list = document.getElementById('studentRecordsList');
+  list.innerHTML = '';
+  const relatedKeys = Object.entries(state.cellStudents)
+    .filter(([k, sid]) => sid === studentId)
+    .map(([k]) => k);
+  if (relatedKeys.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'records-empty';
+    empty.textContent = 'この生徒の授業記録はありません';
+    list.appendChild(empty);
+    return;
+  }
+  const entries = [];
+  const DAY_JP = ['日','月','火','水','木','金','土'];
+  relatedKeys.forEach(key => {
+    const match = key.match(/^(\d{4}-\d{2}-\d{2})_(.+)$/);
+    if (!match) return;
+    const dateStr = match[1];
+    const periodPart = match[2];
+    const d = new Date(dateStr + 'T00:00:00');
+    let periodLabel = periodPart.startsWith('p')
+      ? `${parseInt(periodPart.slice(1)) + 1}限`
+      : periodPart === 'mt' ? 'MT' : periodPart === 'st' ? 'ST' : periodPart === 'after' ? '放課後' : periodPart;
+    const subjectData = state.timetable[key];
+    entries.push({ dateStr, d, periodLabel, subjectName: subjectData?.name || '', record: state.records[key] || '', memo: state.notes[key] || '', key });
+  });
+  entries.sort((a, b) => b.d - a.d);
+  entries.forEach(entry => {
+    const el = document.createElement('div');
+    el.className = 'record-entry';
+    const meta = document.createElement('div');
+    meta.className = 'record-entry-meta';
+    const dateLbl = document.createElement('span');
+    dateLbl.className = 'record-entry-date';
+    dateLbl.textContent = `${entry.d.getMonth()+1}/${entry.d.getDate()}（${DAY_JP[entry.d.getDay()]}）`;
+    const periodLbl = document.createElement('span');
+    periodLbl.className = 'record-entry-period';
+    periodLbl.textContent = entry.periodLabel;
+    meta.appendChild(dateLbl); meta.appendChild(periodLbl);
+    if (entry.subjectName) {
+      const subj = document.createElement('span');
+      subj.className = 'record-entry-subject';
+      subj.textContent = entry.subjectName;
+      meta.appendChild(subj);
+    }
+    el.appendChild(meta);
+    if (entry.memo) {
+      const memoEl = document.createElement('div');
+      memoEl.style.cssText = 'font-size:12px;color:var(--text3);margin-top:4px;';
+      memoEl.textContent = 'メモ: ' + entry.memo;
+      el.appendChild(memoEl);
+    }
+    if (entry.record) {
+      const recEl = document.createElement('div');
+      recEl.className = 'record-entry-text';
+      recEl.textContent = entry.record;
+      el.appendChild(recEl);
+    }
+    el.addEventListener('click', () => {
+      closeStudentDetail();
+      openRecordModal(entry.key, entry.periodLabel, entry.subjectName);
+    });
+    list.appendChild(el);
+  });
+}
+
+// ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
 
@@ -2865,6 +3613,8 @@ syncScroll();
 initSwipeWeek();
 render();
 loadHolidays();
+requestNotificationPermission();
+checkBackupReminder();
 
 window.addEventListener('resize', () => render());
 </script>
