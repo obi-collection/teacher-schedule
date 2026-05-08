@@ -26,6 +26,13 @@ function closeRecordsPanel() {
   document.getElementById('navWeek').classList.add('active');
 }
 
+function getRecordGenreIndex(entry) {
+  if (!entry) return -1;
+  return state.settings.genres.findIndex(g =>
+    g.items.includes(entry.name) || (entry.color && g.color === entry.color)
+  );
+}
+
 function renderRecordsPanel() {
   const y = state.recordsYear;
   const m = state.recordsMonth;
@@ -74,15 +81,15 @@ function renderRecordsPanel() {
       const cellData = state.timetable[key.replace('_' + periodPart, '_p' + pi)] || state.timetable[cellKey(dateStr, pi)];
       if (cellData) {
         subjectName = cellData.name;
-        // Find genre index
-        state.settings.genres.forEach((g, gi) => {
-          if (g.subjects && g.subjects.some(s => s.name === cellData.name)) genreIdx = gi;
-        });
+        genreIdx = getRecordGenreIndex(cellData);
       }
     } else if (periodPart === 'mt' || periodPart === 'st' || periodPart === 'after') {
       periodLabel = periodPart === 'mt' ? 'MT' : periodPart === 'st' ? 'ST' : '放課後';
       const cellData = state.timetable[`${dateStr}_${periodPart}`];
-      if (cellData) subjectName = cellData.name;
+      if (cellData) {
+        subjectName = cellData.name;
+        genreIdx = getRecordGenreIndex(cellData);
+      }
     } else {
       periodLabel = periodPart === 'lunch' ? '昼休み' : 'アイデアメモ';
     }
