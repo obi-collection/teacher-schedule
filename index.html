@@ -11,7 +11,7 @@
 <title>先生のスケジュール帳</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=21">
+<link rel="stylesheet" href="css/app.css?v=22">
 </head>
 <body>
 <div id="app">
@@ -304,9 +304,6 @@
     </div>
     <div id="studentsTabContent" style="display:none">
       <div class="settings-section">
-        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-          <button class="add-btn" id="addStudentBtn">＋ 生徒を追加</button>
-        </div>
         <div id="studentList"></div>
       </div>
     </div>
@@ -320,46 +317,10 @@
       <h2 id="studentDetailName">生徒詳細</h2>
     </div>
     <div class="settings-section">
-      <div class="settings-row">
-        <div class="settings-row-label">学年・クラス</div>
-        <span id="studentDetailMeta" style="font-size:13px;color:var(--text3)">--</span>
-      </div>
-      <div class="settings-section-title" style="margin-top:16px">メモ</div>
-      <div id="studentDetailMemo" style="font-size:13px;color:var(--text2);padding:10px 14px;background:var(--bg2);border-radius:10px;border:1px solid var(--border);min-height:40px;line-height:1.6;margin-top:6px"></div>
-    </div>
-    <div class="settings-section">
-      <div class="settings-section-title">授業記録</div>
+      <div class="settings-section-title">経過</div>
       <div id="studentRecordsList"></div>
     </div>
     <div style="height:40px"></div>
-  </div>
-
-  <!-- STUDENT MODAL (add/edit) -->
-  <div class="modal-overlay" id="studentModal">
-    <div class="modal-sheet">
-      <div class="modal-handle"></div>
-      <div class="modal-title" id="studentModalTitle">生徒を追加</div>
-      <div class="form-field">
-        <label class="form-label">名前</label>
-        <input class="form-input" id="studentNameInput" autocomplete="off">
-      </div>
-      <div class="form-field">
-        <label class="form-label">学年</label>
-        <input class="form-input" id="studentGradeInput" autocomplete="off">
-      </div>
-      <div class="form-field">
-        <label class="form-label">クラス</label>
-        <input class="form-input" id="studentClassInput" autocomplete="off">
-      </div>
-      <div class="form-field">
-        <label class="form-label">メモ</label>
-        <textarea class="form-input" id="studentMemoInput" rows="3" style="resize:none"></textarea>
-      </div>
-      <div class="modal-actions">
-        <button class="btn btn-ghost" id="cancelStudentBtn">キャンセル</button>
-        <button class="btn btn-primary" id="confirmStudentBtn">保存</button>
-      </div>
-    </div>
   </div>
 
   <!-- CELL DETAIL SHEET (入力済みコマのタップ) -->
@@ -481,14 +442,14 @@
   </div>
 </div>
 
-<script src="js/00-core.js?v=21"></script>
-<script src="js/10-week-render.js?v=21"></script>
-<script src="js/20-cell-modals.js?v=21"></script>
-<script src="js/30-records-events.js?v=21"></script>
-<script src="js/40-settings-data.js?v=21"></script>
-<script src="js/50-todo-fixed-nav.js?v=21"></script>
-<script src="js/60-platform.js?v=21"></script>
-<script src="js/70-students.js?v=21"></script>
-<script src="js/app.js?v=21"></script>
+<script src="js/00-core.js?v=22"></script>
+<script src="js/10-week-render.js?v=22"></script>
+<script src="js/20-cell-modals.js?v=22"></script>
+<script src="js/30-records-events.js?v=22"></script>
+<script src="js/40-settings-data.js?v=22"></script>
+<script src="js/50-todo-fixed-nav.js?v=22"></script>
+<script src="js/60-platform.js?v=22"></script>
+<script src="js/70-students.js?v=22"></script>
+<script src="js/app.js?v=22"></script>
 </body>
 </html>

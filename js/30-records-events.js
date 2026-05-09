@@ -33,78 +33,69 @@ function getRecordGenreIndex(entry) {
   );
 }
 
+function getLessonGenreIndex() {
+  return state.settings.genres.findIndex(g => g.name === '授業');
+}
+
+function isLessonEntry(entry) {
+  const lessonGenreIdx = getLessonGenreIndex();
+  return lessonGenreIdx !== -1 && getRecordGenreIndex(entry) === lessonGenreIdx;
+}
+
+function collectLessonRecordEntries({ year = null, month = null, subjectName = null, includeBefore = false } = {}) {
+  const entries = [];
+  Object.keys({ ...state.records, ...(includeBefore ? state.notes : {}) }).forEach(key => {
+    const match = key.match(/^(\d{4}-\d{2}-\d{2})_(.+)$/);
+    if (!match) return;
+    const dateStr = match[1];
+    const periodPart = match[2];
+    if (!periodPart.startsWith('p')) return;
+
+    const d = new Date(dateStr + 'T00:00:00');
+    if (year !== null && d.getFullYear() !== year) return;
+    if (month !== null && d.getMonth() !== month) return;
+
+    const pi = parseInt(periodPart.slice(1));
+    const cellData = state.timetable[cellKey(dateStr, pi)];
+    if (!cellData || !isLessonEntry(cellData)) return;
+    if (subjectName && cellData.name !== subjectName) return;
+
+    const before = state.notes[key] || '';
+    const after = state.records[key] || '';
+    if (!before && !after) return;
+
+    entries.push({
+      dateStr,
+      d,
+      periodLabel: `${pi + 1}限`,
+      subjectName: cellData.name,
+      text: after,
+      before,
+      key
+    });
+  });
+  entries.sort((a, b) => a.d - b.d || a.periodLabel.localeCompare(b.periodLabel));
+  return entries;
+}
+
 function renderRecordsPanel() {
   const y = state.recordsYear;
   const m = state.recordsMonth;
   document.getElementById('recordsMonthLabel').textContent =
     `${y}年${m + 1}月`;
 
-  // Genre filter buttons
   const filterRow = document.getElementById('recordsFilterRow');
   filterRow.innerHTML = '';
-  const allBtn = document.createElement('button');
-  allBtn.className = 'records-filter-btn' + (state.recordsFilterGenre === null ? ' active' : '');
-  allBtn.textContent = 'すべて';
-  allBtn.addEventListener('click', () => { state.recordsFilterGenre = null; renderRecordsPanel(); });
-  filterRow.appendChild(allBtn);
-  state.settings.genres.forEach((g, gi) => {
-    const btn = document.createElement('button');
-    btn.className = 'records-filter-btn' + (state.recordsFilterGenre === gi ? ' active' : '');
-    btn.textContent = g.name;
-    btn.style.borderColor = g.color;
-    if (state.recordsFilterGenre === gi) btn.style.background = g.color + '30';
-    btn.addEventListener('click', () => { state.recordsFilterGenre = gi; renderRecordsPanel(); });
-    filterRow.appendChild(btn);
-  });
+  filterRow.style.display = 'none';
 
-  // Build list of records for this month
   const list = document.getElementById('recordsList');
   list.innerHTML = '';
-  const entries = [];
-
-  Object.entries(state.records).forEach(([key, text]) => {
-    // key format: YYYY-MM-DD_p0, YYYY-MM-DD_lunch, YYYY-MM-DD_after, YYYY-MM-DD_diary
-    const match = key.match(/^(\d{4}-\d{2}-\d{2})_(.+)$/);
-    if (!match) return;
-    const dateStr = match[1];
-    const periodPart = match[2];
-    const d = new Date(dateStr + 'T00:00:00');
-    if (d.getFullYear() !== y || d.getMonth() !== m) return;
-
-    let periodLabel = '';
-    let subjectName = '';
-    let genreIdx = -1;
-
-    if (periodPart.startsWith('p')) {
-      const pi = parseInt(periodPart.slice(1));
-      periodLabel = `${pi + 1}限`;
-      const cellData = state.timetable[key.replace('_' + periodPart, '_p' + pi)] || state.timetable[cellKey(dateStr, pi)];
-      if (cellData) {
-        subjectName = cellData.name;
-        genreIdx = getRecordGenreIndex(cellData);
-      }
-    } else if (periodPart === 'mt' || periodPart === 'st' || periodPart === 'after') {
-      periodLabel = periodPart === 'mt' ? 'MT' : periodPart === 'st' ? 'ST' : '放課後';
-      const cellData = state.timetable[`${dateStr}_${periodPart}`];
-      if (cellData) {
-        subjectName = cellData.name;
-        genreIdx = getRecordGenreIndex(cellData);
-      }
-    } else {
-      periodLabel = periodPart === 'lunch' ? '昼休み' : 'アイデアメモ';
-    }
-
-    if (state.recordsFilterGenre !== null && genreIdx !== state.recordsFilterGenre) return;
-
-    entries.push({ dateStr, d, periodLabel, subjectName, text, key });
-  });
-
-  entries.sort((a, b) => a.d - b.d || a.periodLabel.localeCompare(b.periodLabel));
+  const entries = collectLessonRecordEntries({ year: y, month: m });
 
   if (entries.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'records-empty';
-    empty.textContent = 'この月の記録はありません';
+    empty.textContent = 'この月の授業記録はありません';
     list.appendChild(empty);
     return;
   }
