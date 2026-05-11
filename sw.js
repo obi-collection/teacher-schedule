@@ -1,17 +1,17 @@
-const CACHE_NAME = 'teacher-schedule-v23';
+const CACHE_NAME = 'teacher-schedule-v24';
 const ASSETS = [
   './index.html',
   './manifest.json',
-  './css/app.css?v=23',
-  './js/00-core.js?v=23',
-  './js/10-week-render.js?v=23',
-  './js/20-cell-modals.js?v=23',
-  './js/30-records-events.js?v=23',
-  './js/40-settings-data.js?v=23',
-  './js/50-todo-fixed-nav.js?v=23',
-  './js/60-platform.js?v=23',
-  './js/70-students.js?v=23',
-  './js/app.js?v=23'
+  './css/app.css?v=24',
+  './js/00-core.js?v=24',
+  './js/10-week-render.js?v=24',
+  './js/20-cell-modals.js?v=24',
+  './js/30-records-events.js?v=24',
+  './js/40-settings-data.js?v=24',
+  './js/50-todo-fixed-nav.js?v=24',
+  './js/60-platform.js?v=24',
+  './js/70-students.js?v=24',
+  './js/app.js?v=24'
 ];
 
 self.addEventListener('install', e => {
