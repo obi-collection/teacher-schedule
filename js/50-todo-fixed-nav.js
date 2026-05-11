@@ -169,7 +169,8 @@ function renderFixedTimetableGrid() {
       const entry = state.fixedTimetable[key];
       const cell  = document.createElement('div');
       cell.className = 'fixed-cell' + (entry ? ' has-entry' : '');
-      if (entry && entry.color) cell.style.background = entry.color + '20';
+      const entryColor = getScheduleColor(entry);
+      if (entryColor) cell.style.background = entryColor + '20';
 
       if (entry) {
         const lbl2 = document.createElement('div');

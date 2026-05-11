@@ -232,6 +232,24 @@ function load() {
   }
 }
 
+function getScheduleGenre(entry) {
+  if (!entry) return null;
+  const byName = state.settings.genres.find(g => g.items.includes(entry.name));
+  if (byName) return byName;
+  return entry.color ? state.settings.genres.find(g => g.color === entry.color) || null : null;
+}
+
+function getScheduleGenreIndex(entry) {
+  if (!entry) return -1;
+  const byName = state.settings.genres.findIndex(g => g.items.includes(entry.name));
+  if (byName !== -1) return byName;
+  return entry.color ? state.settings.genres.findIndex(g => g.color === entry.color) : -1;
+}
+
+function getScheduleColor(entry) {
+  return getScheduleGenre(entry)?.color || entry?.color || null;
+}
+
 document.getElementById('undoBtn').addEventListener('click', () => {
   if (!undoSnapshot) return;
   state.timetable    = undoSnapshot.timetable;

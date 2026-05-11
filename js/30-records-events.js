@@ -27,10 +27,7 @@ function closeRecordsPanel() {
 }
 
 function getRecordGenreIndex(entry) {
-  if (!entry) return -1;
-  return state.settings.genres.findIndex(g =>
-    g.items.includes(entry.name) || (entry.color && g.color === entry.color)
-  );
+  return getScheduleGenreIndex(entry);
 }
 
 function getLessonGenreIndex() {

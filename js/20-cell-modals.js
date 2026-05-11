@@ -238,10 +238,7 @@ function openSpecialSubjectModal(dateStr, type) {
 // ══════════════════════════════════════════
 
 function getGenreForEntry(entry) {
-  if (!entry) return null;
-  return state.settings.genres.find(g =>
-    g.items.includes(entry.name) || (entry.color && g.color === entry.color)
-  ) || null;
+  return getScheduleGenre(entry);
 }
 
 function configureCellDetailFields(mode) {
