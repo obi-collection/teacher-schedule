@@ -1,17 +1,17 @@
-const CACHE_NAME = 'teacher-schedule-v31';
+const CACHE_NAME = 'teacher-schedule-v32';
 const ASSETS = [
   './index.html',
   './manifest.json',
-  './css/app.css?v=31',
-  './js/00-core.js?v=31',
-  './js/10-week-render.js?v=31',
-  './js/20-cell-modals.js?v=31',
-  './js/30-records-events.js?v=31',
-  './js/40-settings-data.js?v=31',
-  './js/50-todo-fixed-nav.js?v=31',
-  './js/60-platform.js?v=31',
-  './js/70-students.js?v=31',
-  './js/app.js?v=31'
+  './css/app.css?v=32',
+  './js/00-core.js?v=32',
+  './js/10-week-render.js?v=32',
+  './js/20-cell-modals.js?v=32',
+  './js/30-records-events.js?v=32',
+  './js/40-settings-data.js?v=32',
+  './js/50-todo-fixed-nav.js?v=32',
+  './js/60-platform.js?v=32',
+  './js/70-students.js?v=32',
+  './js/app.js?v=32'
 ];
 
 self.addEventListener('install', e => {
@@ -29,7 +29,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.mode === 'navigate') {
     e.respondWith(
-      fetch(e.request)
+      fetch(e.request, { cache: 'no-store' })
         .then(response => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
@@ -41,7 +41,7 @@ self.addEventListener('fetch', e => {
   }
 
   e.respondWith(
-    fetch(e.request)
+    fetch(e.request, { cache: 'no-store' })
       .then(response => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(e.request, copy));
