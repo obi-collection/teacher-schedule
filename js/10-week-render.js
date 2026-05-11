@@ -33,6 +33,12 @@ function render() {
   renderEventBanners();
   renderPeriodLabels();
   renderBody();
+  clearLegacyTodayHighlight();
+}
+
+function clearLegacyTodayHighlight() {
+  document.querySelectorAll('.day-col-header.today').forEach(el => el.classList.remove('today'));
+  document.querySelectorAll('.today-col').forEach(el => el.classList.remove('today-col'));
 }
 
 function renderWeekLabel() {

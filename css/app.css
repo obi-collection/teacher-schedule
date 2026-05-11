@@ -153,6 +153,11 @@ body {
 .day-col-header:active { background: var(--bg3); }
 .day-name { font-size: 10px; color: var(--text3); letter-spacing: 0.05em; }
 .day-num { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 500; color: var(--text2); line-height: 1; }
+.day-col-header.today { background: transparent !important; }
+.day-events-cell.today-col,
+.day-col-body.today-col { background: transparent !important; }
+.day-col-header.today .day-name { color: var(--text3) !important; }
+.day-col-header.today .day-num { color: var(--text2) !important; }
 .day-col-header.sat .day-name,
 .day-col-header.sat .day-num { color: #1a6fc4; }
 .day-col-header.sat { background: rgba(26,111,196,0.05); }
