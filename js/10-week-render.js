@@ -210,9 +210,9 @@ function renderBody() {
           const lbl = document.createElement('div');
           lbl.className = 'subject-label';
           lbl.textContent = subjectData.name;
-          const subjectColor = getScheduleColor(subjectData);
-          if (subjectColor) {
-            cell.style.background = subjectColor + '20';
+          const subjectTint = getScheduleTint(subjectData);
+          if (subjectTint) {
+            cell.style.background = subjectTint;
           }
           cell.appendChild(lbl);
         } else {
@@ -300,8 +300,8 @@ function makeSpecialCell(dateStr, type, ph) {
       const lbl = document.createElement('div');
       lbl.className = 'subject-label';
       lbl.textContent = data.name;
-      const dataColor = getScheduleColor(data);
-      if (dataColor) cell.style.background = dataColor + '20';
+      const dataTint = getScheduleTint(data);
+      if (dataTint) cell.style.background = dataTint;
       cell.appendChild(lbl);
       cell.addEventListener('click', () => openCellDetail(dateStr, null, type));
     } else {

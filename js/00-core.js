@@ -250,6 +250,24 @@ function getScheduleColor(entry) {
   return getScheduleGenre(entry)?.color || entry?.color || null;
 }
 
+function getSolidScheduleTint(color) {
+  if (!/^#[0-9a-f]{6}$/i.test(color || '')) return color;
+  const ratio = 0.12;
+  const base = { r: 245, g: 245, b: 240 };
+  const rgb = {
+    r: parseInt(color.slice(1, 3), 16),
+    g: parseInt(color.slice(3, 5), 16),
+    b: parseInt(color.slice(5, 7), 16)
+  };
+  const mix = channel => Math.round(base[channel] * (1 - ratio) + rgb[channel] * ratio);
+  return `rgb(${mix('r')}, ${mix('g')}, ${mix('b')})`;
+}
+
+function getScheduleTint(entry) {
+  const color = getScheduleColor(entry);
+  return color ? getSolidScheduleTint(color) : null;
+}
+
 document.getElementById('undoBtn').addEventListener('click', () => {
   if (!undoSnapshot) return;
   state.timetable    = undoSnapshot.timetable;
