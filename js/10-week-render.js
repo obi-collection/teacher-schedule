@@ -45,7 +45,6 @@ function renderWeekLabel() {
 function renderHeaders() {
   const days = getDaysToShow();
   const colW = getColWidth();
-  const today = dateKey(new Date());
   const inner = document.getElementById('daysHeaderInner');
   inner.innerHTML = '';
   days.forEach(d => {
@@ -53,7 +52,6 @@ function renderHeaders() {
     const dw = d.getDay();
     const el = document.createElement('div');
     el.className = 'day-col-header' +
-      (dk === today ? ' today' : '') +
       (dw === 6 ? ' sat' : '') +
       (dw === 0 ? ' sun' : '') +
       (state.holidays[dk] && dw !== 0 ? ' holiday' : '');
@@ -75,15 +73,13 @@ function renderEventBanners() {
   const ph   = getPeriodHeight();
   const inner = document.getElementById('daysEventsInner');
   inner.innerHTML = '';
-  const todayKey = dateKey(new Date());
   days.forEach(d => {
     const dk = dateKey(d);
     const dw = d.getDay();
     const cell = document.createElement('div');
     cell.className = 'day-events-cell' +
       (dw === 6 ? ' sat-col' : dw === 0 ? ' sun-col' : '') +
-      (state.holidays[dk] && dw !== 0 && dw !== 6 ? ' holiday-col' : '') +
-      (dk === todayKey ? ' today-col' : '');
+      (state.holidays[dk] && dw !== 0 && dw !== 6 ? ' holiday-col' : '');
     cell.style.width  = colW + 'px';
     cell.style.height = ph + 'px';
     // User events — text-only display; tapping the row opens the day events sheet.
@@ -180,7 +176,6 @@ function renderBody() {
   const inner = document.getElementById('daysBodyInner');
   inner.innerHTML = '';
   const lunchAfterIdx = Math.min(3, periods.length - 1);
-  const todayKey = dateKey(new Date());
 
   days.forEach(d => {
     const dk = dateKey(d);
@@ -192,8 +187,7 @@ function renderBody() {
     const col = document.createElement('div');
     col.className = 'day-col-body' +
       (dw === 6 ? ' sat-col' : dw === 0 ? ' sun-col' : '') +
-      (state.holidays[dk] && dw !== 0 && dw !== 6 ? ' holiday-col' : '') +
-      (dk === todayKey ? ' today-col' : '');
+      (state.holidays[dk] && dw !== 0 && dw !== 6 ? ' holiday-col' : '');
     col.style.width = colW + 'px';
 
     const showMTST = state.settings.showMTST !== false;
