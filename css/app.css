@@ -407,6 +407,7 @@ body {
 .subject-add-row { display: none; gap: 8px; margin-bottom: 12px; }
 
 .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+#cellDetailDeleteBtn { display: none !important; }
 .btn { flex: 1; padding: 13px; border-radius: 12px; font-size: 14px; font-family: 'Noto Sans JP', sans-serif; font-weight: 500; cursor: pointer; border: none; transition: opacity 0.15s; }
 .btn:active { opacity: 0.7; }
 .btn-primary { background: var(--accent); color: #fff; }
