@@ -312,16 +312,19 @@ document.getElementById('cellDetailSaveBtn').addEventListener('click', () => {
   closeCellDetail();
 });
 
-document.getElementById('cellDetailDeleteBtn').addEventListener('click', () => {
-  const t = state.cellDetailTarget;
-  if (!t) return;
-  saveSnapshot();
-  delete state.timetable[t.key];
-  delete state.notes[t.key];
-  delete state.records[t.key];
-  save(); render(); closeCellDetail();
-  showToast('削除しました');
-});
+const cellDetailDeleteBtn = document.getElementById('cellDetailDeleteBtn');
+if (cellDetailDeleteBtn) {
+  cellDetailDeleteBtn.addEventListener('click', () => {
+    const t = state.cellDetailTarget;
+    if (!t) return;
+    saveSnapshot();
+    delete state.timetable[t.key];
+    delete state.notes[t.key];
+    delete state.records[t.key];
+    save(); render(); closeCellDetail();
+    showToast('削除しました');
+  });
+}
 
 document.getElementById('cellDetailSheet').addEventListener('click', function(e) {
   if (e.target === this) closeCellDetail();
