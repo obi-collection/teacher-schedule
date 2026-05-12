@@ -169,20 +169,10 @@ document.getElementById('confirmSubjectBtn').addEventListener('click', () => {
   }
 });
 
-document.getElementById('clearCellBtn').addEventListener('click', () => {
-  if (state.specialTarget) {
-    saveSnapshot();
-    delete state.timetable[`${state.specialTarget.dateStr}_${state.specialTarget.type}`];
-    save(); render(); closeSubjectModal();
-  } else if (state.fixedCell) {
-    delete state.fixedTimetable[`${state.fixedCell.dow}_p${state.fixedCell.periodIdx}`];
-    save(); renderFixedTimetableGrid(); closeSubjectModal();
-  } else if (state.selectedCell) {
-    saveSnapshot();
-    delete state.timetable[cellKey(state.selectedCell.dateStr, state.selectedCell.periodIdx)];
-    save(); render(); closeSubjectModal();
-  }
-});
+const clearCellBtn = document.getElementById('clearCellBtn');
+if (clearCellBtn) {
+  clearCellBtn.remove();
+}
 
 document.getElementById('cancelSubjectBtn').addEventListener('click', closeSubjectModal);
 document.getElementById('subjectModal').addEventListener('click', function(e) {
