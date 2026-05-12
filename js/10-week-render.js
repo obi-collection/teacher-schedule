@@ -21,7 +21,7 @@ function getPeriodHeight() {
   const scroll = document.getElementById('daysBodyOuter');
   const periods = state.settings.periods;
   const available = scroll.clientHeight || 400;
-  const extra = state.settings.showMTST ? 5 : 3; // lunch + after + diary [+ mt + st]
+  const extra = state.settings.showMTST ? 4 : 2; // lunch + after [+ mt + st]
   return Math.max(36, Math.floor(available / (periods.length + extra)));
 }
 
@@ -166,12 +166,6 @@ function renderPeriodLabels() {
   after.style.height = ph + 'px';
   after.innerHTML = `<span class="period-num" style="font-size:8px">放<br>課<br>後</span>`;
   labels.appendChild(after);
-
-  const diary = document.createElement('div');
-  diary.className = 'period-label special';
-  diary.style.height = ph + 'px';
-  diary.innerHTML = `<span class="period-num" style="font-size:8px">アイデア<br>メモ</span>`;
-  labels.appendChild(diary);
 }
 
 function renderBody() {
@@ -240,7 +234,6 @@ function renderBody() {
       });
       if (showMTST) col.appendChild(makeSpecialCell(dk, 'st', ph));
       col.appendChild(makeSpecialCell(dk, 'after', ph));
-      col.appendChild(makeSpecialCell(dk, 'diary', ph));
     } else {
       // Weekend / holiday: day schedule cell
       const cell = document.createElement('div');
@@ -277,7 +270,6 @@ function renderBody() {
       }
       cell.addEventListener('click', () => openDayScheduleModal(dk));
       col.appendChild(cell);
-      col.appendChild(makeSpecialCell(dk, 'diary', ph));
     }
     inner.appendChild(col);
   });
