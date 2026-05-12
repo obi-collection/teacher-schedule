@@ -221,7 +221,7 @@ function renderBody() {
           icon.textContent = '+';
           cell.appendChild(icon);
         }
-        if (state.records[key]) {
+        if (state.notes[key] || state.records[key]) {
           const badge = document.createElement('div');
           badge.className = 'record-badge';
           cell.appendChild(badge);
@@ -361,7 +361,7 @@ function makeSpecialCell(dateStr, type, ph) {
     }
   }
 
-  if (state.records[key]) {
+  if (state.notes[key] || state.records[key]) {
     const badge = document.createElement('div');
     badge.className = 'record-badge';
     cell.appendChild(badge);
