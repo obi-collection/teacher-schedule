@@ -87,7 +87,7 @@ function renderRecordsPanel() {
 
   const list = document.getElementById('recordsList');
   list.innerHTML = '';
-  const entries = collectLessonRecordEntries({ year: y, month: m });
+  const entries = collectLessonRecordEntries({ year: y, month: m, includeBefore: true });
 
   if (entries.length === 0) {
     const empty = document.createElement('div');
@@ -117,11 +117,19 @@ function renderRecordsPanel() {
       subjLbl.textContent = entry.subjectName;
       meta.appendChild(subjLbl);
     }
-    const textEl = document.createElement('div');
-    textEl.className = 'record-entry-text';
-    textEl.textContent = entry.text;
     el.appendChild(meta);
-    el.appendChild(textEl);
+    if (entry.before) {
+      const beforeEl = document.createElement('div');
+      beforeEl.className = 'record-entry-before';
+      beforeEl.textContent = '事前: ' + entry.before;
+      el.appendChild(beforeEl);
+    }
+    if (entry.text) {
+      const textEl = document.createElement('div');
+      textEl.className = 'record-entry-text';
+      textEl.textContent = entry.text;
+      el.appendChild(textEl);
+    }
     el.addEventListener('click', () => {
       closeRecordsPanel();
       openRecordModal(entry.key, entry.periodLabel, entry.subjectName);
