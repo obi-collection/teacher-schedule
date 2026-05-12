@@ -11,7 +11,7 @@
 <title>先生のスケジュール帳</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=35">
+<link rel="stylesheet" href="css/app.css?v=36">
 </head>
 <body>
 <div id="app">
@@ -341,6 +341,15 @@
         <label class="form-label">事後</label>
         <textarea class="form-input" id="cellDetailRecord" rows="3" style="resize:none;min-height:72px"></textarea>
       </div>
+      <div class="form-field" id="cellStudentField">
+        <label class="form-label">生徒への用事</label>
+        <div id="cellStudentList" style="margin-bottom:8px"></div>
+        <div class="cell-student-add-row">
+          <select class="form-input" id="cellStudentSelect"></select>
+          <input class="add-input" id="cellStudentText" autocomplete="off">
+          <button class="add-btn" id="cellStudentAddBtn">追加</button>
+        </div>
+      </div>
       <div class="form-field" id="cellTaskField">
         <label class="form-label" id="cellTaskLabel">作業ログ</label>
         <div id="cellTaskList" style="margin-bottom:6px"></div>
@@ -439,14 +448,14 @@
   </div>
 </div>
 
-<script src="js/00-core.js?v=35"></script>
-<script src="js/10-week-render.js?v=35"></script>
-<script src="js/20-cell-modals.js?v=35"></script>
-<script src="js/30-records-events.js?v=35"></script>
-<script src="js/40-settings-data.js?v=35"></script>
-<script src="js/50-todo-fixed-nav.js?v=35"></script>
-<script src="js/60-platform.js?v=35"></script>
-<script src="js/70-students.js?v=35"></script>
-<script src="js/app.js?v=35"></script>
+<script src="js/00-core.js?v=36"></script>
+<script src="js/10-week-render.js?v=36"></script>
+<script src="js/20-cell-modals.js?v=36"></script>
+<script src="js/30-records-events.js?v=36"></script>
+<script src="js/40-settings-data.js?v=36"></script>
+<script src="js/50-todo-fixed-nav.js?v=36"></script>
+<script src="js/60-platform.js?v=36"></script>
+<script src="js/70-students.js?v=36"></script>
+<script src="js/app.js?v=36"></script>
 </body>
 </html>

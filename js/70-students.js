@@ -40,7 +40,7 @@ function renderStudentList() {
   }
 
   lessonItems.forEach(nameText => {
-    const entries = collectLessonRecordEntries({ subjectName: nameText, includeBefore: true });
+    const entries = collectStudentProgressEntries(nameText);
     const item = document.createElement('div');
     item.className = 'student-item';
 
@@ -63,6 +63,41 @@ function renderStudentList() {
   });
 }
 
+function collectStudentDutyEntries(nameText) {
+  const entries = [];
+  const labels = { mt: 'MT', lunch: '昼休み', st: 'ST' };
+  Object.entries(state.cellStudents).forEach(([key, list]) => {
+    if (!Array.isArray(list)) return;
+    const match = key.match(/^(\d{4}-\d{2}-\d{2})_(mt|lunch|st)$/);
+    if (!match) return;
+    const dateStr = match[1];
+    const type = match[2];
+    const d = new Date(dateStr + 'T00:00:00');
+    list.filter(entry => entry.name === nameText && entry.text).forEach(entry => {
+      entries.push({
+        dateStr,
+        d,
+        periodLabel: labels[type],
+        text: entry.text,
+        before: '',
+        key,
+        type,
+        kind: 'studentDuty'
+      });
+    });
+  });
+  return entries;
+}
+
+function collectStudentProgressEntries(nameText) {
+  const entries = [
+    ...collectLessonRecordEntries({ subjectName: nameText, includeBefore: true }),
+    ...collectStudentDutyEntries(nameText)
+  ];
+  entries.sort((a, b) => a.d - b.d || a.periodLabel.localeCompare(b.periodLabel));
+  return entries;
+}
+
 function openStudentDetail(nameText) {
   document.getElementById('studentDetailName').textContent = nameText;
   renderStudentRecords(nameText);
@@ -78,7 +113,7 @@ document.getElementById('closeStudentDetailBtn').addEventListener('click', close
 function renderStudentRecords(nameText) {
   const list = document.getElementById('studentRecordsList');
   list.innerHTML = '';
-  const entries = collectLessonRecordEntries({ subjectName: nameText, includeBefore: true });
+  const entries = collectStudentProgressEntries(nameText);
 
   if (entries.length === 0) {
     const empty = document.createElement('div');
@@ -125,7 +160,11 @@ function renderStudentRecords(nameText) {
     el.addEventListener('click', () => {
       closeStudentDetail();
       closeRecordsPanel();
-      openRecordModal(entry.key, entry.periodLabel, nameText);
+      if (entry.kind === 'studentDuty') {
+        openCellDetail(entry.dateStr, null, entry.type);
+      } else {
+        openRecordModal(entry.key, entry.periodLabel, nameText);
+      }
     });
     list.appendChild(el);
   });

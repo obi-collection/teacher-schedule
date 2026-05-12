@@ -588,6 +588,17 @@ body {
 .cell-task-text.done { text-decoration:line-through;color:var(--text3); }
 .cell-task-del { color:var(--text3);font-size:13px;cursor:pointer;background:none;border:none;padding:4px; }
 
+/* ── CELL STUDENT TASKS ── */
+.cell-student-add-row { display:flex;flex-direction:column;gap:8px;width:100%; }
+.cell-student-add-row .add-input,
+.cell-student-add-row .add-btn { width:100%; }
+.cell-student-item { display:flex;align-items:flex-start;gap:10px;padding:9px 10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);margin-bottom:6px; }
+.cell-student-body { flex:1;min-width:0; }
+.cell-student-name { font-size:12px;font-weight:600;color:var(--accent2);margin-bottom:2px; }
+.cell-student-text { font-size:13px;color:var(--text);line-height:1.45;word-break:break-word; }
+.cell-student-del { color:var(--text3);font-size:16px;cursor:pointer;background:none;border:none;padding:0 4px;flex-shrink:0;line-height:1.4; }
+.cell-student-empty { font-size:12px;color:var(--text3);text-align:center;padding:8px 0; }
+
 /* ── IDEA MEMO LIST ── */
 .idea-item { display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border-radius:10px;border:1px solid var(--border);margin-bottom:6px; }
 .idea-item-text { flex:1;font-size:13px;color:var(--text);line-height:1.4; }

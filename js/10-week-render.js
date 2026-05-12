@@ -318,6 +318,10 @@ function makeSpecialCell(dateStr, type, ph) {
       save();
     }
     const noteText = state.notes[key] || '';
+    const studentEntries = state.cellStudents[key] || [];
+    const studentSummary = studentEntries.length
+      ? `${studentEntries[0].name}、${studentEntries[0].text}${studentEntries.length > 1 ? `…他${studentEntries.length - 1}件` : ''}`
+      : '';
     if (type === 'diary') {
       // Migrate old note text to idea memo list
       if (noteText && !(state.ideaMemos[key] && state.ideaMemos[key].length > 0)) {
@@ -339,11 +343,18 @@ function makeSpecialCell(dateStr, type, ph) {
         cell.appendChild(lbl);
       }
       cell.addEventListener('click', () => openIdeaMemoModal(key, dateStr));
-    } else if ((type === 'mt' || type === 'st' || type === 'lunch') && noteText) {
+    } else if (type === 'mt' || type === 'st' || type === 'lunch') {
       const txt = document.createElement('div');
       txt.className = 'note-text';
-      txt.textContent = noteText;
-      cell.appendChild(txt);
+      txt.textContent = studentSummary || noteText || (type === 'mt' ? 'MT' : type === 'st' ? 'ST' : '昼休み');
+      if (studentSummary || noteText) {
+        cell.appendChild(txt);
+      } else {
+        const lbl = document.createElement('div');
+        lbl.className = 'note-empty-label';
+        lbl.textContent = txt.textContent;
+        cell.appendChild(lbl);
+      }
       cell.addEventListener('click', () => openCellDetail(dateStr, null, type));
     } else {
       if (noteText) {
@@ -361,7 +372,7 @@ function makeSpecialCell(dateStr, type, ph) {
     }
   }
 
-  if (state.notes[key] || state.records[key]) {
+  if (state.notes[key] || state.records[key] || (state.cellStudents[key] && state.cellStudents[key].length > 0)) {
     const badge = document.createElement('div');
     badge.className = 'record-badge';
     cell.appendChild(badge);

@@ -236,7 +236,18 @@ function configureCellDetailFields(mode) {
   document.getElementById('cellDetailBeforeField').style.display = isWorkLog ? 'none' : '';
   document.getElementById('cellDetailAfterField').style.display = isWorkLog ? 'none' : '';
   document.getElementById('cellTaskField').style.display = isWorkLog ? '' : 'none';
+  document.getElementById('cellStudentField').style.display = 'none';
   document.getElementById('cellTaskLabel').textContent = '作業ログ';
+}
+
+function isStudentDutyType(type) {
+  return type === 'mt' || type === 'lunch' || type === 'st';
+}
+
+function getStudentOptions() {
+  if (typeof getLessonItems === 'function') return getLessonItems();
+  const lessonGenre = state.settings.genres.find(g => g.name === '授業');
+  return lessonGenre?.items || [];
 }
 
 function openCellDetail(dateStr, periodIdx, type) {
@@ -260,6 +271,7 @@ function openCellDetail(dateStr, periodIdx, type) {
   document.getElementById('cellDetailTitle').textContent = dateLabel;
   document.getElementById('cellDetailSub').textContent = typeLabel;
   configureCellDetailFields(detailMode);
+  document.getElementById('cellStudentField').style.display = isStudentDutyType(type) ? '' : 'none';
 
   // Subject row
   const subjectRow = document.getElementById('cellDetailSubjectRow');
@@ -274,6 +286,7 @@ function openCellDetail(dateStr, periodIdx, type) {
 
   document.getElementById('cellDetailMemo').value = state.notes[key] || '';
   document.getElementById('cellDetailRecord').value = state.records[key] || '';
+  renderCellStudentTools(key);
   renderCellTaskList(key);
   document.getElementById('cellDetailSheet').classList.add('open');
 }
@@ -308,6 +321,7 @@ document.getElementById('cellDetailRemoveBtn').addEventListener('click', e => {
   delete state.notes[t.key];
   delete state.records[t.key];
   delete state.cellTasks[t.key];
+  delete state.cellStudents[t.key];
   save(); render(); closeCellDetail();
   showToast('予定を削除しました');
 });
@@ -321,6 +335,101 @@ if (cellDetailDeleteBtn) {
 
 document.getElementById('cellDetailSheet').addEventListener('click', function(e) {
   if (e.target === this) closeCellDetail();
+});
+
+function renderCellStudentTools(key) {
+  const select = document.getElementById('cellStudentSelect');
+  const input = document.getElementById('cellStudentText');
+  const addBtn = document.getElementById('cellStudentAddBtn');
+  if (!select || !input || !addBtn) return;
+
+  const students = getStudentOptions();
+  select.innerHTML = '';
+  students.forEach(studentName => {
+    const option = document.createElement('option');
+    option.value = studentName;
+    option.textContent = studentName;
+    select.appendChild(option);
+  });
+  select.disabled = students.length === 0;
+  input.disabled = students.length === 0;
+  addBtn.disabled = students.length === 0;
+  addBtn.style.opacity = students.length === 0 ? '0.45' : '';
+  input.value = '';
+  renderCellStudentList(key);
+}
+
+function renderCellStudentList(key) {
+  const list = document.getElementById('cellStudentList');
+  if (!list) return;
+  list.innerHTML = '';
+  const students = getStudentOptions();
+  const entries = state.cellStudents[key] || [];
+
+  if (students.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'cell-student-empty';
+    empty.textContent = '授業ジャンルに名前が登録されていません';
+    list.appendChild(empty);
+    return;
+  }
+
+  if (entries.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'cell-student-empty';
+    empty.textContent = '登録はありません';
+    list.appendChild(empty);
+    return;
+  }
+
+  entries.forEach((entry, i) => {
+    const item = document.createElement('div');
+    item.className = 'cell-student-item';
+
+    const body = document.createElement('div');
+    body.className = 'cell-student-body';
+
+    const name = document.createElement('div');
+    name.className = 'cell-student-name';
+    name.textContent = entry.name;
+
+    const text = document.createElement('div');
+    text.className = 'cell-student-text';
+    text.textContent = entry.text;
+
+    const del = document.createElement('button');
+    del.className = 'cell-student-del';
+    del.textContent = '×';
+    del.addEventListener('click', () => {
+      state.cellStudents[key].splice(i, 1);
+      if (state.cellStudents[key].length === 0) delete state.cellStudents[key];
+      save(); render(); renderCellStudentTools(key);
+    });
+
+    body.appendChild(name);
+    body.appendChild(text);
+    item.appendChild(body);
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('cellStudentAddBtn').addEventListener('click', () => {
+  const t = state.cellDetailTarget;
+  if (!t || !isStudentDutyType(t.type)) return;
+  const select = document.getElementById('cellStudentSelect');
+  const input = document.getElementById('cellStudentText');
+  const name = select.value;
+  const text = input.value.trim();
+  if (!name || !text) return;
+  if (!state.cellStudents[t.key]) state.cellStudents[t.key] = [];
+  state.cellStudents[t.key].push({ id: Date.now(), name, text });
+  input.value = '';
+  save(); render(); renderCellStudentTools(t.key);
+});
+
+document.getElementById('cellStudentText').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('cellStudentAddBtn').click();
 });
 
 function renderCellTaskList(key) {
