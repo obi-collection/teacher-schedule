@@ -274,11 +274,13 @@ body {
   border: 1px solid var(--border2);
   background: var(--bg2);
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; padding: 2px; transition: background 0.12s; overflow: hidden;
+  cursor: pointer; padding: 2px; transition: background 0.12s; overflow: hidden; position: relative;
 }
 .fixed-cell:active { background: var(--bg3); }
 .fixed-cell.has-entry { background: rgba(84,72,232,0.07); }
-.fixed-cell-label { font-size: 10px; text-align: center; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; padding: 0 2px; }
+.fixed-cell-label { font-size: 10px; text-align: center; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; padding: 0 12px 0 2px; }
+.fixed-cell-del { position:absolute;top:1px;right:2px;border:none;background:transparent;color:var(--text3);font-size:13px;line-height:1;cursor:pointer;padding:3px; }
+.fixed-cell-del:active { color:var(--event); }
 
 /* ── BOTTOM NAV ── */
 .bottom-nav { display: flex; background: var(--bg2); border-top: 1px solid var(--border2); padding-bottom: var(--safe-bottom); flex-shrink: 0; }

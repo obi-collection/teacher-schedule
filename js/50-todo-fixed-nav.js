@@ -178,6 +178,18 @@ function renderFixedTimetableGrid() {
         lbl2.style.color = 'var(--text)';
         lbl2.textContent = entry.name;
         cell.appendChild(lbl2);
+
+        const del = document.createElement('button');
+        del.className = 'fixed-cell-del';
+        del.textContent = '×';
+        del.setAttribute('aria-label', '固定時間割を削除');
+        del.addEventListener('click', e => {
+          e.stopPropagation();
+          delete state.fixedTimetable[key];
+          save();
+          renderFixedTimetableGrid();
+        });
+        cell.appendChild(del);
       }
 
       cell.addEventListener('click', () => openFixedModal(dow, pi));
