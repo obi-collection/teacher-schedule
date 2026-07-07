@@ -13,8 +13,9 @@ teacher-schedule/
   css/
     app.css               全スタイル。
   js/
-    00-core.js            初期設定、state、保存/読込、日付ユーティリティ。
+    00-core.js            初期設定、state、保存/読込、日付/コマ時刻ユーティリティ、テーマ。
     10-week-render.js     週表示、時間割グリッド、スクロール同期、週移動。
+    15-today.js           今日ビュー（タイムライン、いま表示、明日予告）、メインビュー切替。
     20-cell-modals.js     授業選択、コマ詳細、メモ、記録入力。
     30-records-events.js  記録パネル、日別予定、イベント/行事。
     40-settings-data.js   設定、ジャンル管理、エクスポート/インポート。
@@ -23,6 +24,16 @@ teacher-schedule/
     70-students.js        生徒管理、生徒選択、生徒別記録。
     app.js                初期化だけ。
 ```
+
+## 主な画面構成
+
+- 今日ビュー（既定のホーム）: `js/15-today.js`。MT〜放課後のタイムラインに
+  時刻指定の予定（`daySchedules`）を織り込んで表示。現在のコマをハイライト。
+- 週ビュー: `js/10-week-render.js`。今日の列と現在コマにマーカーが付く。
+- `daySchedules` は元々土日・祝日用だったが、平日にも使えるようにした
+  （日付ヘッダー/★行 → 予定シート → 「時刻を決めて追加」）。データ形式は同じ。
+- テーマ: `settings.theme = 'auto' | 'light' | 'dark'`。CSS変数で切替。
+  ダーク時のコマ色は `getSolidScheduleTint()` が暗い基調に混色する。
 
 ## 作業の探し方
 

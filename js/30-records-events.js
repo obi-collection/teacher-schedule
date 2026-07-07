@@ -10,6 +10,7 @@ function openRecordsPanel() {
   document.getElementById('recordsPanel').classList.add('open');
   document.getElementById('navRecords').classList.add('active');
   document.getElementById('navWeek').classList.remove('active');
+  document.getElementById('navToday').classList.remove('active');
   document.getElementById('navTodo').classList.remove('active');
   // Reset tabs
   document.getElementById('recordsTabBtn').classList.add('active');
@@ -21,7 +22,7 @@ function openRecordsPanel() {
 function closeRecordsPanel() {
   document.getElementById('recordsPanel').classList.remove('open');
   document.getElementById('navRecords').classList.remove('active');
-  document.getElementById('navWeek').classList.add('active');
+  if (typeof updateMainNavActive === 'function') updateMainNavActive();
 }
 
 function getRecordGenreIndex(entry) {
@@ -374,12 +375,6 @@ document.getElementById('eventDetailModal').addEventListener('click', function(e
 // ══════════════════════════════════════════
 
 function openDayEventsSheet(dateStr) {
-  const dayEvents = state.events.filter(ev => ev.date === dateStr);
-  if (dayEvents.length === 0) {
-    openEventModal(dateStr);
-    return;
-  }
-
   state.dayEventsDate = dateStr;
   const d = new Date(dateStr + 'T00:00:00');
   document.getElementById('dayEventsTitle').textContent =
@@ -397,7 +392,10 @@ function renderDayEventsSheet(dateStr) {
   const list = document.getElementById('dayEventsList');
   list.innerHTML = '';
   const dayEvents = state.events.map((ev, idx) => ({ev, idx})).filter(({ev}) => ev.date === dateStr);
-  if (dayEvents.length === 0) {
+  const timedEntries = (state.daySchedules[dateStr] || []).slice()
+    .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+
+  if (dayEvents.length === 0 && timedEntries.length === 0) {
     const empty = document.createElement('div');
     empty.style.cssText = 'text-align:center;color:var(--text3);font-size:13px;padding:16px 0 8px';
     empty.textContent = 'この日の予定はありません';
@@ -422,12 +420,38 @@ function renderDayEventsSheet(dateStr) {
     });
     list.appendChild(item);
   });
+  // 時刻指定の予定（タップで編集画面へ）
+  timedEntries.forEach(entry => {
+    const item = document.createElement('div');
+    item.className = 'day-event-item';
+    const time = document.createElement('span');
+    time.className = 'day-event-item-time';
+    time.textContent = entry.startTime
+      ? entry.startTime + (entry.endTime ? '–' + entry.endTime : '')
+      : '–';
+    const text = document.createElement('span');
+    text.className = 'day-event-item-text';
+    text.textContent = entry.content;
+    item.appendChild(time);
+    item.appendChild(text);
+    item.addEventListener('click', () => {
+      closeDayEventsSheet();
+      openDayScheduleModal(dateStr);
+    });
+    list.appendChild(item);
+  });
 }
 
 document.getElementById('dayEventsAddBtn').addEventListener('click', () => {
   const dateStr = state.dayEventsDate;
   closeDayEventsSheet();
   openEventModal(dateStr);
+});
+
+document.getElementById('dayEventsAddTimedBtn').addEventListener('click', () => {
+  const dateStr = state.dayEventsDate;
+  closeDayEventsSheet();
+  openDayScheduleModal(dateStr);
 });
 
 document.getElementById('closeDayEventsBtn').addEventListener('click', closeDayEventsSheet);

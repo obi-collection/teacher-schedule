@@ -8,13 +8,14 @@ function openTodoPanel() {
   document.getElementById('todoPanel').classList.add('open');
   document.getElementById('navTodo').classList.add('active');
   document.getElementById('navWeek').classList.remove('active');
+  document.getElementById('navToday').classList.remove('active');
   document.getElementById('navRecords').classList.remove('active');
 }
 
 function closeTodoPanel() {
   document.getElementById('todoPanel').classList.remove('open');
   document.getElementById('navTodo').classList.remove('active');
-  document.getElementById('navWeek').classList.add('active');
+  if (typeof updateMainNavActive === 'function') updateMainNavActive();
 }
 
 document.getElementById('navTodo').addEventListener('click', openTodoPanel);
@@ -251,4 +252,5 @@ document.getElementById('todayBtn').addEventListener('click', () => {
 });
 document.getElementById('navWeek').addEventListener('click', () => {
   closeTodoPanel(); closeSettingsPanel(); closeRecordsPanel();
+  setMainView('week');
 });

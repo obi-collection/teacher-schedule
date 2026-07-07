@@ -33,12 +33,7 @@ function render() {
   renderEventBanners();
   renderPeriodLabels();
   renderBody();
-  clearLegacyTodayHighlight();
-}
-
-function clearLegacyTodayHighlight() {
-  document.querySelectorAll('.day-col-header.today').forEach(el => el.classList.remove('today'));
-  document.querySelectorAll('.today-col').forEach(el => el.classList.remove('today-col'));
+  if (typeof renderTodayView === 'function') renderTodayView();
 }
 
 function renderWeekLabel() {
@@ -53,11 +48,13 @@ function renderHeaders() {
   const colW = getColWidth();
   const inner = document.getElementById('daysHeaderInner');
   inner.innerHTML = '';
+  const todayKey = dateKey(new Date());
   days.forEach(d => {
     const dk = dateKey(d);
     const dw = d.getDay();
     const el = document.createElement('div');
     el.className = 'day-col-header' +
+      (dk === todayKey ? ' today' : '') +
       (dw === 6 ? ' sat' : '') +
       (dw === 0 ? ' sun' : '') +
       (state.holidays[dk] && dw !== 0 ? ' holiday' : '');
@@ -81,13 +78,17 @@ function renderEventBanners() {
   const ph   = getPeriodHeight();
   const inner = document.getElementById('daysEventsInner');
   inner.innerHTML = '';
+  const todayKey = dateKey(new Date());
   days.forEach(d => {
     const dk = dateKey(d);
     const dw = d.getDay();
+    const isWeekend = dw === 0 || dw === 6;
+    const isHoliday = !isWeekend && !!state.holidays[dk];
     const cell = document.createElement('div');
     cell.className = 'day-events-cell' +
+      (dk === todayKey ? ' today-col' : '') +
       (dw === 6 ? ' sat-col' : dw === 0 ? ' sun-col' : '') +
-      (state.holidays[dk] && dw !== 0 && dw !== 6 ? ' holiday-col' : '');
+      (isHoliday ? ' holiday-col' : '');
     cell.style.width  = colW + 'px';
     cell.style.height = ph + 'px';
     // User events — text-only display; tapping the row opens the day events sheet.
@@ -97,6 +98,24 @@ function renderEventBanners() {
       chip.textContent = ev.title;
       cell.appendChild(chip);
     });
+    // 時刻指定の予定（平日の授業日のみ。休日はコマ側に表示される）
+    const showPeriods = (!isWeekend && !isHoliday) || (isWeekend && state.settings.weekendPeriods);
+    if (showPeriods) {
+      (state.daySchedules[dk] || []).slice()
+        .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''))
+        .forEach(entry => {
+          const chip = document.createElement('div');
+          chip.className = 'event-chip timed';
+          if (entry.startTime) {
+            const t = document.createElement('span');
+            t.className = 'chip-time';
+            t.textContent = entry.startTime + ' ';
+            chip.appendChild(t);
+          }
+          chip.appendChild(document.createTextNode(entry.content));
+          cell.appendChild(chip);
+        });
+    }
     cell.addEventListener('click', () => openDayEventsSheet(dk));
     inner.appendChild(cell);
   });
@@ -178,16 +197,20 @@ function renderBody() {
   const inner = document.getElementById('daysBodyInner');
   inner.innerHTML = '';
   const lunchAfterIdx = Math.min(3, periods.length - 1);
+  const todayKey = dateKey(new Date());
+  const nowStat = getNowStatus();
 
   days.forEach(d => {
     const dk = dateKey(d);
     const dw = d.getDay();
+    const isToday = dk === todayKey;
     const isWeekend = dw === 0 || dw === 6;
     const isHoliday = !isWeekend && !!state.holidays[dk];
     const showPeriods = !isWeekend && !isHoliday || (isWeekend && state.settings.weekendPeriods);
 
     const col = document.createElement('div');
     col.className = 'day-col-body' +
+      (isToday ? ' today-col' : '') +
       (dw === 6 ? ' sat-col' : dw === 0 ? ' sun-col' : '') +
       (state.holidays[dk] && dw !== 0 && dw !== 6 ? ' holiday-col' : '');
     col.style.width = colW + 'px';
@@ -200,6 +223,9 @@ function renderBody() {
         const subjectData = state.timetable[key];
         const cell = document.createElement('div');
         cell.className = 'period-cell' + (subjectData ? ' filled' : '');
+        if (isToday && nowStat.current && nowStat.current.type === 'period' && nowStat.current.index === i) {
+          cell.classList.add('now-cell');
+        }
         cell.style.height = ph + 'px';
 
         if (subjectData) {
@@ -283,6 +309,10 @@ function makeSpecialCell(dateStr, type, ph) {
   cell.className = 'period-cell special-cell';
   if (type === 'mt' || type === 'lunch' || type === 'st') {
     cell.classList.add('left-note-cell');
+  }
+  if (dateStr === dateKey(new Date())) {
+    const nowStat = getNowStatus();
+    if (nowStat.current && nowStat.current.type === type) cell.classList.add('now-cell');
   }
   cell.style.height = ph + 'px';
 

@@ -9,6 +9,7 @@ const DEFAULTS = {
     weekendPeriods: false,
     showMTST: true,
     notifications: true,
+    theme: 'auto',
     periods: [
       { start: '08:45', end: '09:35' },
       { start: '09:45', end: '10:35' },
@@ -48,6 +49,7 @@ const DEFAULTS = {
 // ══════════════════════════════════════════
 
 let state = {
+  mainView: 'today',
   settings: JSON.parse(JSON.stringify(DEFAULTS.settings)),
   timetable: {},
   events: [],
@@ -252,8 +254,10 @@ function getScheduleColor(entry) {
 
 function getSolidScheduleTint(color) {
   if (!/^#[0-9a-f]{6}$/i.test(color || '')) return color;
-  const ratio = 0.12;
-  const base = { r: 245, g: 245, b: 240 };
+  // ダークテーマでは暗い紙色に向けて濃いめに混色する
+  const dark = currentThemeIsDark();
+  const ratio = dark ? 0.30 : 0.13;
+  const base = dark ? { r: 30, g: 30, b: 37 } : { r: 247, g: 245, b: 240 };
   const rgb = {
     r: parseInt(color.slice(1, 3), 16),
     g: parseInt(color.slice(3, 5), 16),
@@ -262,6 +266,32 @@ function getSolidScheduleTint(color) {
   const mix = channel => Math.round(base[channel] * (1 - ratio) + rgb[channel] * ratio);
   return `rgb(${mix('r')}, ${mix('g')}, ${mix('b')})`;
 }
+
+// ══════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════
+
+function currentThemeIsDark() {
+  const t = state.settings.theme || 'auto';
+  if (t === 'dark') return true;
+  if (t === 'light') return false;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function applyTheme() {
+  const t = state.settings.theme || 'auto';
+  const root = document.documentElement;
+  if (t === 'auto') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', t);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = currentThemeIsDark() ? '#16161b' : '#f4f2ec';
+  // 初期化前（currentWeekStart 未設定）は描画しない
+  if (typeof render === 'function' && state.currentWeekStart) render();
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if ((state.settings.theme || 'auto') === 'auto') applyTheme();
+});
 
 function getScheduleTint(entry) {
   const color = getScheduleColor(entry);
@@ -307,3 +337,78 @@ function dateKey(date) {
 function cellKey(dateStr, period) { return `${dateStr}_p${period}`; }
 
 const DAY_NAMES = ['日','月','火','水','木','金','土'];
+
+// ══════════════════════════════════════════
+// DAY SLOTS（1日のコマ構成 + 現在地判定）
+// ══════════════════════════════════════════
+
+function parseTimeToMin(t) {
+  if (!t || !/^\d{1,2}:\d{2}$/.test(t)) return null;
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function formatMin(min) {
+  if (min === null || min === undefined) return '';
+  return `${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')}`;
+}
+
+// その日のコマ（MT/各時限/昼休み/ST/放課後）を時刻付きで順に返す
+function buildDaySlots(dateStr) {
+  const periods = state.settings.periods;
+  const showMTST = state.settings.showMTST !== false;
+  const lunchAfterIdx = Math.min(3, periods.length - 1);
+  const slots = [];
+
+  const p0Start = periods.length ? parseTimeToMin(periods[0].start) : null;
+  if (showMTST && periods.length) {
+    slots.push({
+      type: 'mt', key: `${dateStr}_mt`, label: 'MT',
+      startMin: p0Start !== null ? p0Start - 15 : null, endMin: p0Start
+    });
+  }
+
+  periods.forEach((p, i) => {
+    slots.push({
+      type: 'period', index: i, key: cellKey(dateStr, i), label: `${i + 1}限`,
+      startMin: parseTimeToMin(p.start), endMin: parseTimeToMin(p.end)
+    });
+    if (i === lunchAfterIdx) {
+      const next = periods[i + 1];
+      slots.push({
+        type: 'lunch', key: `${dateStr}_lunch`, label: '昼休み',
+        startMin: parseTimeToMin(p.end),
+        endMin: next ? parseTimeToMin(next.start) : null
+      });
+    }
+  });
+
+  const last = periods[periods.length - 1];
+  const lastEnd = last ? parseTimeToMin(last.end) : null;
+  if (showMTST && periods.length) {
+    slots.push({
+      type: 'st', key: `${dateStr}_st`, label: 'ST',
+      startMin: lastEnd, endMin: lastEnd !== null ? lastEnd + 15 : null
+    });
+  }
+  slots.push({
+    type: 'after', key: `${dateStr}_after`, label: '放課後',
+    startMin: lastEnd !== null ? lastEnd + (showMTST ? 15 : 0) : null, endMin: null
+  });
+  return slots;
+}
+
+// 現在時刻から「いまのコマ」「次のコマ」を返す（今日専用）
+function getNowStatus() {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const slots = buildDaySlots(dateKey(now)).filter(s => s.startMin !== null);
+  let current = null;
+  let next = null;
+  slots.forEach(s => {
+    const end = s.endMin !== null ? s.endMin : 24 * 60;
+    if (nowMin >= s.startMin && nowMin < end) current = s;
+    if (nowMin < s.startMin && !next) next = s;
+  });
+  return { nowMin, current, next };
+}

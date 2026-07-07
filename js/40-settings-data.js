@@ -9,6 +9,7 @@ document.getElementById('openSettings').addEventListener('click', openSettings);
 document.getElementById('closeSettings').addEventListener('click', closeSettingsPanel);
 
 function renderSettings() {
+  document.getElementById('themeSetting').value = state.settings.theme || 'auto';
   document.getElementById('weekStartSetting').value = state.settings.weekStart;
   const sw = document.getElementById('showWeekendSetting');
   sw.checked = state.settings.showWeekend;
@@ -21,6 +22,11 @@ function renderSettings() {
   renderFixedTimetableGrid();
 }
 
+document.getElementById('themeSetting').addEventListener('change', function() {
+  state.settings.theme = this.value;
+  save();
+  applyTheme();
+});
 document.getElementById('weekStartSetting').addEventListener('change', function() {
   state.settings.weekStart = parseInt(this.value);
   state.currentWeekStart = getWeekStart(new Date());

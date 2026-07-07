@@ -6,12 +6,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="時間割">
-<meta name="theme-color" content="#f5f5f0">
+<meta name="theme-color" content="#f4f2ec">
 <link rel="manifest" href="manifest.json">
 <title>先生のスケジュール帳</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=41">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css?v=42">
 </head>
 <body>
 <div id="app">
@@ -19,6 +19,7 @@
   <!-- TOP BAR -->
   <div class="top-bar">
     <div class="top-bar-row1">
+      <span class="app-title">先生の手帳</span>
       <div class="week-nav">
         <button id="prevWeek" aria-label="前の週">‹</button>
         <span class="week-label" id="weekLabel">--</span>
@@ -33,6 +34,11 @@
       <button class="today-btn" id="todayBtn">今週に戻る</button>
       <button class="apply-btn" id="applyFixedBtn" title="固定時間割を適用">固定適用</button>
     </div>
+  </div>
+
+  <!-- TODAY VIEW -->
+  <div class="today-view" id="todayView">
+    <div class="today-scroll" id="todayScroll"></div>
   </div>
 
   <!-- MAIN GRID -->
@@ -61,16 +67,20 @@
 
   <!-- BOTTOM NAV -->
   <div class="bottom-nav">
-    <button class="nav-item active" id="navWeek">
-      <span class="nav-icon">▦</span>
+    <button class="nav-item active" id="navToday">
+      <span class="nav-icon"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 9.8h17M8 3v3.5M16 3v3.5"/><circle cx="12" cy="15" r="2.2" fill="currentColor" stroke="none"/></svg></span>
+      <span class="nav-label">今日</span>
+    </button>
+    <button class="nav-item" id="navWeek">
+      <span class="nav-icon"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 9.8h17M9.2 9.8v10.7M14.8 9.8v10.7"/></svg></span>
       <span class="nav-label">週</span>
     </button>
     <button class="nav-item" id="navRecords">
-      <span class="nav-icon">📋</span>
+      <span class="nav-icon"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="3.5" width="15" height="17" rx="2.8"/><path d="M8.5 8.3h7M8.5 12h7M8.5 15.7h4.5"/></svg></span>
       <span class="nav-label">記録</span>
     </button>
     <button class="nav-item" id="navTodo">
-      <span class="nav-icon">☑</span>
+      <span class="nav-icon"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4.5"/><path d="M8.6 12.2l2.3 2.3 4.6-4.8"/></svg></span>
       <span class="nav-label">To Do</span>
     </button>
   </div>
@@ -174,6 +184,17 @@
 
     <div class="settings-section">
       <div class="settings-section-title">表示</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">テーマ</div>
+          <div class="settings-row-sub">ダークモード対応</div>
+        </div>
+        <select class="settings-input" id="themeSetting" style="width:auto;padding:7px 10px">
+          <option value="auto">自動</option>
+          <option value="light">ライト</option>
+          <option value="dark">ダーク</option>
+        </select>
+      </div>
       <div class="settings-row">
         <div><div class="settings-row-label">週の始まり</div></div>
         <select class="settings-input" id="weekStartSetting" style="width:auto;padding:7px 10px">
@@ -429,6 +450,7 @@
       <div class="modal-title" id="dayEventsTitle"></div>
       <div id="dayEventsList" style="margin:12px 0 4px"></div>
       <button class="btn btn-primary" id="dayEventsAddBtn" style="width:100%;margin-top:4px">＋ 予定を追加</button>
+      <button class="btn btn-ghost" id="dayEventsAddTimedBtn" style="width:100%;margin-top:8px">🕐 時刻を決めて追加</button>
       <div class="modal-actions" style="margin-top:8px">
         <button class="btn btn-ghost" id="closeDayEventsBtn">閉じる</button>
       </div>
@@ -449,14 +471,15 @@
   </div>
 </div>
 
-<script src="js/00-core.js?v=41"></script>
-<script src="js/10-week-render.js?v=41"></script>
-<script src="js/20-cell-modals.js?v=41"></script>
-<script src="js/30-records-events.js?v=41"></script>
-<script src="js/40-settings-data.js?v=41"></script>
-<script src="js/50-todo-fixed-nav.js?v=41"></script>
-<script src="js/60-platform.js?v=41"></script>
-<script src="js/70-students.js?v=41"></script>
-<script src="js/app.js?v=41"></script>
+<script src="js/00-core.js?v=42"></script>
+<script src="js/10-week-render.js?v=42"></script>
+<script src="js/15-today.js?v=42"></script>
+<script src="js/20-cell-modals.js?v=42"></script>
+<script src="js/30-records-events.js?v=42"></script>
+<script src="js/40-settings-data.js?v=42"></script>
+<script src="js/50-todo-fixed-nav.js?v=42"></script>
+<script src="js/60-platform.js?v=42"></script>
+<script src="js/70-students.js?v=42"></script>
+<script src="js/app.js?v=42"></script>
 </body>
 </html>
