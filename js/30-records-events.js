@@ -465,16 +465,16 @@ document.getElementById('dayEventsSheet').addEventListener('click', function(e) 
 
 function openEventModal(dateStr) {
   state.eventTargetDate = dateStr || dateKey(new Date());
+  document.getElementById('eventDate').value = state.eventTargetDate;
   document.getElementById('eventTitle').value = '';
   document.getElementById('eventModal').classList.add('open');
 }
 
-document.getElementById('eventGutter').addEventListener('click', () => openEventModal(dateKey(new Date())));
-
 document.getElementById('confirmEventBtn').addEventListener('click', () => {
   const title = document.getElementById('eventTitle').value.trim();
-  const date  = state.eventTargetDate;
-  if (!title || !date) { showToast('タイトルを入力してください'); return; }
+  const date  = document.getElementById('eventDate').value || state.eventTargetDate;
+  if (!title) { showToast('タイトルを入力してください'); return; }
+  if (!date) { showToast('日付を選択してください'); return; }
   saveSnapshot();
   state.events.push({ title, date, category: 'gyoji' });
   save(); render();
@@ -492,4 +492,149 @@ document.getElementById('eventModal').addEventListener('click', function(e) {
     state.eventTargetDate = null;
     this.classList.remove('open');
   }
+});
+
+// ══════════════════════════════════════════
+// UPCOMING SHEET（今後の予定一覧）
+// ══════════════════════════════════════════
+
+// 今日以降の予定（行事 + 時刻指定）を日付ごとにまとめる
+function collectUpcomingByDate() {
+  const todayStr = dateKey(new Date());
+  const byDate = {};
+  const push = (dateStr, item) => {
+    if (!byDate[dateStr]) byDate[dateStr] = [];
+    byDate[dateStr].push(item);
+  };
+
+  state.events.forEach((ev, idx) => {
+    if (ev.date >= todayStr) {
+      push(ev.date, { kind: 'event', ev, idx, sort: -1 });
+    }
+  });
+  Object.entries(state.daySchedules).forEach(([dateStr, list]) => {
+    if (dateStr < todayStr || !Array.isArray(list)) return;
+    list.forEach(entry => {
+      const m = parseTimeToMin(entry.startTime);
+      push(dateStr, { kind: 'timed', entry, sort: m !== null ? m : 24 * 60 });
+    });
+  });
+
+  return Object.keys(byDate).sort().map(dateStr => ({
+    dateStr,
+    items: byDate[dateStr].sort((a, b) => a.sort - b.sort)
+  }));
+}
+
+function jumpToWeekOf(dateStr) {
+  state.currentWeekStart = getWeekStart(new Date(dateStr + 'T00:00:00'));
+  save();
+  setMainView('week');
+}
+
+function openUpcomingSheet() {
+  renderUpcomingList();
+  document.getElementById('upcomingSheet').classList.add('open');
+}
+
+function closeUpcomingSheet() {
+  document.getElementById('upcomingSheet').classList.remove('open');
+}
+
+function renderUpcomingList() {
+  const list = document.getElementById('upcomingList');
+  list.innerHTML = '';
+  const groups = collectUpcomingByDate();
+  const todayStr = dateKey(new Date());
+  const tomorrowStr = dateKey(addDays(new Date(), 1));
+
+  if (groups.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--text3);font-size:13px;padding:24px 0 16px';
+    empty.textContent = '今後の予定はありません';
+    list.appendChild(empty);
+    return;
+  }
+
+  const catColors = { gyoji: 'var(--event)', task: 'var(--task)', 'kōmu': 'var(--accent)' };
+  groups.forEach(group => {
+    const d = new Date(group.dateStr + 'T00:00:00');
+    const wrap = document.createElement('div');
+    wrap.className = 'upcoming-group';
+
+    // 日付ヘッダー（タップでその週へ）
+    const head = document.createElement('div');
+    head.className = 'upcoming-date-row';
+    const dateLbl = document.createElement('span');
+    dateLbl.className = 'upcoming-date';
+    dateLbl.textContent = `${d.getMonth() + 1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}）`;
+    head.appendChild(dateLbl);
+    if (group.dateStr === todayStr || group.dateStr === tomorrowStr) {
+      const rel = document.createElement('span');
+      rel.className = 'upcoming-rel';
+      rel.textContent = group.dateStr === todayStr ? '今日' : '明日';
+      head.appendChild(rel);
+    }
+    if (state.holidays[group.dateStr]) {
+      const hol = document.createElement('span');
+      hol.className = 'upcoming-holiday';
+      hol.textContent = state.holidays[group.dateStr];
+      head.appendChild(hol);
+    }
+    const jump = document.createElement('span');
+    jump.className = 'upcoming-jump';
+    jump.textContent = '週を開く ›';
+    head.appendChild(jump);
+    head.addEventListener('click', () => {
+      closeUpcomingSheet();
+      jumpToWeekOf(group.dateStr);
+    });
+    wrap.appendChild(head);
+
+    group.items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'day-event-item';
+      if (item.kind === 'event') {
+        const dot = document.createElement('span');
+        dot.className = 'day-event-cat-dot';
+        dot.style.background = catColors[item.ev.category] || 'var(--text3)';
+        const text = document.createElement('span');
+        text.className = 'day-event-item-text';
+        text.textContent = item.ev.title;
+        row.appendChild(dot);
+        row.appendChild(text);
+        row.addEventListener('click', () => {
+          closeUpcomingSheet();
+          openEventDetail(item.ev, item.idx);
+        });
+      } else {
+        const time = document.createElement('span');
+        time.className = 'day-event-item-time';
+        time.textContent = item.entry.startTime
+          ? item.entry.startTime + (item.entry.endTime ? '–' + item.entry.endTime : '')
+          : '–';
+        const text = document.createElement('span');
+        text.className = 'day-event-item-text';
+        text.textContent = item.entry.content;
+        row.appendChild(time);
+        row.appendChild(text);
+        row.addEventListener('click', () => {
+          closeUpcomingSheet();
+          openDayScheduleModal(group.dateStr);
+        });
+      }
+      wrap.appendChild(row);
+    });
+    list.appendChild(wrap);
+  });
+}
+
+document.getElementById('eventGutter').addEventListener('click', openUpcomingSheet);
+document.getElementById('upcomingAddBtn').addEventListener('click', () => {
+  closeUpcomingSheet();
+  openEventModal(dateKey(new Date()));
+});
+document.getElementById('closeUpcomingBtn').addEventListener('click', closeUpcomingSheet);
+document.getElementById('upcomingSheet').addEventListener('click', function(e) {
+  if (e.target === this) closeUpcomingSheet();
 });

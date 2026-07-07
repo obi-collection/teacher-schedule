@@ -49,7 +49,7 @@ function renderTodayView() {
 
   // ★予定（終日）
   const events = state.events.map((ev, idx) => ({ ev, idx })).filter(({ ev }) => ev.date === dk);
-  container.appendChild(buildTodaySectionTitle('今日の予定', events.length, () => openEventModal(dk)));
+  container.appendChild(buildTodaySectionTitle('今日の予定', events.length, () => openEventModal(dk), () => openUpcomingSheet()));
   if (events.length > 0) {
     const wrap = tEl('div', 'today-events');
     events.forEach(({ ev, idx }) => {
@@ -80,12 +80,19 @@ function renderTodayView() {
   if (peek) container.appendChild(peek);
 }
 
-function buildTodaySectionTitle(label, count, onAdd) {
+function buildTodaySectionTitle(label, count, onAdd, onList) {
   const el = tEl('div', 'today-section-title', label);
   if (count !== undefined && count > 0) el.appendChild(tEl('span', 'count', String(count)));
+  const actionCss = 'background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;font-family:inherit;padding:4px 6px';
+  if (onList) {
+    const btn = tEl('button', '', '一覧 ›');
+    btn.style.cssText = 'margin-left:auto;' + actionCss;
+    btn.addEventListener('click', onList);
+    el.appendChild(btn);
+  }
   if (onAdd) {
     const btn = tEl('button', '', '＋ 追加');
-    btn.style.cssText = 'margin-left:auto;background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;font-family:inherit;padding:4px 2px';
+    btn.style.cssText = (onList ? '' : 'margin-left:auto;') + actionCss;
     btn.addEventListener('click', onAdd);
     el.appendChild(btn);
   }

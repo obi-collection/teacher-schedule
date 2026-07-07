@@ -101,7 +101,9 @@
   }
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* touch-action: manipulation でダブルタップズームを無効化
+   （週送りボタン連打などでの意図しない拡大を防ぐ。スクロールは影響なし） */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 body {
   font-family: var(--font-body);
@@ -883,6 +885,19 @@ body {
 .ds-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg2); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 6px; }
 .ds-item-time { font-size: 11px; color: var(--text3); font-family: var(--font-mono); white-space: nowrap; flex-shrink: 0; }
 .ds-item-content { flex: 1; font-size: 13px; color: var(--text); }
+
+/* Upcoming sheet (今後の予定一覧) */
+.upcoming-group { margin-bottom: 14px; }
+.upcoming-date-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 2px 7px;
+  cursor: pointer;
+}
+.upcoming-date-row:active { opacity: 0.6; }
+.upcoming-date { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--text); }
+.upcoming-rel { font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-dim); padding: 2px 8px; border-radius: 9px; }
+.upcoming-holiday { font-size: 11px; color: var(--event); }
+.upcoming-jump { margin-left: auto; font-size: 11px; color: var(--text3); white-space: nowrap; }
 
 /* Day events sheet list items */
 .day-event-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 12px; background: var(--bg2); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 6px; cursor: pointer; transition: opacity 0.12s; }

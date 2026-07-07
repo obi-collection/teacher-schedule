@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="時間割">
@@ -11,7 +11,7 @@
 <title>先生のスケジュール帳</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=42">
+<link rel="stylesheet" href="css/app.css?v=43">
 </head>
 <body>
 <div id="app">
@@ -130,6 +130,10 @@
       <div class="modal-handle"></div>
       <div class="modal-title">予定を追加</div>
       <br>
+      <div class="form-field">
+        <label class="form-label">日付</label>
+        <input class="form-input" type="date" id="eventDate">
+      </div>
       <div class="form-field">
         <label class="form-label">タイトル</label>
         <input class="form-input" id="eventTitle" autocomplete="off" placeholder="例: 避難訓練、面談">
@@ -457,6 +461,20 @@
     </div>
   </div>
 
+  <!-- UPCOMING SHEET (今後の予定一覧) -->
+  <div class="modal-overlay" id="upcomingSheet">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">今後の予定</div>
+      <div class="modal-subtitle">日付をタップするとその週を開きます</div>
+      <div id="upcomingList"></div>
+      <button class="btn btn-primary" id="upcomingAddBtn" style="width:100%;margin-top:6px">＋ 予定を追加</button>
+      <div class="modal-actions" style="margin-top:8px">
+        <button class="btn btn-ghost" id="closeUpcomingBtn">閉じる</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <!-- BACKUP REMINDER MODAL -->
@@ -471,15 +489,15 @@
   </div>
 </div>
 
-<script src="js/00-core.js?v=42"></script>
-<script src="js/10-week-render.js?v=42"></script>
-<script src="js/15-today.js?v=42"></script>
-<script src="js/20-cell-modals.js?v=42"></script>
-<script src="js/30-records-events.js?v=42"></script>
-<script src="js/40-settings-data.js?v=42"></script>
-<script src="js/50-todo-fixed-nav.js?v=42"></script>
-<script src="js/60-platform.js?v=42"></script>
-<script src="js/70-students.js?v=42"></script>
-<script src="js/app.js?v=42"></script>
+<script src="js/00-core.js?v=43"></script>
+<script src="js/10-week-render.js?v=43"></script>
+<script src="js/15-today.js?v=43"></script>
+<script src="js/20-cell-modals.js?v=43"></script>
+<script src="js/30-records-events.js?v=43"></script>
+<script src="js/40-settings-data.js?v=43"></script>
+<script src="js/50-todo-fixed-nav.js?v=43"></script>
+<script src="js/60-platform.js?v=43"></script>
+<script src="js/70-students.js?v=43"></script>
+<script src="js/app.js?v=43"></script>
 </body>
 </html>
