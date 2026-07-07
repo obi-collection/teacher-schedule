@@ -12,10 +12,8 @@ function openRecordsPanel() {
   document.getElementById('navWeek').classList.remove('active');
   document.getElementById('navTodo').classList.remove('active');
   // Reset tabs
-  document.getElementById('recordsTabBtn').style.color = 'var(--accent)';
-  document.getElementById('recordsTabBtn').style.borderBottomColor = 'var(--accent)';
-  document.getElementById('studentsTabBtn').style.color = 'var(--text3)';
-  document.getElementById('studentsTabBtn').style.borderBottomColor = 'transparent';
+  document.getElementById('recordsTabBtn').classList.add('active');
+  document.getElementById('studentsTabBtn').classList.remove('active');
   document.getElementById('recordsTabContent').style.display = '';
   document.getElementById('studentsTabContent').style.display = 'none';
 }
@@ -75,24 +73,109 @@ function collectLessonRecordEntries({ year = null, month = null, subjectName = n
   return entries;
 }
 
+// 記録一覧: 授業だけでなく、会議・その他・MT・昼休み・ST・放課後の
+// 記録/メモ/作業ログもすべて集めて振り返れるようにする（読み取りのみ）。
+const RECORD_SLOT_LABELS = { mt: 'MT', lunch: '昼休み', st: 'ST', after: '放課後' };
+const RECORD_SLOT_ORDER  = { mt: -1, lunch: 3.5, st: 900, after: 990 };
+
+function collectAllRecordEntries({ year, month, filter = null }) {
+  const entries = [];
+  const keys = new Set([
+    ...Object.keys(state.records),
+    ...Object.keys(state.notes),
+    ...Object.keys(state.cellTasks)
+  ]);
+
+  keys.forEach(key => {
+    const match = key.match(/^(\d{4}-\d{2}-\d{2})_(.+)$/);
+    if (!match) return;
+    const dateStr = match[1];
+    const part = match[2];
+    const d = new Date(dateStr + 'T00:00:00');
+    if (d.getFullYear() !== year || d.getMonth() !== month) return;
+
+    let periodIdx = null;
+    let type = null;
+    let periodLabel, slotOrder;
+    if (part.startsWith('p')) {
+      periodIdx = parseInt(part.slice(1), 10);
+      if (Number.isNaN(periodIdx)) return;
+      periodLabel = `${periodIdx + 1}限`;
+      slotOrder = periodIdx;
+    } else if (RECORD_SLOT_LABELS[part]) {
+      type = part;
+      periodLabel = RECORD_SLOT_LABELS[part];
+      slotOrder = RECORD_SLOT_ORDER[part];
+    } else {
+      return; // アイデアメモなどは対象外
+    }
+
+    const before = state.notes[key] || '';
+    const after = state.records[key] || '';
+    const tasks = (state.cellTasks[key] || []).filter(t => t.text);
+    if (!before && !after && tasks.length === 0) return;
+
+    const cellData = state.timetable[key] || null;
+    const genreIdx = cellData ? getScheduleGenreIndex(cellData) : -1;
+    if (filter !== null) {
+      if (filter === 'special') {
+        if (!type) return;
+      } else if (genreIdx !== filter) {
+        return;
+      }
+    }
+
+    entries.push({
+      key, dateStr, d, periodIdx, type, periodLabel, slotOrder,
+      subjectName: cellData?.name || '',
+      genreColor: cellData ? getScheduleColor(cellData) : null,
+      before, text: after, tasks
+    });
+  });
+
+  entries.sort((a, b) => a.d - b.d || a.slotOrder - b.slotOrder);
+  return entries;
+}
+
+function renderRecordsFilterRow() {
+  const row = document.getElementById('recordsFilterRow');
+  row.innerHTML = '';
+  row.style.display = '';
+  const chips = [{ value: null, label: 'すべて' }];
+  state.settings.genres.forEach((g, gi) => chips.push({ value: gi, label: g.name }));
+  chips.push({ value: 'special', label: 'MT・STなど' });
+  chips.forEach(chip => {
+    const btn = document.createElement('button');
+    btn.className = 'records-filter-btn' + (state.recordsFilterGenre === chip.value ? ' active' : '');
+    btn.textContent = chip.label;
+    btn.addEventListener('click', () => {
+      state.recordsFilterGenre = chip.value;
+      renderRecordsPanel();
+    });
+    row.appendChild(btn);
+  });
+}
+
 function renderRecordsPanel() {
   const y = state.recordsYear;
   const m = state.recordsMonth;
   document.getElementById('recordsMonthLabel').textContent =
     `${y}年${m + 1}月`;
 
-  const filterRow = document.getElementById('recordsFilterRow');
-  filterRow.innerHTML = '';
-  filterRow.style.display = 'none';
+  renderRecordsFilterRow();
 
   const list = document.getElementById('recordsList');
   list.innerHTML = '';
-  const entries = collectLessonRecordEntries({ year: y, month: m, includeBefore: true });
+  const entries = collectAllRecordEntries({ year: y, month: m, filter: state.recordsFilterGenre });
 
   if (entries.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'records-empty';
-    empty.textContent = 'この月の授業記録はありません';
+    empty.textContent = 'この月の記録はありません';
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:12px;color:var(--text3);margin-top:8px;line-height:1.6';
+    hint.textContent = 'コマをタップして「事前」「事後」に入力すると、ここに表示されます';
+    empty.appendChild(hint);
     list.appendChild(empty);
     return;
   }
@@ -103,6 +186,12 @@ function renderRecordsPanel() {
     el.className = 'record-entry';
     const meta = document.createElement('div');
     meta.className = 'record-entry-meta';
+    if (entry.genreColor) {
+      const dot = document.createElement('span');
+      dot.className = 'record-entry-dot';
+      dot.style.background = entry.genreColor;
+      meta.appendChild(dot);
+    }
     const dateLbl = document.createElement('span');
     dateLbl.className = 'record-entry-date';
     dateLbl.textContent = `${entry.d.getMonth()+1}/${entry.d.getDate()}（${DAY_JP[entry.d.getDay()]}）`;
@@ -130,9 +219,19 @@ function renderRecordsPanel() {
       textEl.textContent = entry.text;
       el.appendChild(textEl);
     }
+    if (entry.tasks.length > 0) {
+      const tasksEl = document.createElement('div');
+      tasksEl.className = 'record-entry-tasks';
+      tasksEl.textContent = '作業ログ: ' + entry.tasks.map(t => (t.done ? '✓' : '') + t.text).join(' / ');
+      el.appendChild(tasksEl);
+    }
     el.addEventListener('click', () => {
       closeRecordsPanel();
-      openRecordModal(entry.key, entry.periodLabel, entry.subjectName);
+      if (entry.type) {
+        openCellDetail(entry.dateStr, null, entry.type);
+      } else {
+        openCellDetail(entry.dateStr, entry.periodIdx, 'period');
+      }
     });
     list.appendChild(el);
   });

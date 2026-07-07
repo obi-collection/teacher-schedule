@@ -312,6 +312,27 @@ document.getElementById('cellDetailSaveBtn').addEventListener('click', () => {
   closeCellDetail();
 });
 
+// 科目行タップで選択モーダルを開き直す（削除→再入力を不要にする）。
+// 入力途中の事前/事後は失われないように先に保存する。
+document.getElementById('cellDetailSubjectRow').addEventListener('click', e => {
+  if (e.target.closest('#cellDetailRemoveBtn')) return;
+  const t = state.cellDetailTarget;
+  if (!t) return;
+  if (t.detailMode !== 'worklog') {
+    const memo = document.getElementById('cellDetailMemo').value.trim();
+    const record = document.getElementById('cellDetailRecord').value.trim();
+    if (memo) { state.notes[t.key] = memo; } else { delete state.notes[t.key]; }
+    if (record) { state.records[t.key] = record; } else { delete state.records[t.key]; }
+    save(); render();
+  }
+  closeCellDetail();
+  if (t.type === 'period') {
+    openSubjectModal(t.dateStr, t.periodIdx);
+  } else {
+    openSpecialSubjectModal(t.dateStr, t.type);
+  }
+});
+
 document.getElementById('cellDetailRemoveBtn').addEventListener('click', e => {
   e.stopPropagation();
   const t = state.cellDetailTarget;

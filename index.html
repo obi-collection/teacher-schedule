@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="時間割">
@@ -11,7 +11,7 @@
 <title>先生のスケジュール帳</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=40">
+<link rel="stylesheet" href="css/app.css?v=41">
 </head>
 <body>
 <div id="app">
@@ -20,13 +20,13 @@
   <div class="top-bar">
     <div class="top-bar-row1">
       <div class="week-nav">
-        <button id="prevWeek">‹</button>
+        <button id="prevWeek" aria-label="前の週">‹</button>
         <span class="week-label" id="weekLabel">--</span>
-        <button id="nextWeek">›</button>
+        <button id="nextWeek" aria-label="次の週">›</button>
       </div>
       <div class="top-bar-right">
-        <button class="icon-btn" id="undoBtn" title="元に戻す" style="opacity:0.3;cursor:default" disabled>↩</button>
-        <button class="icon-btn" id="openSettings" title="設定">⚙</button>
+        <button class="icon-btn" id="undoBtn" title="元に戻す" aria-label="元に戻す" style="opacity:0.3;cursor:default" disabled>↩</button>
+        <button class="icon-btn" id="openSettings" title="設定" aria-label="設定">⚙</button>
       </div>
     </div>
     <div class="top-bar-row2">
@@ -96,7 +96,7 @@
         <div class="subject-grid" id="itemGrid"></div>
         <!-- 新規追加（step2のみ） -->
         <div class="subject-add-row">
-          <input class="add-input" id="subjectNewInput" autocomplete="off">
+          <input class="add-input" id="subjectNewInput" autocomplete="off" placeholder="新しい項目名">
           <button class="add-btn" id="subjectNewAddBtn">新規追加</button>
         </div>
       </div>
@@ -104,7 +104,7 @@
       <!-- 自由入力（常時表示） -->
       <div class="form-field">
         <label class="form-label">このコマのみ自由入力（マスターに追加しない）</label>
-        <input class="form-input" id="subjectFreeText" autocomplete="off">
+        <input class="form-input" id="subjectFreeText" autocomplete="off" placeholder="例: 出張、テスト監督">
       </div>
 
       <div class="modal-actions">
@@ -122,7 +122,7 @@
       <br>
       <div class="form-field">
         <label class="form-label">タイトル</label>
-        <input class="form-input" id="eventTitle" autocomplete="off">
+        <input class="form-input" id="eventTitle" autocomplete="off" placeholder="例: 避難訓練、面談">
       </div>
       <div class="modal-actions">
         <button class="btn btn-ghost" id="cancelEventBtn">キャンセル</button>
@@ -138,7 +138,7 @@
       <div class="modal-title" id="noteModalTitle">昼休み</div>
       <div class="modal-subtitle" id="noteModalSub"></div>
       <div class="form-field">
-        <textarea class="form-input" id="noteInput" rows="3" style="resize:none;min-height:80px"></textarea>
+        <textarea class="form-input" id="noteInput" rows="3" style="resize:none;min-height:80px" placeholder="メモを入力"></textarea>
       </div>
       <div class="modal-actions">
         <button class="btn btn-danger" id="clearNoteBtn">クリア</button>
@@ -155,7 +155,7 @@
       <div class="modal-title" id="recordModalTitle">記録を追加</div>
       <div class="modal-subtitle" id="recordModalSub"></div>
       <div class="form-field">
-        <textarea class="form-input" id="recordInput" rows="4" style="resize:none;min-height:100px"></textarea>
+        <textarea class="form-input" id="recordInput" rows="4" style="resize:none;min-height:100px" placeholder="様子・振り返りなどを入力"></textarea>
       </div>
       <div class="modal-actions">
         <button class="btn btn-danger" id="clearRecordBtn">削除</button>
@@ -168,7 +168,7 @@
   <!-- SETTINGS PANEL -->
   <div class="settings-panel" id="settingsPanel">
     <div class="settings-header">
-      <button class="icon-btn" id="closeSettings">‹</button>
+      <button class="icon-btn" id="closeSettings" aria-label="戻る">‹</button>
       <h2>設定</h2>
     </div>
 
@@ -223,7 +223,7 @@
       <div class="settings-section-title">ジャンル管理</div>
       <div id="genreMasterList"></div>
       <div class="add-item-row" style="margin-top:12px">
-        <input class="add-input" id="newGenreInput">
+        <input class="add-input" id="newGenreInput" placeholder="新しいジャンル名">
         <button class="add-btn" id="addGenreBtn">追加</button>
       </div>
     </div>
@@ -269,12 +269,12 @@
   <!-- TODO PANEL -->
   <div class="settings-panel" id="todoPanel">
     <div class="settings-header">
-      <button class="icon-btn" id="closeTodoPanel">‹</button>
+      <button class="icon-btn" id="closeTodoPanel" aria-label="戻る">‹</button>
       <h2>To Do リスト</h2>
     </div>
     <div class="settings-section">
       <div class="add-item-row todo-add-row" style="margin-top:0">
-        <input class="add-input" id="newTodoInput">
+        <input class="add-input" id="newTodoInput" placeholder="やることを入力">
         <button class="add-btn" id="addTodoBtn">追加</button>
       </div>
       <div id="todoList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px"></div>
@@ -285,18 +285,18 @@
   <!-- RECORDS PANEL -->
   <div class="settings-panel" id="recordsPanel">
     <div class="settings-header">
-      <button class="icon-btn" id="closeRecordsPanelBtn">‹</button>
+      <button class="icon-btn" id="closeRecordsPanelBtn" aria-label="戻る">‹</button>
       <h2>記録 / 生徒</h2>
     </div>
-    <div style="display:flex;border-bottom:1px solid var(--border);padding:0 16px">
-      <div class="panel-tab active" id="recordsTabBtn" style="flex:1;padding:12px 0;text-align:center;font-size:14px;cursor:pointer;color:var(--accent);border-bottom:2px solid var(--accent);transition:all 0.15s">記録</div>
-      <div class="panel-tab" id="studentsTabBtn" style="flex:1;padding:12px 0;text-align:center;font-size:14px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:all 0.15s">生徒</div>
+    <div class="panel-tabs">
+      <div class="panel-tab active" id="recordsTabBtn">記録</div>
+      <div class="panel-tab" id="studentsTabBtn">生徒</div>
     </div>
     <div id="recordsTabContent">
       <div class="records-month-nav">
-        <button class="icon-btn" id="recordsPrevMonth">‹</button>
+        <button class="icon-btn" id="recordsPrevMonth" aria-label="前の月">‹</button>
         <span class="records-month-label" id="recordsMonthLabel">--</span>
-        <button class="icon-btn" id="recordsNextMonth">›</button>
+        <button class="icon-btn" id="recordsNextMonth" aria-label="次の月">›</button>
       </div>
       <div class="records-filter-row" id="recordsFilterRow"></div>
       <div class="records-list" id="recordsList"></div>
@@ -312,7 +312,7 @@
   <!-- STUDENT DETAIL PANEL -->
   <div class="settings-panel" id="studentDetailPanel">
     <div class="settings-header">
-      <button class="icon-btn" id="closeStudentDetailBtn">‹</button>
+      <button class="icon-btn" id="closeStudentDetailBtn" aria-label="戻る">‹</button>
       <h2 id="studentDetailName">生徒詳細</h2>
     </div>
     <div class="settings-section">
@@ -331,22 +331,23 @@
       <div id="cellDetailSubjectRow" class="cell-detail-subject">
         <span id="cellDetailGenreDot" class="cell-detail-genre-dot"></span>
         <span id="cellDetailSubjectName" class="cell-detail-name"></span>
+        <span class="cell-detail-change">変更 ›</span>
         <button type="button" id="cellDetailRemoveBtn" class="cell-detail-remove" aria-label="予定を削除">×</button>
       </div>
       <div class="form-field" id="cellDetailBeforeField">
         <label class="form-label">事前</label>
-        <textarea class="form-input" id="cellDetailMemo" rows="3" style="resize:none;min-height:72px"></textarea>
+        <textarea class="form-input" id="cellDetailMemo" rows="3" style="resize:none;min-height:72px" placeholder="準備・ねらいなど"></textarea>
       </div>
       <div class="form-field" id="cellDetailAfterField">
         <label class="form-label">事後</label>
-        <textarea class="form-input" id="cellDetailRecord" rows="3" style="resize:none;min-height:72px"></textarea>
+        <textarea class="form-input" id="cellDetailRecord" rows="3" style="resize:none;min-height:72px" placeholder="様子・振り返りなど"></textarea>
       </div>
       <div class="form-field" id="cellStudentField">
         <label class="form-label">生徒への用事</label>
         <div id="cellStudentList" style="margin-bottom:8px"></div>
         <div class="cell-student-add-row">
           <select class="form-input" id="cellStudentSelect"></select>
-          <input class="add-input" id="cellStudentText" autocomplete="off">
+          <input class="add-input" id="cellStudentText" autocomplete="off" placeholder="用件を入力">
           <button class="add-btn" id="cellStudentAddBtn">追加</button>
         </div>
       </div>
@@ -354,7 +355,7 @@
         <label class="form-label" id="cellTaskLabel">作業ログ</label>
         <div id="cellTaskList" style="margin-bottom:6px"></div>
         <div class="cell-task-add-row">
-          <input class="add-input" id="cellTaskInput" autocomplete="off">
+          <input class="add-input" id="cellTaskInput" autocomplete="off" placeholder="作業内容を入力">
           <button class="add-btn" id="cellTaskAddBtn">追加</button>
         </div>
       </div>
@@ -373,16 +374,16 @@
         <div style="display:flex;gap:8px;margin-bottom:10px">
           <div style="flex:1">
             <label class="form-label">開始</label>
-            <input class="form-input" type="time" id="dsStartTime" style="font-size:14px">
+            <input class="form-input" type="time" id="dsStartTime">
           </div>
           <div style="flex:1">
             <label class="form-label">終了</label>
-            <input class="form-input" type="time" id="dsEndTime" style="font-size:14px">
+            <input class="form-input" type="time" id="dsEndTime">
           </div>
         </div>
         <div class="form-field">
           <label class="form-label">内容</label>
-          <input class="form-input" id="dsContent" autocomplete="off">
+          <input class="form-input" id="dsContent" autocomplete="off" placeholder="例: 部活動、地域行事">
         </div>
         <button class="btn btn-primary" id="dsAddBtn" style="width:100%">追加</button>
       </div>
@@ -412,7 +413,7 @@
       <div class="modal-title" id="ideaMemoTitle">アイデアメモ</div>
       <div id="ideaMemoList" style="margin:12px 0 8px"></div>
       <div style="display:flex;gap:8px;margin-top:4px">
-        <input class="add-input" id="ideaMemoInput" autocomplete="off">
+        <input class="add-input" id="ideaMemoInput" autocomplete="off" placeholder="アイデアを入力">
         <button class="add-btn" id="ideaMemoAddBtn">追加</button>
       </div>
       <div class="modal-actions" style="margin-top:10px">
@@ -448,14 +449,14 @@
   </div>
 </div>
 
-<script src="js/00-core.js?v=40"></script>
-<script src="js/10-week-render.js?v=40"></script>
-<script src="js/20-cell-modals.js?v=40"></script>
-<script src="js/30-records-events.js?v=40"></script>
-<script src="js/40-settings-data.js?v=40"></script>
-<script src="js/50-todo-fixed-nav.js?v=40"></script>
-<script src="js/60-platform.js?v=40"></script>
-<script src="js/70-students.js?v=40"></script>
-<script src="js/app.js?v=40"></script>
+<script src="js/00-core.js?v=41"></script>
+<script src="js/10-week-render.js?v=41"></script>
+<script src="js/20-cell-modals.js?v=41"></script>
+<script src="js/30-records-events.js?v=41"></script>
+<script src="js/40-settings-data.js?v=41"></script>
+<script src="js/50-todo-fixed-nav.js?v=41"></script>
+<script src="js/60-platform.js?v=41"></script>
+<script src="js/70-students.js?v=41"></script>
+<script src="js/app.js?v=41"></script>
 </body>
 </html>

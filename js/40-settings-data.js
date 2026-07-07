@@ -214,6 +214,7 @@ function renderGenreMasterList() {
 
     const addInput = document.createElement('input');
     addInput.className = 'genre-add-input';
+    addInput.placeholder = '項目を追加';
 
     const addBtn = document.createElement('button');
     addBtn.className = 'genre-add-btn';

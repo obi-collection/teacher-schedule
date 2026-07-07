@@ -69,6 +69,8 @@ function renderHeaders() {
       hn.textContent = state.holidays[dk];
       el.appendChild(hn);
     }
+    // 日付ヘッダーからその日の予定一覧（なければ追加）を開く
+    el.addEventListener('click', () => openDayEventsSheet(dk));
     inner.appendChild(el);
   });
 }

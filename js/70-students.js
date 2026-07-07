@@ -3,19 +3,15 @@
 // ══════════════════════════════════════════
 
 document.getElementById('recordsTabBtn').addEventListener('click', () => {
-  document.getElementById('recordsTabBtn').style.color = 'var(--accent)';
-  document.getElementById('recordsTabBtn').style.borderBottomColor = 'var(--accent)';
-  document.getElementById('studentsTabBtn').style.color = 'var(--text3)';
-  document.getElementById('studentsTabBtn').style.borderBottomColor = 'transparent';
+  document.getElementById('recordsTabBtn').classList.add('active');
+  document.getElementById('studentsTabBtn').classList.remove('active');
   document.getElementById('recordsTabContent').style.display = '';
   document.getElementById('studentsTabContent').style.display = 'none';
 });
 
 document.getElementById('studentsTabBtn').addEventListener('click', () => {
-  document.getElementById('studentsTabBtn').style.color = 'var(--accent)';
-  document.getElementById('studentsTabBtn').style.borderBottomColor = 'var(--accent)';
-  document.getElementById('recordsTabBtn').style.color = 'var(--text3)';
-  document.getElementById('recordsTabBtn').style.borderBottomColor = 'transparent';
+  document.getElementById('studentsTabBtn').classList.add('active');
+  document.getElementById('recordsTabBtn').classList.remove('active');
   document.getElementById('studentsTabContent').style.display = '';
   document.getElementById('recordsTabContent').style.display = 'none';
   renderStudentList();

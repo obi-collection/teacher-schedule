@@ -202,7 +202,7 @@ function renderFixedTimetableGrid() {
 
 function applyFixedTimetable() {
   const days = getDaysToShow();
-  let applied = 0;
+  const targets = [];
 
   days.forEach(d => {
     const dk = dateKey(d);
@@ -213,18 +213,22 @@ function applyFixedTimetable() {
       const fixedKey = `${dw}_p${i}`;
       const cellK    = cellKey(dk, i);
       if (state.fixedTimetable[fixedKey] && !state.timetable[cellK]) {
-        state.timetable[cellK] = { ...state.fixedTimetable[fixedKey] };
-        applied++;
+        targets.push({ cellK, entry: state.fixedTimetable[fixedKey] });
       }
     });
   });
 
-  if (applied > 0) {
-    save(); render();
-    showToast(`${applied}コマに固定時間割を適用しました`);
-  } else {
+  if (targets.length === 0) {
     showToast('適用できる空きコマがありません');
+    return;
   }
+
+  saveSnapshot();
+  targets.forEach(({ cellK, entry }) => {
+    state.timetable[cellK] = { ...entry };
+  });
+  save(); render();
+  showToast(`${targets.length}コマに固定時間割を適用しました`);
 }
 
 document.getElementById('applyFixedBtn').addEventListener('click', applyFixedTimetable);
