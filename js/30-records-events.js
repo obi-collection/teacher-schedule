@@ -380,6 +380,7 @@ function openDayEventsSheet(dateStr) {
   document.getElementById('dayEventsTitle').textContent =
     `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） の予定`;
   renderDayEventsSheet(dateStr);
+  renderDayImageThumbs(document.getElementById('dayEventsPhotos'), dateStr);
   document.getElementById('dayEventsSheet').classList.add('open');
 }
 
@@ -452,6 +453,10 @@ document.getElementById('dayEventsAddTimedBtn').addEventListener('click', () => 
   const dateStr = state.dayEventsDate;
   closeDayEventsSheet();
   openDayScheduleModal(dateStr);
+});
+
+document.getElementById('dayEventsAddPhotoBtn').addEventListener('click', () => {
+  if (state.dayEventsDate) requestAddDayImage(state.dayEventsDate);
 });
 
 document.getElementById('closeDayEventsBtn').addEventListener('click', closeDayEventsSheet);

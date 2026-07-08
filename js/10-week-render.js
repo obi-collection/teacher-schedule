@@ -34,6 +34,7 @@ function render() {
   renderPeriodLabels();
   renderBody();
   if (typeof renderTodayView === 'function') renderTodayView();
+  if (typeof renderWeekImageChips === 'function') renderWeekImageChips();
 }
 
 function renderWeekLabel() {
@@ -91,6 +92,7 @@ function renderEventBanners() {
       (isHoliday ? ' holiday-col' : '');
     cell.style.width  = colW + 'px';
     cell.style.height = ph + 'px';
+    cell.dataset.date = dk;
     // User events — text-only display; tapping the row opens the day events sheet.
     state.events.map((ev, idx) => ({ev, idx})).filter(({ev}) => ev.date === dk).forEach(({ev, idx}) => {
       const chip = document.createElement('div');

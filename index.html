@@ -11,7 +11,7 @@
 <title>先生のスケジュール帳</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=43">
+<link rel="stylesheet" href="css/app.css?v=44">
 </head>
 <body>
 <div id="app">
@@ -287,6 +287,7 @@
         </button>
         <input type="file" id="importFile" accept=".json" style="display:none">
       </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.6;padding:0 2px">写真メモは端末内に保存され、JSONバックアップには含まれません。</div>
     </div>
     <div style="height:40px"></div>
   </div>
@@ -453,8 +454,10 @@
       <div class="modal-handle"></div>
       <div class="modal-title" id="dayEventsTitle"></div>
       <div id="dayEventsList" style="margin:12px 0 4px"></div>
-      <button class="btn btn-primary" id="dayEventsAddBtn" style="width:100%;margin-top:4px">＋ 予定を追加</button>
+      <div class="day-photo-grid" id="dayEventsPhotos" style="display:none"></div>
+      <button class="btn btn-primary" id="dayEventsAddBtn" style="width:100%;margin-top:8px">＋ 予定を追加</button>
       <button class="btn btn-ghost" id="dayEventsAddTimedBtn" style="width:100%;margin-top:8px">🕐 時刻を決めて追加</button>
+      <button class="btn btn-ghost" id="dayEventsAddPhotoBtn" style="width:100%;margin-top:8px">📷 写真を追加</button>
       <div class="modal-actions" style="margin-top:8px">
         <button class="btn btn-ghost" id="closeDayEventsBtn">閉じる</button>
       </div>
@@ -475,6 +478,20 @@
     </div>
   </div>
 
+  <!-- IMAGE VIEWER (写真メモ拡大表示) -->
+  <div class="modal-overlay" id="imageViewerModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="imageViewerTitle">写真</div>
+      <img id="imageViewerImg" class="image-viewer-img" alt="写真メモ">
+      <div class="modal-actions" style="margin-top:14px">
+        <button class="btn btn-danger" id="deleteImageBtn">削除</button>
+        <button class="btn btn-ghost" id="closeImageViewerBtn">閉じる</button>
+      </div>
+    </div>
+  </div>
+  <input type="file" id="dayImageInput" accept="image/*" style="display:none">
+
   <div class="toast" id="toast"></div>
 
   <!-- BACKUP REMINDER MODAL -->
@@ -489,15 +506,16 @@
   </div>
 </div>
 
-<script src="js/00-core.js?v=43"></script>
-<script src="js/10-week-render.js?v=43"></script>
-<script src="js/15-today.js?v=43"></script>
-<script src="js/20-cell-modals.js?v=43"></script>
-<script src="js/30-records-events.js?v=43"></script>
-<script src="js/40-settings-data.js?v=43"></script>
-<script src="js/50-todo-fixed-nav.js?v=43"></script>
-<script src="js/60-platform.js?v=43"></script>
-<script src="js/70-students.js?v=43"></script>
-<script src="js/app.js?v=43"></script>
+<script src="js/00-core.js?v=44"></script>
+<script src="js/05-images.js?v=44"></script>
+<script src="js/10-week-render.js?v=44"></script>
+<script src="js/15-today.js?v=44"></script>
+<script src="js/20-cell-modals.js?v=44"></script>
+<script src="js/30-records-events.js?v=44"></script>
+<script src="js/40-settings-data.js?v=44"></script>
+<script src="js/50-todo-fixed-nav.js?v=44"></script>
+<script src="js/60-platform.js?v=44"></script>
+<script src="js/70-students.js?v=44"></script>
+<script src="js/app.js?v=44"></script>
 </body>
 </html>

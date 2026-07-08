@@ -14,6 +14,7 @@ teacher-schedule/
     app.css               全スタイル。
   js/
     00-core.js            初期設定、state、保存/読込、日付/コマ時刻ユーティリティ、テーマ。
+    05-images.js          写真メモ（IndexedDB保存、圧縮、サムネイル、ビューア）。
     10-week-render.js     週表示、時間割グリッド、スクロール同期、週移動。
     15-today.js           今日ビュー（タイムライン、いま表示、明日予告）、メインビュー切替。
     20-cell-modals.js     授業選択、コマ詳細、メモ、記録入力。
@@ -34,6 +35,9 @@ teacher-schedule/
   （日付ヘッダー/★行 → 予定シート → 「時刻を決めて追加」）。データ形式は同じ。
 - テーマ: `settings.theme = 'auto' | 'light' | 'dark'`。CSS変数で切替。
   ダーク時のコマ色は `getSolidScheduleTint()` が暗い基調に混色する。
+- 写真メモ: `js/05-images.js`。localStorageの5MB上限を避けるため
+  IndexedDB（DB名 `teacher-schedule-images`）に保存。保存前に長辺1600px・
+  JPEG品質0.82へ圧縮。JSONバックアップには含まれない（端末内のみ）。
 
 ## 作業の探し方
 

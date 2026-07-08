@@ -886,6 +886,35 @@ body {
 .ds-item-time { font-size: 11px; color: var(--text3); font-family: var(--font-mono); white-space: nowrap; flex-shrink: 0; }
 .ds-item-content { flex: 1; font-size: 13px; color: var(--text); }
 
+/* Day photos (写真メモ) */
+.day-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+.day-photo-thumb {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  display: block;
+}
+.day-photo-thumb:active { opacity: 0.7; }
+.image-viewer-img {
+  width: 100%;
+  max-height: 62dvh;
+  object-fit: contain;
+  border-radius: 14px;
+  background: var(--bg3);
+  display: block;
+}
+.event-chip.photo-chip { font-size: 9px; line-height: 1.2; }
+
 /* Upcoming sheet (今後の予定一覧) */
 .upcoming-group { margin-bottom: 14px; }
 .upcoming-date-row {

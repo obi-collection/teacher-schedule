@@ -70,6 +70,13 @@ function renderTodayView() {
   addTimedBtn.addEventListener('click', () => openDayScheduleModal(dk));
   container.appendChild(addTimedBtn);
 
+  // 写真メモ（プリント・板書などをそのまま貼っておける）
+  container.appendChild(buildTodaySectionTitle('写真メモ', undefined, () => requestAddDayImage(dk)));
+  const photoGrid = tEl('div', 'day-photo-grid');
+  photoGrid.style.display = 'none';
+  container.appendChild(photoGrid);
+  renderDayImageThumbs(photoGrid, dk);
+
   // To Do
   const pending = state.todos.map((t, i) => ({ t, i })).filter(({ t }) => !t.done);
   container.appendChild(buildTodaySectionTitle('To Do', pending.length));

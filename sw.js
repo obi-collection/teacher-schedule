@@ -1,20 +1,21 @@
-const CACHE_NAME = 'teacher-schedule-v43';
+const CACHE_NAME = 'teacher-schedule-v44';
 const ASSETS = [
   './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './css/app.css?v=43',
-  './js/00-core.js?v=43',
-  './js/10-week-render.js?v=43',
-  './js/15-today.js?v=43',
-  './js/20-cell-modals.js?v=43',
-  './js/30-records-events.js?v=43',
-  './js/40-settings-data.js?v=43',
-  './js/50-todo-fixed-nav.js?v=43',
-  './js/60-platform.js?v=43',
-  './js/70-students.js?v=43',
-  './js/app.js?v=43'
+  './css/app.css?v=44',
+  './js/00-core.js?v=44',
+  './js/05-images.js?v=44',
+  './js/10-week-render.js?v=44',
+  './js/15-today.js?v=44',
+  './js/20-cell-modals.js?v=44',
+  './js/30-records-events.js?v=44',
+  './js/40-settings-data.js?v=44',
+  './js/50-todo-fixed-nav.js?v=44',
+  './js/60-platform.js?v=44',
+  './js/70-students.js?v=44',
+  './js/app.js?v=44'
 ];
 
 self.addEventListener('install', e => {
