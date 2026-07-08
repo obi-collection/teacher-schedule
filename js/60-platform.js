@@ -89,7 +89,7 @@ function scheduleNotificationsForToday() {
   const today = new Date();
   const todayStr = dateKey(today);
   const now = Date.now();
-  const periods = state.settings.periods;
+  const periods = getPeriodsForDate(todayStr);
   const showMTST = state.settings.showMTST !== false;
 
   function todayAt(timeStr) {

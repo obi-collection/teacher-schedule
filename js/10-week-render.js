@@ -67,6 +67,12 @@ function renderHeaders() {
       hn.textContent = state.holidays[dk];
       el.appendChild(hn);
     }
+    if (getDayTimeMode(dk) === 'short') {
+      const sb = document.createElement('span');
+      sb.className = 'day-short-badge';
+      sb.textContent = '45分';
+      el.appendChild(sb);
+    }
     // 日付ヘッダーからその日の予定一覧（なければ追加）を開く
     el.addEventListener('click', () => openDayEventsSheet(dk));
     inner.appendChild(el);

@@ -380,9 +380,18 @@ function openDayEventsSheet(dateStr) {
   document.getElementById('dayEventsTitle').textContent =
     `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） の予定`;
   renderDayEventsSheet(dateStr);
+  document.getElementById('dayShortToggle').checked = getDayTimeMode(dateStr) === 'short';
   renderDayImageThumbs(document.getElementById('dayEventsPhotos'), dateStr);
   document.getElementById('dayEventsSheet').classList.add('open');
 }
+
+document.getElementById('dayShortToggle').addEventListener('change', function() {
+  const dateStr = state.dayEventsDate;
+  if (!dateStr) return;
+  setDayTimeMode(dateStr, this.checked ? 'short' : 'normal');
+  render();
+  showToast(this.checked ? '45分授業に設定しました' : '通常時程に戻しました');
+});
 
 function closeDayEventsSheet() {
   document.getElementById('dayEventsSheet').classList.remove('open');

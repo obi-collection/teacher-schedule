@@ -41,7 +41,8 @@ const DEFAULTS = {
   ideaMemos: {},
   cellTasks: {},
   students: [],
-  cellStudents: {}
+  cellStudents: {},
+  dayTimeModes: {}
 };
 
 // ══════════════════════════════════════════
@@ -63,6 +64,7 @@ let state = {
   cellTasks: {},
   students: [],
   cellStudents: {},
+  dayTimeModes: {},
   currentWeekStart: null,
   // Subject modal
   selectedCell: null,
@@ -107,7 +109,8 @@ const STORAGE_KEYS = {
   ideaMemos: 'ts_ideaMemos',
   cellTasks: 'ts_cellTasks',
   students: 'ts_students',
-  cellStudents: 'ts_cellStudents'
+  cellStudents: 'ts_cellStudents',
+  dayTimeModes: 'ts_dayTimeModes'
 };
 
 const BACKUP_VERSION = 3;
@@ -132,7 +135,8 @@ function buildBackupData() {
     ideaMemos: state.ideaMemos,
     cellTasks: state.cellTasks,
     students: state.students,
-    cellStudents: state.cellStudents
+    cellStudents: state.cellStudents,
+    dayTimeModes: state.dayTimeModes
   };
 }
 
@@ -161,7 +165,8 @@ function normalizeBackupData(data) {
     ideaMemos: isPlainObject(data.ideaMemos) ? data.ideaMemos : {},
     cellTasks: isPlainObject(data.cellTasks) ? data.cellTasks : {},
     students: Array.isArray(data.students) ? data.students : [],
-    cellStudents: isPlainObject(data.cellStudents) ? data.cellStudents : {}
+    cellStudents: isPlainObject(data.cellStudents) ? data.cellStudents : {},
+    dayTimeModes: isPlainObject(data.dayTimeModes) ? data.dayTimeModes : {}
   };
 }
 
@@ -339,6 +344,47 @@ function cellKey(dateStr, period) { return `${dateStr}_p${period}`; }
 const DAY_NAMES = ['日','月','火','水','木','金','土'];
 
 // ══════════════════════════════════════════
+// DAY TIME MODE（45分授業などの短縮時程）
+// ══════════════════════════════════════════
+
+// 短縮時程: 各コマ5分短く、i限目の開始は5×i分繰り上げ
+// （休み時間の長さを保ったまま全体が前倒しになる）
+const SHORT_LESSON_CUT = 5;
+
+function shiftTimeStr(t, deltaMin) {
+  const m = parseTimeToMin(t);
+  if (m === null) return t;
+  const mm = Math.max(0, m + deltaMin);
+  return `${String(Math.floor(mm / 60)).padStart(2, '0')}:${String(mm % 60).padStart(2, '0')}`;
+}
+
+function getDayTimeMode(dateStr) {
+  return state.dayTimeModes[dateStr] === 'short' ? 'short' : 'normal';
+}
+
+function setDayTimeMode(dateStr, mode) {
+  if (mode === 'short') {
+    state.dayTimeModes[dateStr] = 'short';
+  } else {
+    delete state.dayTimeModes[dateStr];
+  }
+  save();
+  if (dateStr === dateKey(new Date()) && typeof scheduleNotificationsForToday === 'function') {
+    scheduleNotificationsForToday();
+  }
+}
+
+// その日の時限一覧（短縮日は自動で繰り上げた時刻を返す）
+function getPeriodsForDate(dateStr) {
+  const base = state.settings.periods;
+  if (getDayTimeMode(dateStr) !== 'short') return base;
+  return base.map((p, i) => ({
+    start: shiftTimeStr(p.start, -SHORT_LESSON_CUT * i),
+    end: shiftTimeStr(p.end, -SHORT_LESSON_CUT * (i + 1))
+  }));
+}
+
+// ══════════════════════════════════════════
 // DAY SLOTS（1日のコマ構成 + 現在地判定）
 // ══════════════════════════════════════════
 
@@ -355,7 +401,7 @@ function formatMin(min) {
 
 // その日のコマ（MT/各時限/昼休み/ST/放課後）を時刻付きで順に返す
 function buildDaySlots(dateStr) {
-  const periods = state.settings.periods;
+  const periods = getPeriodsForDate(dateStr);
   const showMTST = state.settings.showMTST !== false;
   const lunchAfterIdx = Math.min(3, periods.length - 1);
   const slots = [];

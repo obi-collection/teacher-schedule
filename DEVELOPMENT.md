@@ -67,7 +67,11 @@ ts_ideaMemos
 ts_cellTasks
 ts_students
 ts_cellStudents
+ts_dayTimeModes
 ```
+
+`ts_dayTimeModes` は日付ごとの時程（`'short'` = 45分授業）。
+短縮日の時刻は `getPeriodsForDate()` が「各コマ−5分・i限は5×i分繰り上げ」で導出する。
 
 インポート前には現在の状態を `ts_preImportBackup` に自動退避します。
 壊れたJSONを検出した場合は、元データを `*_corrupt_タイムスタンプ` に退避して、そのキーを読み飛ばします。

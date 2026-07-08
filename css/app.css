@@ -250,6 +250,24 @@ body {
   background: rgba(255, 255, 255, 0.18);
   padding: 3px 10px; border-radius: 12px;
 }
+.hero-mode-chip {
+  margin-left: auto;
+  font-size: 11px; font-weight: 700;
+  font-family: var(--font-body);
+  color: var(--hero-text);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: 5px 11px; border-radius: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.hero-mode-chip:active { background: rgba(255, 255, 255, 0.3); }
+.hero-mode-chip.short {
+  background: #ffd166;
+  border-color: transparent;
+  color: #5a4200;
+}
 .today-hero-status { margin-top: 12px; display: flex; flex-direction: column; gap: 5px; }
 .today-hero-now { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .today-hero-now .now-dot {
@@ -466,6 +484,12 @@ body {
 .day-col-header:active { background: var(--bg3); }
 .day-name { font-size: 10px; color: var(--text3); letter-spacing: 0.05em; }
 .day-num { font-family: var(--font-mono); font-size: 17px; font-weight: 500; color: var(--text2); line-height: 1; }
+.day-short-badge {
+  font-size: 8px; font-weight: 700; line-height: 1.1;
+  color: #8a6400;
+  background: rgba(255, 209, 102, 0.55);
+  padding: 1px 5px; border-radius: 6px;
+}
 
 /* 今日マーカー */
 .day-col-header.today .day-num {

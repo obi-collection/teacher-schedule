@@ -27,12 +27,13 @@ function openSubjectModal(dateStr, periodIdx) {
 
   document.getElementById('subjectNewInput').value = '';
 
-  const p = state.settings.periods[periodIdx];
+  const p = getPeriodsForDate(dateStr)[periodIdx];
+  const shortMark = getDayTimeMode(dateStr) === 'short' ? '（45分）' : '';
   const d = new Date(dateStr + 'T00:00:00');
   document.getElementById('subjectModalTitle').textContent =
     `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}）`;
   document.getElementById('subjectModalSub').textContent =
-    `${periodIdx+1}限 ${p.start}〜${p.end}`;
+    `${periodIdx+1}限 ${p.start}〜${p.end}${shortMark}`;
 
   renderModalStep();
   document.getElementById('subjectModal').classList.add('open');

@@ -112,6 +112,18 @@ function buildTodayHero(today, dk) {
   top.appendChild(tEl('span', 'today-hero-date', `${today.getMonth() + 1}月${today.getDate()}日`));
   top.appendChild(tEl('span', 'today-hero-dow', `${DAY_NAMES[today.getDay()]}曜日`));
   if (state.holidays[dk]) top.appendChild(tEl('span', 'today-hero-holiday', state.holidays[dk]));
+  // 時程切替チップ（通常 ⇄ 45分授業）
+  if (isSchoolDay(today, dk)) {
+    const isShort = getDayTimeMode(dk) === 'short';
+    const modeChip = tEl('button', 'hero-mode-chip' + (isShort ? ' short' : ''), isShort ? '45分授業' : '通常時程');
+    modeChip.addEventListener('click', () => {
+      const next = getDayTimeMode(dk) === 'short' ? 'normal' : 'short';
+      setDayTimeMode(dk, next);
+      render();
+      showToast(next === 'short' ? '今日を45分授業に切り替えました' : '通常時程に戻しました');
+    });
+    top.appendChild(modeChip);
+  }
   hero.appendChild(top);
 
   const status = tEl('div', 'today-hero-status');
