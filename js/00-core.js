@@ -42,7 +42,8 @@ const DEFAULTS = {
   cellTasks: {},
   students: [],
   cellStudents: {},
-  dayTimeModes: {}
+  dayTimeModes: {},
+  hiddenSlots: {}
 };
 
 // ══════════════════════════════════════════
@@ -65,7 +66,9 @@ let state = {
   students: [],
   cellStudents: {},
   dayTimeModes: {},
+  hiddenSlots: {},
   currentWeekStart: null,
+  todayViewDate: null,
   // Subject modal
   selectedCell: null,
   fixedCell: null,
@@ -110,7 +113,8 @@ const STORAGE_KEYS = {
   cellTasks: 'ts_cellTasks',
   students: 'ts_students',
   cellStudents: 'ts_cellStudents',
-  dayTimeModes: 'ts_dayTimeModes'
+  dayTimeModes: 'ts_dayTimeModes',
+  hiddenSlots: 'ts_hiddenSlots'
 };
 
 const BACKUP_VERSION = 3;
@@ -136,7 +140,8 @@ function buildBackupData() {
     cellTasks: state.cellTasks,
     students: state.students,
     cellStudents: state.cellStudents,
-    dayTimeModes: state.dayTimeModes
+    dayTimeModes: state.dayTimeModes,
+    hiddenSlots: state.hiddenSlots
   };
 }
 
@@ -166,7 +171,8 @@ function normalizeBackupData(data) {
     cellTasks: isPlainObject(data.cellTasks) ? data.cellTasks : {},
     students: Array.isArray(data.students) ? data.students : [],
     cellStudents: isPlainObject(data.cellStudents) ? data.cellStudents : {},
-    dayTimeModes: isPlainObject(data.dayTimeModes) ? data.dayTimeModes : {}
+    dayTimeModes: isPlainObject(data.dayTimeModes) ? data.dayTimeModes : {},
+    hiddenSlots: isPlainObject(data.hiddenSlots) ? data.hiddenSlots : {}
   };
 }
 
@@ -397,6 +403,27 @@ function parseTimeToMin(t) {
 function formatMin(min) {
   if (min === null || min === undefined) return '';
   return `${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')}`;
+}
+
+// ── 空き枠の非表示（5・6限がない日など）──
+
+function slotHideId(slot) {
+  return slot.type === 'period' ? `p${slot.index}` : slot.type;
+}
+
+function getHiddenSlotIds(dateStr) {
+  return state.hiddenSlots[dateStr] || [];
+}
+
+function hideSlotForDay(dateStr, slotId) {
+  if (!state.hiddenSlots[dateStr]) state.hiddenSlots[dateStr] = [];
+  if (!state.hiddenSlots[dateStr].includes(slotId)) state.hiddenSlots[dateStr].push(slotId);
+  save();
+}
+
+function unhideAllSlotsForDay(dateStr) {
+  delete state.hiddenSlots[dateStr];
+  save();
 }
 
 // その日のコマ（MT/各時限/昼休み/ST/放課後）を時刻付きで順に返す

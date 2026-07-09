@@ -36,20 +36,35 @@ function isSchoolDay(d, dk) {
   return (!isWeekend && !isHoliday) || (isWeekend && state.settings.weekendPeriods);
 }
 
+// 今日ビューで表示中の日付（今日以外の日も閲覧・入力できる）
+function getTodayViewDate() {
+  return state.todayViewDate
+    ? new Date(state.todayViewDate + 'T00:00:00')
+    : new Date();
+}
+
+function moveTodayView(deltaDays) {
+  const next = addDays(getTodayViewDate(), deltaDays);
+  const nk = dateKey(next);
+  state.todayViewDate = nk === dateKey(new Date()) ? null : nk;
+  renderTodayView();
+}
+
 function renderTodayView() {
   const container = document.getElementById('todayScroll');
   if (!container) return;
   if (!document.getElementById('app').classList.contains('mode-today')) return;
 
-  const today = new Date();
-  const dk = dateKey(today);
+  const viewDate = getTodayViewDate();
+  const dk = dateKey(viewDate);
+  const isActualToday = dk === dateKey(new Date());
   container.innerHTML = '';
 
-  container.appendChild(buildTodayHero(today, dk));
+  container.appendChild(buildTodayHero(viewDate, dk, isActualToday));
 
   // ★予定（終日）
   const events = state.events.map((ev, idx) => ({ ev, idx })).filter(({ ev }) => ev.date === dk);
-  container.appendChild(buildTodaySectionTitle('今日の予定', events.length, () => openEventModal(dk), () => openUpcomingSheet()));
+  container.appendChild(buildTodaySectionTitle(isActualToday ? '今日の予定' : 'この日の予定', events.length, () => openEventModal(dk), () => openUpcomingSheet()));
   if (events.length > 0) {
     const wrap = tEl('div', 'today-events');
     events.forEach(({ ev, idx }) => {
@@ -64,7 +79,7 @@ function renderTodayView() {
 
   // タイムライン
   container.appendChild(buildTodaySectionTitle('タイムライン'));
-  container.appendChild(buildTodayTimeline(today, dk));
+  container.appendChild(buildTodayTimeline(viewDate, dk, isActualToday));
 
   const addTimedBtn = tEl('button', 'today-add-btn', '＋ 時刻を決めて予定を追加（面談・出張など）');
   addTimedBtn.addEventListener('click', () => openDayScheduleModal(dk));
@@ -82,8 +97,8 @@ function renderTodayView() {
   container.appendChild(buildTodaySectionTitle('To Do', pending.length));
   container.appendChild(buildTodayTodos(pending));
 
-  // 明日の予告
-  const peek = buildTomorrowPeek(today);
+  // 翌日の予告
+  const peek = buildTomorrowPeek(viewDate);
   if (peek) container.appendChild(peek);
 }
 
@@ -106,30 +121,53 @@ function buildTodaySectionTitle(label, count, onAdd, onList) {
   return el;
 }
 
-function buildTodayHero(today, dk) {
+function buildTodayHero(viewDate, dk, isActualToday) {
   const hero = tEl('div', 'today-hero');
+
+  // 日付行（‹ 日付 ›）
   const top = tEl('div', 'today-hero-top');
-  top.appendChild(tEl('span', 'today-hero-date', `${today.getMonth() + 1}月${today.getDate()}日`));
-  top.appendChild(tEl('span', 'today-hero-dow', `${DAY_NAMES[today.getDay()]}曜日`));
-  if (state.holidays[dk]) top.appendChild(tEl('span', 'today-hero-holiday', state.holidays[dk]));
-  // 時程切替チップ（通常 ⇄ 45分授業）
-  if (isSchoolDay(today, dk)) {
+  const prevBtn = tEl('button', 'hero-nav-btn', '‹');
+  prevBtn.setAttribute('aria-label', '前の日');
+  prevBtn.addEventListener('click', () => moveTodayView(-1));
+  const dateWrap = tEl('div', 'today-hero-datewrap');
+  dateWrap.appendChild(tEl('span', 'today-hero-date', `${viewDate.getMonth() + 1}月${viewDate.getDate()}日`));
+  dateWrap.appendChild(tEl('span', 'today-hero-dow', `${DAY_NAMES[viewDate.getDay()]}曜日`));
+  const nextBtn = tEl('button', 'hero-nav-btn', '›');
+  nextBtn.setAttribute('aria-label', '次の日');
+  nextBtn.addEventListener('click', () => moveTodayView(1));
+  top.appendChild(prevBtn);
+  top.appendChild(dateWrap);
+  top.appendChild(nextBtn);
+  hero.appendChild(top);
+
+  // チップ行（祝日 / 今日に戻る / 時程切替）
+  const chipRow = tEl('div', 'today-hero-chips');
+  if (state.holidays[dk]) chipRow.appendChild(tEl('span', 'today-hero-holiday', state.holidays[dk]));
+  if (!isActualToday) {
+    const backChip = tEl('button', 'hero-mode-chip', '今日に戻る');
+    backChip.addEventListener('click', () => {
+      state.todayViewDate = null;
+      renderTodayView();
+    });
+    chipRow.appendChild(backChip);
+  }
+  if (isSchoolDay(viewDate, dk)) {
     const isShort = getDayTimeMode(dk) === 'short';
     const modeChip = tEl('button', 'hero-mode-chip' + (isShort ? ' short' : ''), isShort ? '45分授業' : '通常時程');
     modeChip.addEventListener('click', () => {
       const next = getDayTimeMode(dk) === 'short' ? 'normal' : 'short';
       setDayTimeMode(dk, next);
       render();
-      showToast(next === 'short' ? '今日を45分授業に切り替えました' : '通常時程に戻しました');
+      showToast(next === 'short' ? '45分授業に切り替えました' : '通常時程に戻しました');
     });
-    top.appendChild(modeChip);
+    chipRow.appendChild(modeChip);
   }
-  hero.appendChild(top);
+  if (chipRow.childNodes.length > 0) hero.appendChild(chipRow);
 
   const status = tEl('div', 'today-hero-status');
-  const schoolDay = isSchoolDay(today, dk);
+  const schoolDay = isSchoolDay(viewDate, dk);
 
-  if (schoolDay) {
+  if (isActualToday && schoolDay) {
     const { nowMin, current, next } = getNowStatus();
     const nowLine = tEl('div', 'today-hero-now');
     if (current) {
@@ -155,14 +193,23 @@ function buildTodayHero(today, dk) {
       nowLine.appendChild(tEl('span', '', '今日の予定は終了。おつかれさまでした'));
       status.appendChild(nowLine);
     }
-  } else {
-    const entries = (state.daySchedules[dk] || []).slice().sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+  } else if (isActualToday) {
+    const entries = (state.daySchedules[dk] || []);
     const nowLine = tEl('div', 'today-hero-now');
-    if (entries.length > 0) {
-      nowLine.appendChild(tEl('span', '', `今日の予定 ${entries.length}件`));
-    } else {
-      nowLine.appendChild(tEl('span', '', '今日はお休み。ゆっくり過ごしましょう'));
-    }
+    nowLine.appendChild(tEl('span', '', entries.length > 0
+      ? `今日の予定 ${entries.length}件`
+      : '今日はお休み。ゆっくり過ごしましょう'));
+    status.appendChild(nowLine);
+  } else {
+    // 今日以外の日: その日の概要を表示
+    const filled = state.settings.periods.filter((p, i) => state.timetable[cellKey(dk, i)]).length;
+    const evCount = state.events.filter(e => e.date === dk).length;
+    const timedCount = (state.daySchedules[dk] || []).length;
+    const parts = [];
+    if (schoolDay && filled > 0) parts.push(`授業・予定 ${filled}コマ`);
+    if (evCount + timedCount > 0) parts.push(`予定 ${evCount + timedCount}件`);
+    const nowLine = tEl('div', 'today-hero-now');
+    nowLine.appendChild(tEl('span', '', parts.length ? parts.join('　') : 'まだ予定はありません'));
     status.appendChild(nowLine);
   }
   hero.appendChild(status);
@@ -173,20 +220,37 @@ function buildTodayHero(today, dk) {
   const meta = tEl('div', 'today-hero-meta');
   meta.appendChild(tEl('span', '', `記録 ${recordCount}件`));
   const pendingTodos = state.todos.filter(t => !t.done).length;
-  if (pendingTodos > 0) meta.appendChild(tEl('span', '', `To Do 残り${pendingTodos}件`));
+  if (isActualToday && pendingTodos > 0) meta.appendChild(tEl('span', '', `To Do 残り${pendingTodos}件`));
   hero.appendChild(meta);
   return hero;
 }
 
-function buildTodayTimeline(today, dk) {
+// スロットに何か入力があるか（空でなければ非表示にしない/できない）
+function slotHasContent(slot) {
+  const key = slot.key;
+  if ((slot.type === 'period' || slot.type === 'after') && state.timetable[key]) return true;
+  if (state.notes[key] || state.records[key]) return true;
+  if ((state.cellTasks[key] || []).length > 0) return true;
+  if ((state.cellStudents[key] || []).length > 0) return true;
+  return false;
+}
+
+function buildTodayTimeline(viewDate, dk, isActualToday) {
   const tl = tEl('div', 'tl');
-  const schoolDay = isSchoolDay(today, dk);
-  const { nowMin, current } = getNowStatus();
+  const schoolDay = isSchoolDay(viewDate, dk);
+  const { nowMin, current } = isActualToday ? getNowStatus() : { nowMin: -1, current: null };
+  const hiddenIds = getHiddenSlotIds(dk);
+  const hiddenLabels = [];
 
   const items = [];
 
   if (schoolDay) {
     buildDaySlots(dk).forEach(slot => {
+      // 非表示にした枠はスキップ（後から中身が入った枠は表示に戻す）
+      if (hiddenIds.includes(slotHideId(slot)) && !slotHasContent(slot)) {
+        hiddenLabels.push(slot.label);
+        return;
+      }
       items.push({ sortMin: slot.startMin !== null ? slot.startMin : 24 * 60, kind: 'slot', slot });
     });
   }
@@ -199,24 +263,37 @@ function buildTodayTimeline(today, dk) {
   items.sort((a, b) => a.sortMin - b.sortMin);
 
   if (items.length === 0) {
-    const empty = tEl('div', 'today-empty-note', '今日はコマがありません。下のボタンから予定を追加できます');
+    const empty = tEl('div', 'today-empty-note', 'この日はコマがありません。下のボタンから予定を追加できます');
     tl.appendChild(empty);
-    return tl;
   }
 
   items.forEach(item => {
     if (item.kind === 'slot') {
-      tl.appendChild(buildSlotCard(item.slot, dk, nowMin, current));
+      tl.appendChild(buildSlotCard(item.slot, dk, nowMin, current, isActualToday));
     } else {
-      tl.appendChild(buildTimedCard(item.entry, dk, nowMin));
+      tl.appendChild(buildTimedCard(item.entry, dk, nowMin, isActualToday));
     }
   });
+
+  // 非表示にした枠の復元行
+  if (hiddenLabels.length > 0) {
+    const row = tEl('div', 'tl-hidden-row');
+    row.appendChild(tEl('span', 'tl-hidden-label', `非表示：${hiddenLabels.join('・')}`));
+    const restore = tEl('button', 'tl-hidden-restore', '戻す');
+    restore.addEventListener('click', () => {
+      unhideAllSlotsForDay(dk);
+      renderTodayView();
+      showToast('非表示にした枠を戻しました');
+    });
+    row.appendChild(restore);
+    tl.appendChild(row);
+  }
   return tl;
 }
 
-function buildSlotCard(slot, dk, nowMin, current) {
-  const isNow = current && current.key === slot.key && current.type === slot.type;
-  const isPast = !isNow && slot.endMin !== null && nowMin >= slot.endMin;
+function buildSlotCard(slot, dk, nowMin, current, isActualToday) {
+  const isNow = isActualToday && current && current.key === slot.key && current.type === slot.type;
+  const isPast = isActualToday && !isNow && slot.endMin !== null && nowMin >= slot.endMin;
 
   const item = tEl('div', 'tl-item' + (isNow ? ' now' : '') + (isPast ? ' past' : ''));
 
@@ -293,6 +370,20 @@ function buildSlotCard(slot, dk, nowMin, current) {
     card.appendChild(badges);
   }
 
+  // 空き枠は×で非表示にできる（5・6限がない日など）
+  const hasContent = !!entry || !!noteText || !!recordText || tasks.length > 0 || students.length > 0;
+  if (!hasContent) {
+    const hideBtn = tEl('button', 'tl-hide-btn', '×');
+    hideBtn.setAttribute('aria-label', `${slot.label}の枠を非表示にする`);
+    hideBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      hideSlotForDay(dk, slotHideId(slot));
+      renderTodayView();
+      showToast(`${slot.label}の枠を非表示にしました`);
+    });
+    card.appendChild(hideBtn);
+  }
+
   card.addEventListener('click', () => {
     if (slot.type === 'period') {
       if (entry) openCellDetail(dk, slot.index, 'period');
@@ -309,10 +400,10 @@ function buildSlotCard(slot, dk, nowMin, current) {
   return item;
 }
 
-function buildTimedCard(entry, dk, nowMin) {
+function buildTimedCard(entry, dk, nowMin, isActualToday) {
   const startMin = parseTimeToMin(entry.startTime);
   const endMin = parseTimeToMin(entry.endTime);
-  const isPast = endMin !== null ? nowMin >= endMin : (startMin !== null && nowMin >= startMin + 60);
+  const isPast = isActualToday && (endMin !== null ? nowMin >= endMin : (startMin !== null && nowMin >= startMin + 60));
 
   const item = tEl('div', 'tl-item timed' + (isPast ? ' past' : ''));
   const time = tEl('div', 'tl-time');
@@ -362,8 +453,8 @@ function buildTodayTodos(pending) {
   return card;
 }
 
-function buildTomorrowPeek(today) {
-  const tmr = addDays(today, 1);
+function buildTomorrowPeek(viewDate) {
+  const tmr = addDays(viewDate, 1);
   const dk = dateKey(tmr);
   const parts = [];
 
@@ -375,15 +466,13 @@ function buildTomorrowPeek(today) {
   timed.slice(0, 2).forEach(e => parts.push(`${e.startTime || ''} ${e.content}`.trim()));
   if (state.holidays[dk]) parts.unshift(state.holidays[dk]);
 
+  const isTomorrowOfToday = dateKey(viewDate) === dateKey(new Date());
   const card = tEl('div', 'tomorrow-card');
-  card.appendChild(tEl('span', 'tomorrow-label', `明日 ${tmr.getMonth() + 1}/${tmr.getDate()}（${DAY_NAMES[tmr.getDay()]}）`));
+  card.appendChild(tEl('span', 'tomorrow-label',
+    `${isTomorrowOfToday ? '明日' : '翌日'} ${tmr.getMonth() + 1}/${tmr.getDate()}（${DAY_NAMES[tmr.getDay()]}）`));
   card.appendChild(tEl('span', 'tomorrow-text', parts.length ? parts.join('・') : '予定はまだありません'));
   card.appendChild(tEl('span', 'tomorrow-arrow', '›'));
-  card.addEventListener('click', () => {
-    state.currentWeekStart = getWeekStart(tmr);
-    save();
-    setMainView('week');
-  });
+  card.addEventListener('click', () => moveTodayView(1));
   return card;
 }
 
@@ -391,5 +480,6 @@ document.getElementById('navToday').addEventListener('click', () => {
   closeTodoPanel();
   closeSettingsPanel();
   closeRecordsPanel();
+  state.todayViewDate = null; // タブを押したら常に「今日」へ
   setMainView('today');
 });

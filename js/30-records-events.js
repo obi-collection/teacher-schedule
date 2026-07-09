@@ -255,20 +255,30 @@ document.getElementById('navRecords').addEventListener('click', openRecordsPanel
 // DAY SCHEDULE MODAL (休日・土日の複数予定)
 // ══════════════════════════════════════════
 
+// 編集中の時刻予定ID（リストのタップで下のフォームに読み込む）
+let editingDayScheduleId = null;
+
+function resetDayScheduleForm() {
+  editingDayScheduleId = null;
+  document.getElementById('dsStartTime').value = '';
+  document.getElementById('dsEndTime').value   = '';
+  document.getElementById('dsContent').value   = '';
+  document.getElementById('dsAddBtn').textContent = '追加';
+}
+
 function openDayScheduleModal(dateStr) {
   state.dayScheduleDate = dateStr;
   const d = new Date(dateStr + 'T00:00:00');
   document.getElementById('dayScheduleTitle').textContent =
     `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}）`;
-  document.getElementById('dsStartTime').value = '';
-  document.getElementById('dsEndTime').value   = '';
-  document.getElementById('dsContent').value   = '';
+  resetDayScheduleForm();
   renderDayScheduleList(dateStr);
   document.getElementById('dayScheduleModal').classList.add('open');
 }
 
 function closeDayScheduleModal() {
   document.getElementById('dayScheduleModal').classList.remove('open');
+  resetDayScheduleForm();
   state.dayScheduleDate = null;
 }
 
@@ -288,7 +298,7 @@ function renderDayScheduleList(dateStr) {
     const origArr = state.daySchedules[dateStr];
     const origIdx = origArr.findIndex(e => e.id === entry.id);
     const item = document.createElement('div');
-    item.className = 'ds-item';
+    item.className = 'ds-item' + (editingDayScheduleId === entry.id ? ' editing' : '');
     const timeEl = document.createElement('span');
     timeEl.className = 'ds-item-time';
     timeEl.textContent = entry.startTime
@@ -300,11 +310,22 @@ function renderDayScheduleList(dateStr) {
     const delBtn = document.createElement('button');
     delBtn.className = 'ds-item-del';
     delBtn.textContent = '✕';
-    delBtn.addEventListener('click', () => {
+    delBtn.addEventListener('click', e => {
+      e.stopPropagation();
       saveSnapshot();
       origArr.splice(origIdx, 1);
       if (origArr.length === 0) delete state.daySchedules[dateStr];
+      if (editingDayScheduleId === entry.id) resetDayScheduleForm();
       save(); render(); renderDayScheduleList(dateStr);
+    });
+    // タップで下のフォームに読み込んで修正できる
+    item.addEventListener('click', () => {
+      editingDayScheduleId = entry.id;
+      document.getElementById('dsStartTime').value = entry.startTime || '';
+      document.getElementById('dsEndTime').value   = entry.endTime || '';
+      document.getElementById('dsContent').value   = entry.content;
+      document.getElementById('dsAddBtn').textContent = 'この内容で更新';
+      renderDayScheduleList(dateStr);
     });
     item.appendChild(timeEl);
     item.appendChild(contentEl);
@@ -319,6 +340,19 @@ document.getElementById('dsAddBtn').addEventListener('click', () => {
   const content = document.getElementById('dsContent').value.trim();
   if (!content) { showToast('内容を入力してください'); return; }
   saveSnapshot();
+  if (editingDayScheduleId !== null) {
+    // 既存の予定を更新
+    const entry = (state.daySchedules[dateStr] || []).find(e => e.id === editingDayScheduleId);
+    if (entry) {
+      entry.startTime = document.getElementById('dsStartTime').value;
+      entry.endTime   = document.getElementById('dsEndTime').value;
+      entry.content   = content;
+    }
+    resetDayScheduleForm();
+    save(); render(); renderDayScheduleList(dateStr);
+    showToast('更新しました');
+    return;
+  }
   if (!state.daySchedules[dateStr]) state.daySchedules[dateStr] = [];
   state.daySchedules[dateStr].push({
     id: Date.now(),
@@ -326,9 +360,7 @@ document.getElementById('dsAddBtn').addEventListener('click', () => {
     endTime:   document.getElementById('dsEndTime').value,
     content
   });
-  document.getElementById('dsStartTime').value = '';
-  document.getElementById('dsEndTime').value   = '';
-  document.getElementById('dsContent').value   = '';
+  resetDayScheduleForm();
   save(); render(); renderDayScheduleList(dateStr);
   showToast('追加しました');
 });
@@ -349,8 +381,23 @@ function openEventDetail(ev, evIdx) {
   document.getElementById('eventDetailTitle').textContent = ev.title;
   document.getElementById('eventDetailMeta').textContent =
     `${d.getMonth()+1}/${d.getDate()}（${DAY_NAMES[d.getDay()]}） ${catLabel}`;
+  document.getElementById('eventDetailEditInput').value = ev.title;
   document.getElementById('eventDetailModal').classList.add('open');
 }
+
+document.getElementById('saveEventDetailBtn').addEventListener('click', () => {
+  const idx = state.selectedEventDetailIdx;
+  if (idx === null || !state.events[idx]) return;
+  const title = document.getElementById('eventDetailEditInput').value.trim();
+  if (!title) { showToast('名前を入力してください'); return; }
+  if (title !== state.events[idx].title) {
+    saveSnapshot();
+    state.events[idx].title = title;
+    save(); render();
+    showToast('予定名を変更しました');
+  }
+  closeEventDetail();
+});
 
 function closeEventDetail() {
   document.getElementById('eventDetailModal').classList.remove('open');
