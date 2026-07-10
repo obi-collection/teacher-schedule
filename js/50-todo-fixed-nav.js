@@ -208,8 +208,8 @@ function applyFixedTimetable() {
   days.forEach(d => {
     const dk = dateKey(d);
     const dw = d.getDay();
-    // Skip holidays (no classes on holidays)
-    if (state.holidays[dk]) return;
+    // Skip holidays and vacations (no classes)
+    if (state.holidays[dk] || getVacationForDate(dk)) return;
     state.settings.periods.forEach((p, i) => {
       const fixedKey = `${dw}_p${i}`;
       const cellK    = cellKey(dk, i);

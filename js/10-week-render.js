@@ -66,6 +66,15 @@ function renderHeaders() {
       hn.className = 'day-holiday-name';
       hn.textContent = state.holidays[dk];
       el.appendChild(hn);
+    } else {
+      const vac = getVacationForDate(dk);
+      if (vac && dw !== 0 && dw !== 6) {
+        el.classList.add('vacation');
+        const vn = document.createElement('span');
+        vn.className = 'day-vacation-name';
+        vn.textContent = vac.name || '休み';
+        el.appendChild(vn);
+      }
     }
     if (getDayTimeMode(dk) === 'short') {
       const sb = document.createElement('span');
@@ -95,7 +104,8 @@ function renderEventBanners() {
     cell.className = 'day-events-cell' +
       (dk === todayKey ? ' today-col' : '') +
       (dw === 6 ? ' sat-col' : dw === 0 ? ' sun-col' : '') +
-      (isHoliday ? ' holiday-col' : '');
+      (isHoliday ? ' holiday-col' : '') +
+      (getVacationForDate(dk) && !isWeekend && !isHoliday ? ' vacation-col' : '');
     cell.style.width  = colW + 'px';
     cell.style.height = ph + 'px';
     cell.dataset.date = dk;
@@ -106,8 +116,9 @@ function renderEventBanners() {
       chip.textContent = ev.title;
       cell.appendChild(chip);
     });
-    // 時刻指定の予定（平日の授業日のみ。休日はコマ側に表示される）
-    const showPeriods = (!isWeekend && !isHoliday) || (isWeekend && state.settings.weekendPeriods);
+    // 時刻指定の予定（平日の授業日のみ。休日・長期休みはコマ側に表示される）
+    const showPeriods = !getVacationForDate(dk) &&
+      ((!isWeekend && !isHoliday) || (isWeekend && state.settings.weekendPeriods));
     if (showPeriods) {
       (state.daySchedules[dk] || []).slice()
         .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''))
@@ -214,13 +225,16 @@ function renderBody() {
     const isToday = dk === todayKey;
     const isWeekend = dw === 0 || dw === 6;
     const isHoliday = !isWeekend && !!state.holidays[dk];
-    const showPeriods = !isWeekend && !isHoliday || (isWeekend && state.settings.weekendPeriods);
+    const vacation = getVacationForDate(dk);
+    const showPeriods = !vacation &&
+      ((!isWeekend && !isHoliday) || (isWeekend && state.settings.weekendPeriods));
 
     const col = document.createElement('div');
     col.className = 'day-col-body' +
       (isToday ? ' today-col' : '') +
       (dw === 6 ? ' sat-col' : dw === 0 ? ' sun-col' : '') +
-      (state.holidays[dk] && dw !== 0 && dw !== 6 ? ' holiday-col' : '');
+      (state.holidays[dk] && dw !== 0 && dw !== 6 ? ' holiday-col' : '') +
+      (vacation && !isWeekend && !isHoliday ? ' vacation-col' : '');
     col.style.width = colW + 'px';
 
     const showMTST = state.settings.showMTST !== false;
@@ -302,6 +316,11 @@ function renderBody() {
         const hint = document.createElement('div');
         hint.className = 'note-empty-label';
         hint.textContent = state.holidays[dk] || '祝日';
+        cell.appendChild(hint);
+      } else if (vacation && !isWeekend) {
+        const hint = document.createElement('div');
+        hint.className = 'note-empty-label';
+        hint.textContent = vacation.name || '長期休み';
         cell.appendChild(hint);
       }
       cell.addEventListener('click', () => openDayScheduleModal(dk));

@@ -18,9 +18,92 @@ function renderSettings() {
   document.getElementById('showMTSTSetting').checked = state.settings.showMTST !== false;
   document.getElementById('notificationSetting').checked = state.settings.notifications !== false;
   renderPeriodSettingsList();
+  renderVacationList();
   renderGenreMasterList();
   renderFixedTimetableGrid();
 }
+
+// ══════════════════════════════════════════
+// VACATIONS（長期休み）
+// ══════════════════════════════════════════
+
+function renderVacationList() {
+  const list = document.getElementById('vacationList');
+  if (!list) return;
+  list.innerHTML = '';
+  if (state.vacations.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--text3);font-size:12px;padding:8px 0';
+    empty.textContent = '登録された期間はありません';
+    list.appendChild(empty);
+    return;
+  }
+  state.vacations.forEach((v, i) => {
+    const card = document.createElement('div');
+    card.className = 'vacation-card';
+
+    const nameRow = document.createElement('div');
+    nameRow.className = 'vacation-name-row';
+    const nameInput = document.createElement('input');
+    nameInput.className = 'add-input';
+    nameInput.value = v.name || '';
+    nameInput.placeholder = '例: 夏休み';
+    nameInput.addEventListener('change', () => {
+      state.vacations[i].name = nameInput.value.trim();
+      save(); render();
+    });
+    const delBtn = document.createElement('button');
+    delBtn.className = 'master-item-del';
+    delBtn.textContent = '✕';
+    delBtn.setAttribute('aria-label', '期間を削除');
+    delBtn.addEventListener('click', () => {
+      state.vacations.splice(i, 1);
+      save(); render(); renderVacationList();
+    });
+    nameRow.appendChild(nameInput);
+    nameRow.appendChild(delBtn);
+    card.appendChild(nameRow);
+
+    const dateRow = document.createElement('div');
+    dateRow.className = 'vacation-date-row';
+    const startInput = document.createElement('input');
+    startInput.type = 'date';
+    startInput.className = 'form-input vacation-date-input';
+    startInput.value = v.start || '';
+    const sep = document.createElement('span');
+    sep.className = 'time-sep';
+    sep.textContent = '〜';
+    const endInput = document.createElement('input');
+    endInput.type = 'date';
+    endInput.className = 'form-input vacation-date-input';
+    endInput.value = v.end || '';
+    function onDateChange() {
+      let s = startInput.value;
+      let e = endInput.value;
+      if (s && e && s > e) { const t = s; s = e; e = t; } // 逆順は入れ替え
+      state.vacations[i].start = s;
+      state.vacations[i].end = e;
+      save(); render(); renderVacationList();
+    }
+    startInput.addEventListener('change', onDateChange);
+    endInput.addEventListener('change', onDateChange);
+    dateRow.appendChild(startInput);
+    dateRow.appendChild(sep);
+    dateRow.appendChild(endInput);
+    card.appendChild(dateRow);
+
+    list.appendChild(card);
+  });
+}
+
+document.getElementById('addVacationBtn').addEventListener('click', () => {
+  state.vacations.push({ id: Date.now(), name: '', start: '', end: '' });
+  save();
+  renderVacationList();
+  // 追加した行の名前欄にフォーカス
+  const inputs = document.querySelectorAll('#vacationList .vacation-name-row .add-input');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+});
 
 document.getElementById('themeSetting').addEventListener('change', function() {
   state.settings.theme = this.value;

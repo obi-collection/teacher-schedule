@@ -30,6 +30,7 @@ function tEl(tag, cls, text) {
 }
 
 function isSchoolDay(d, dk) {
+  if (getVacationForDate(dk)) return false; // 長期休み中は時間割なし
   const dw = d.getDay();
   const isWeekend = dw === 0 || dw === 6;
   const isHoliday = !isWeekend && !!state.holidays[dk];
@@ -140,9 +141,11 @@ function buildTodayHero(viewDate, dk, isActualToday) {
   top.appendChild(nextBtn);
   hero.appendChild(top);
 
-  // チップ行（祝日 / 今日に戻る / 時程切替）
+  // チップ行（祝日 / 長期休み / 今日に戻る / 時程切替）
   const chipRow = tEl('div', 'today-hero-chips');
   if (state.holidays[dk]) chipRow.appendChild(tEl('span', 'today-hero-holiday', state.holidays[dk]));
+  const heroVacation = getVacationForDate(dk);
+  if (heroVacation) chipRow.appendChild(tEl('span', 'today-hero-holiday', heroVacation.name || '長期休み'));
   if (!isActualToday) {
     const backChip = tEl('button', 'hero-mode-chip', '今日に戻る');
     backChip.addEventListener('click', () => {
@@ -196,9 +199,12 @@ function buildTodayHero(viewDate, dk, isActualToday) {
   } else if (isActualToday) {
     const entries = (state.daySchedules[dk] || []);
     const nowLine = tEl('div', 'today-hero-now');
+    const restLabel = heroVacation
+      ? `${heroVacation.name || '長期休み'}中。ゆっくり過ごしましょう`
+      : '今日はお休み。ゆっくり過ごしましょう';
     nowLine.appendChild(tEl('span', '', entries.length > 0
       ? `今日の予定 ${entries.length}件`
-      : '今日はお休み。ゆっくり過ごしましょう'));
+      : restLabel));
     status.appendChild(nowLine);
   } else {
     // 今日以外の日: その日の概要を表示

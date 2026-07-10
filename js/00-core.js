@@ -43,7 +43,8 @@ const DEFAULTS = {
   students: [],
   cellStudents: {},
   dayTimeModes: {},
-  hiddenSlots: {}
+  hiddenSlots: {},
+  vacations: []
 };
 
 // ══════════════════════════════════════════
@@ -67,6 +68,7 @@ let state = {
   cellStudents: {},
   dayTimeModes: {},
   hiddenSlots: {},
+  vacations: [],
   currentWeekStart: null,
   todayViewDate: null,
   // Subject modal
@@ -114,7 +116,8 @@ const STORAGE_KEYS = {
   students: 'ts_students',
   cellStudents: 'ts_cellStudents',
   dayTimeModes: 'ts_dayTimeModes',
-  hiddenSlots: 'ts_hiddenSlots'
+  hiddenSlots: 'ts_hiddenSlots',
+  vacations: 'ts_vacations'
 };
 
 const BACKUP_VERSION = 3;
@@ -141,7 +144,8 @@ function buildBackupData() {
     students: state.students,
     cellStudents: state.cellStudents,
     dayTimeModes: state.dayTimeModes,
-    hiddenSlots: state.hiddenSlots
+    hiddenSlots: state.hiddenSlots,
+    vacations: state.vacations
   };
 }
 
@@ -172,7 +176,8 @@ function normalizeBackupData(data) {
     students: Array.isArray(data.students) ? data.students : [],
     cellStudents: isPlainObject(data.cellStudents) ? data.cellStudents : {},
     dayTimeModes: isPlainObject(data.dayTimeModes) ? data.dayTimeModes : {},
-    hiddenSlots: isPlainObject(data.hiddenSlots) ? data.hiddenSlots : {}
+    hiddenSlots: isPlainObject(data.hiddenSlots) ? data.hiddenSlots : {},
+    vacations: Array.isArray(data.vacations) ? data.vacations : []
   };
 }
 
@@ -403,6 +408,16 @@ function parseTimeToMin(t) {
 function formatMin(min) {
   if (min === null || min === undefined) return '';
   return `${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')}`;
+}
+
+// ── 長期休み（夏休み・冬休み・春休み）──
+// 期間中は平日も時間割（◯限）を表示せず、土日と同じ予定リストになる
+
+function getVacationForDate(dateStr) {
+  if (!Array.isArray(state.vacations)) return null;
+  return state.vacations.find(v =>
+    v && v.start && v.end && v.start <= dateStr && dateStr <= v.end
+  ) || null;
 }
 
 // ── 空き枠の非表示（5・6限がない日など）──

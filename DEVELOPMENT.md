@@ -75,6 +75,9 @@ ts_dayTimeModes
 `ts_hiddenSlots` は今日ビューで×で消した空き枠（日付ごとの `['p5','p6',...]`）。
 中身が入った枠は自動的に再表示される。今日ビューは `state.todayViewDate` で
 任意の日付を表示できる（null = 今日、‹›で日送り）。
+`ts_vacations` は長期休み（`[{id, name, start, end}]`）。期間中の平日は
+`getVacationForDate()` により土日・祝日と同じ「予定リスト表示」になり、
+時間割・固定適用・通知の対象外になる。
 
 インポート前には現在の状態を `ts_preImportBackup` に自動退避します。
 壊れたJSONを検出した場合は、元データを `*_corrupt_タイムスタンプ` に退避して、そのキーを読み飛ばします。

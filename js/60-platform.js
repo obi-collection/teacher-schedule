@@ -88,6 +88,7 @@ function scheduleNotificationsForToday() {
 
   const today = new Date();
   const todayStr = dateKey(today);
+  if (getVacationForDate(todayStr)) return; // 長期休み中は通知しない
   const now = Date.now();
   const periods = getPeriodsForDate(todayStr);
   const showMTST = state.settings.showMTST !== false;
