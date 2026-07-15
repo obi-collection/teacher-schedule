@@ -82,8 +82,11 @@ function renderHeaders() {
       sb.textContent = '45分';
       el.appendChild(sb);
     }
-    // 日付ヘッダーからその日の予定一覧（なければ追加）を開く
-    el.addEventListener('click', () => openDayEventsSheet(dk));
+    // 日付ヘッダーのタップでその日の「今日ビュー」へ（予定一覧は★行から）
+    el.addEventListener('click', () => {
+      state.todayViewDate = dk === todayKey ? null : dk;
+      setMainView('today');
+    });
     inner.appendChild(el);
   });
 }

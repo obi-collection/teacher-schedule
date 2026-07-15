@@ -27,6 +27,8 @@
   --shadow-soft: 0 1px 2px rgba(46, 38, 20, 0.05);
   --shadow-sheet: 0 -10px 44px rgba(46, 38, 20, 0.20);
   --hero-grad: linear-gradient(135deg, #564ae4 0%, #6e58ec 55%, #8f66ee 100%);
+  --hero-grad-sat: linear-gradient(135deg, #2e7bc4 0%, #4a97d9 55%, #63aee6 100%);
+  --hero-grad-sun: linear-gradient(135deg, #cc4c2c 0%, #dd6a42 55%, #e8895f 100%);
   --hero-text: #ffffff;
   --hero-text-dim: rgba(255, 255, 255, 0.72);
   --overlay: rgba(28, 22, 10, 0.42);
@@ -64,6 +66,8 @@
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-sheet: 0 -10px 44px rgba(0, 0, 0, 0.55);
   --hero-grad: linear-gradient(135deg, #443acb 0%, #5d4bdd 55%, #7d55dd 100%);
+  --hero-grad-sat: linear-gradient(135deg, #235d97 0%, #3878ae 55%, #4c8dc2 100%);
+  --hero-grad-sun: linear-gradient(135deg, #a33d22 0%, #ba5334 55%, #c96945 100%);
   --hero-text: #ffffff;
   --hero-text-dim: rgba(255, 255, 255, 0.68);
   --overlay: rgba(0, 0, 0, 0.55);
@@ -95,6 +99,8 @@
     --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-sheet: 0 -10px 44px rgba(0, 0, 0, 0.55);
     --hero-grad: linear-gradient(135deg, #443acb 0%, #5d4bdd 55%, #7d55dd 100%);
+    --hero-grad-sat: linear-gradient(135deg, #235d97 0%, #3878ae 55%, #4c8dc2 100%);
+    --hero-grad-sun: linear-gradient(135deg, #a33d22 0%, #ba5334 55%, #c96945 100%);
     --hero-text: #ffffff;
     --hero-text-dim: rgba(255, 255, 255, 0.68);
     --overlay: rgba(0, 0, 0, 0.55);
@@ -229,6 +235,8 @@ body {
   position: relative;
   overflow: hidden;
 }
+.today-hero.hero-sat { background: var(--hero-grad-sat); }
+.today-hero.hero-sun { background: var(--hero-grad-sun); }
 .today-hero::after {
   content: '';
   position: absolute; right: -36px; top: -36px;
@@ -969,6 +977,22 @@ body {
 .ds-entry-block + .ds-entry-block { border-top: 1px solid var(--border); margin-top: 2px; padding-top: 3px; }
 .ds-entry-time-line { font-size: 10px; font-family: var(--font-mono); color: var(--text3); line-height: 1.3; white-space: nowrap; }
 .ds-entry-content { font-size: 10px; color: var(--text2); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all; }
+
+/* Day schedule quick chips（部活などのよく使う予定） */
+.ds-quick-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+.ds-quick-chip {
+  padding: 8px 15px;
+  border-radius: 16px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 12.5px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.ds-quick-chip:active { opacity: 0.7; }
+.ds-quick-chip.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); font-weight: 500; }
 
 /* Day schedule modal list items */
 .ds-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg2); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 6px; cursor: pointer; }

@@ -264,6 +264,7 @@ function resetDayScheduleForm() {
   document.getElementById('dsEndTime').value   = '';
   document.getElementById('dsContent').value   = '';
   document.getElementById('dsAddBtn').textContent = '追加';
+  document.querySelectorAll('#dsQuickRow .ds-quick-chip').forEach(c => c.classList.remove('active'));
 }
 
 function openDayScheduleModal(dateStr) {
@@ -333,6 +334,27 @@ function renderDayScheduleList(dateStr) {
     list.appendChild(item);
   });
 }
+
+// よく使う予定のクイック入力チップ
+const DS_QUICK_LABELS = ['部活', '会議', '面談', '出張', '研修'];
+(function initDsQuickChips() {
+  const row = document.getElementById('dsQuickRow');
+  if (!row) return;
+  DS_QUICK_LABELS.forEach(label => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'ds-quick-chip';
+    chip.textContent = label;
+    chip.addEventListener('click', () => {
+      document.getElementById('dsContent').value = label;
+      row.querySelectorAll('.ds-quick-chip').forEach(c => c.classList.toggle('active', c === chip));
+    });
+    row.appendChild(chip);
+  });
+  document.getElementById('dsContent').addEventListener('input', () => {
+    row.querySelectorAll('.ds-quick-chip').forEach(c => c.classList.remove('active'));
+  });
+})();
 
 document.getElementById('dsAddBtn').addEventListener('click', () => {
   const dateStr = state.dayScheduleDate;

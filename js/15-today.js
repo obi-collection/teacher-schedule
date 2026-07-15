@@ -123,7 +123,12 @@ function buildTodaySectionTitle(label, count, onAdd, onList) {
 }
 
 function buildTodayHero(viewDate, dk, isActualToday) {
-  const hero = tEl('div', 'today-hero');
+  // 土曜=青系 / 日曜・祝日=朱色系 のグラデーションで判別しやすく
+  const dw = viewDate.getDay();
+  let heroClass = 'today-hero';
+  if (dw === 0 || state.holidays[dk]) heroClass += ' hero-sun';
+  else if (dw === 6) heroClass += ' hero-sat';
+  const hero = tEl('div', heroClass);
 
   // 日付行（‹ 日付 ›）
   const top = tEl('div', 'today-hero-top');
